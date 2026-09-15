@@ -26,8 +26,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      const isValid =
-        cpf === FAKE_USER.cpf && password === FAKE_USER.password;
+      const isValid = cpf === FAKE_USER.cpf && password === FAKE_USER.password;
       if (isValid) {
         router.push("/pedidos");
         return;
@@ -38,10 +37,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--color-bg-canvas)] px-4 py-10 sm:px-6">
-      <div className="animate-fade-in-up flex w-full max-w-100 flex-col gap-6 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-10 shadow-lg">
+    <main className="flex min-h-screen items-center justify-center bg-(--color-bg-canvas) px-4 py-10 sm:px-6">
+      <div className="animate-fade-in-up flex w-full max-w-100 flex-col gap-6 rounded-xl border border-(--color-border-subtle) bg-(--color-bg-surface) p-10 shadow-lg">
         <div className="flex flex-col items-center gap-2 text-center">
-          <p className="font-display text-h2 text-[color:var(--color-text-primary)]">
+          <p className="font-display text-h2 text-(--color-text-primary)">
             ComandaFácil
           </p>
           <p className="text-body-sm text-(--color-text-secondary)">
@@ -63,7 +62,7 @@ export default function LoginPage() {
 
           <p
             aria-live="polite"
-            className={`min-h-5 text-body-sm text-[color:var(--color-status-danger-text)] transition-opacity duration-150 motion-reduce:transition-none ${
+            className={`min-h-5 text-body-sm text-(--color-status-danger-text) transition-opacity duration-150 motion-reduce:transition-none ${
               formError ? "opacity-100" : "opacity-0"
             }`}
           >

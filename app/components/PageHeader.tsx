@@ -11,12 +11,10 @@ export default function PageHeader({
 }: PageHeaderProps) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <h1 className="font-display text-h3 text-[color:var(--color-text-primary)]">
+      <h1 className="font-display text-h3 text-(--color-text-primary)">
         {title}
       </h1>
-      <p className="text-body-md text-[color:var(--color-text-secondary)]">
-        {subtitle}
-      </p>
+      <p className="text-body-md text-(--color-text-secondary)">{subtitle}</p>
     </div>
   );
 }
