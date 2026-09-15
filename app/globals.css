@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Fonts — see app/layout.tsx for the next/font/google setup */
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-display: var(--font-fraunces);
+
+  /* Color primitives (ramps) */
+  --color-red-50: #fef2f1;
+  --color-red-100: #fde1de;
+  --color-red-200: #fbc7c1;
+  --color-red-300: #f7a29a;
+  --color-red-400: #f17468;
+  --color-red-500: #e64a3b;
+  --color-red-600: #cc3323;
+  --color-red-700: #a8281b;
+  --color-red-800: #86231a;
+  --color-red-900: #6e1f19;
+
+  --color-orange-50: #fff6ed;
+  --color-orange-100: #ffe9d3;
+  --color-orange-200: #ffcfa3;
+  --color-orange-300: #ffae6b;
+  --color-orange-400: #fa8b3c;
+  --color-orange-500: #f2711c;
+  --color-orange-600: #dd5a0f;
+  --color-orange-700: #b7440d;
+  --color-orange-800: #923612;
+  --color-orange-900: #772e12;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde58a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f2a60d;
+  --color-amber-600: #d0850a;
+  --color-amber-700: #a8650d;
+  --color-amber-800: #895011;
+  --color-amber-900: #714212;
+
+  --color-neutral-50: #faf8f7;
+  --color-neutral-100: #f2eeec;
+  --color-neutral-200: #e3dcd9;
+  --color-neutral-300: #ccc1bc;
+  --color-neutral-400: #a89c96;
+  --color-neutral-500: #83766f;
+  --color-neutral-600: #665a54;
+  --color-neutral-700: #4a413c;
+  --color-neutral-800: #332c29;
+  --color-neutral-900: #211c1a;
+
+  /* green/blue ramps skip 300–400 in the design — only the shades below are on-theme */
+  --color-green-50: #effaf3;
+  --color-green-100: #d7f2e1;
+  --color-green-200: #a9e4c1;
+  --color-green-500: #22a35a;
+  --color-green-600: #178048;
+  --color-green-700: #116832;
+  --color-green-800: #0d5228;
+  --color-green-900: #0a4020;
+
+  --color-blue-50: #eef5ff;
+  --color-blue-100: #d9e9ff;
+  --color-blue-200: #b3d3ff;
+  --color-blue-500: #2f7de0;
+  --color-blue-600: #2464b8;
+  --color-blue-700: #1d4f93;
+  --color-blue-800: #1a3f73;
+  --color-blue-900: #152f55;
+
+  /* Type scale */
+  --text-display: 40px;
+  --text-display--line-height: 48px;
+  --text-display--letter-spacing: -0.5px;
+
+  --text-h2: 28px;
+  --text-h2--line-height: 36px;
+  --text-h2--letter-spacing: -0.25px;
+
+  --text-h3: 20px;
+  --text-h3--line-height: 28px;
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+
+  --text-body-sm: 12px;
+  --text-body-sm--line-height: 16px;
+
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--letter-spacing: 0.1px;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.2px;
+
+  --text-button: 14px;
+  --text-button--line-height: 20px;
+  --text-button--letter-spacing: 0.1px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadows */
+  --shadow-sm: 0px 2px 6px -1px rgba(20, 13, 10, 0.1);
+  --shadow-md: 0px 8px 16px -2px rgba(20, 13, 10, 0.14);
+  --shadow-lg: 0px 16px 32px -4px rgba(20, 13, 10, 0.18);
+}
+
+/* Semantic tokens — light/dark. Not registered in @theme on purpose (they
+   name a *role*, not a scale), so use them as bg-[var(--color-bg-canvas)],
+   text-[color:var(--color-text-primary)], etc. */
+:root {
+  --color-bg-canvas: var(--color-neutral-50);
+  --color-bg-surface: #ffffff;
+  --color-bg-sidebar: #ffffff;
+  --color-bg-surface-elevated: #ffffff;
+
+  --color-brand-primary: var(--color-red-500);
+  --color-brand-accent-orange: var(--color-orange-500);
+  --color-brand-accent-amber: var(--color-amber-500);
+
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-tertiary: var(--color-neutral-400);
+
+  --color-border-subtle: var(--color-neutral-100);
+  --color-border-default: var(--color-neutral-200);
+  --color-border-focus: var(--color-red-500);
+
+  --color-bg-input: var(--color-neutral-50);
+
+  --color-action-danger: var(--color-red-600);
+  --color-action-danger-hover: var(--color-red-700);
+  --color-brand-primary-hover: var(--color-red-600);
+  --color-text-brand: var(--color-red-600);
+
+  --color-status-neutral-bg: var(--color-neutral-100);
+  --color-status-neutral-border: var(--color-neutral-200);
+  --color-status-neutral-text: var(--color-neutral-700);
+
+  --color-status-success-bg: var(--color-green-50);
+  --color-status-success-border: var(--color-green-200);
+  --color-status-success-text: var(--color-green-700);
+
+  --color-status-warning-bg: var(--color-amber-50);
+  --color-status-warning-border: var(--color-amber-200);
+  --color-status-warning-text: var(--color-amber-700);
+
+  --color-status-danger-bg: var(--color-red-50);
+  --color-status-danger-border: var(--color-red-200);
+  --color-status-danger-text: var(--color-red-700);
+
+  --color-status-info-bg: var(--color-blue-50);
+  --color-status-info-border: var(--color-blue-200);
+  --color-status-info-text: var(--color-blue-700);
+}
+
+.dark {
+  --color-bg-canvas: #0b0808;
+  --color-bg-surface: #140f0e;
+  --color-bg-sidebar: #140f0e;
+  --color-bg-surface-elevated: var(--color-neutral-900);
+
+  --color-brand-primary: var(--color-red-500);
+  --color-brand-accent-orange: var(--color-orange-400);
+  --color-brand-accent-amber: var(--color-amber-400);
+
+  --color-text-primary: var(--color-neutral-50);
+  --color-text-secondary: var(--color-neutral-300);
+  --color-text-tertiary: var(--color-neutral-500);
+
+  --color-border-subtle: var(--color-neutral-900);
+  --color-border-default: var(--color-neutral-800);
+  --color-border-focus: var(--color-red-500);
+
+  --color-bg-input: var(--color-neutral-800);
+
+  --color-action-danger: var(--color-red-500);
+  --color-action-danger-hover: var(--color-red-400);
+  --color-brand-primary-hover: var(--color-red-400);
+  --color-text-brand: var(--color-red-400);
+
+  --color-status-neutral-bg: var(--color-neutral-800);
+  --color-status-neutral-border: var(--color-neutral-700);
+  --color-status-neutral-text: var(--color-neutral-200);
+
+  --color-status-success-bg: var(--color-green-900);
+  --color-status-success-border: var(--color-green-700);
+  --color-status-success-text: var(--color-green-200);
+
+  --color-status-warning-bg: var(--color-amber-900);
+  --color-status-warning-border: var(--color-amber-700);
+  --color-status-warning-text: var(--color-amber-200);
+
+  --color-status-danger-bg: var(--color-red-900);
+  --color-status-danger-border: var(--color-red-700);
+  --color-status-danger-text: var(--color-red-200);
+
+  --color-status-info-bg: var(--color-blue-900);
+  --color-status-info-border: var(--color-blue-700);
+  --color-status-info-text: var(--color-blue-200);
+}
+
+body {
+  background-color: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+}
+
+/* Entrance animation for content that fades/slides in on mount (cards,
+   sections, route content) — keep this the only entrance timing in the app. */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+  }
+}
+
+/* Hides the scrollbar visually while keeping the element scrollable
+   (wheel/touch/keyboard) — use on scrollable containers where a visible
+   scrollbar would clash with the design, e.g. modal content. */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
