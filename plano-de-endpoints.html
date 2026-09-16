@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de endpoints — ComandaFácil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f6f4;
+  --superficie:#ffffff;
+  --borda:#e3e3de;
+  --borda-forte:#cfcfc8;
+  --texto:#1c1c1a;
+  --texto-suave:#6b6b63;
+  --texto-fraco:#96968c;
+  --acento:#c2410c;
+  --acento-suave:#fff1e9;
+  --ok:#15803d;
+  --ok-suave:#eaf6ee;
+  --aviso:#a16207;
+  --aviso-suave:#fdf6e3;
+  --erro:#b91c1c;
+  --erro-suave:#fdeceb;
+  --info:#1d4ed8;
+  --info-suave:#eaf0fe;
+  --raio:10px;
+  --raio-sm:6px;
+  --sombra:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--texto);
+  line-height:1.55;padding:32px 20px 80px;
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:920px;margin:0 auto}
+code,pre,.mono{font-family:"IBM Plex Mono","SF Mono",Menlo,monospace}
+
+/* ---------- cabeçalho ---------- */
+header{margin-bottom:28px}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.subtitulo{color:var(--texto-suave);font-size:14px}
+.subtitulo strong{color:var(--texto);font-weight:600}
+
+/* ---------- jornada ---------- */
+.jornada{
+  background:var(--superficie);border:1px solid var(--borda);
+  border-radius:var(--raio);padding:18px 20px;margin:24px 0;box-shadow:var(--sombra);
+}
+.jornada h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--texto-suave);margin-bottom:4px}
+.jornada .nota{font-size:12.5px;color:var(--texto-fraco);margin-bottom:16px}
+.trilha{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-top:1px dashed var(--borda)}
+.trilha:first-of-type{border-top:none;padding-top:0}
+.ator{
+  font-size:12px;font-weight:600;min-width:104px;flex-shrink:0;padding-top:5px;
+  color:var(--texto);
+}
+.ator small{display:block;font-weight:400;font-size:10.5px;color:var(--texto-fraco);text-transform:uppercase;letter-spacing:.04em}
+.passos{display:flex;flex-wrap:wrap;align-items:center;gap:5px;flex:1}
+.passo{
+  display:inline-flex;align-items:center;gap:6px;background:var(--bg);
+  border:1px solid var(--borda);border-radius:99px;padding:4px 10px 4px 11px;
+  font-size:12.5px;white-space:nowrap;
+}
+.passo .rotas{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;
+  color:var(--acento);background:var(--acento-suave);padding:1px 5px;border-radius:4px;
+}
+.passo.vazio{border-style:dashed;color:var(--texto-fraco)}
+.passo.vazio .rotas{color:var(--aviso);background:var(--aviso-suave)}
+.seta{color:var(--texto-fraco);font-size:11px;flex-shrink:0}
+
+/* ---------- decisões ---------- */
+.decisoes{
+  background:var(--superficie);border:1px solid var(--borda);
+  border-radius:var(--raio);padding:18px 20px;margin:24px 0;box-shadow:var(--sombra);
+}
+.decisoes h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--texto-suave);margin-bottom:14px}
+.grade-decisoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 24px}
+.decisao .rotulo{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--texto-fraco);margin-bottom:2px}
+.decisao .valor{font-size:13.5px;font-weight:500}
+.decisao .valor.assumido::after{
+  content:"assumido";font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  background:var(--aviso-suave);color:var(--aviso);padding:1px 6px;border-radius:4px;margin-left:6px;
+}
+
+/* ---------- progresso ---------- */
+.painel-progresso{
+  background:var(--superficie);border:1px solid var(--borda);
+  border-radius:var(--raio);padding:16px 20px;margin-bottom:20px;box-shadow:var(--sombra);
+}
+.linha-progresso{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:12px;flex-wrap:wrap}
+.contagem{font-size:14px;font-weight:600}
+.contagem span{color:var(--texto-suave);font-weight:400}
+.barra{height:5px;background:var(--borda);border-radius:99px;overflow:hidden}
+.barra-preenchida{height:100%;background:var(--ok);border-radius:99px;transition:width .3s ease;width:0}
+.acoes-progresso{display:flex;gap:8px}
+.btn-texto{
+  background:none;border:none;color:var(--texto-suave);font-family:inherit;font-size:12.5px;
+  cursor:pointer;padding:2px 4px;border-radius:4px;
+}
+.btn-texto:hover{color:var(--texto);background:var(--bg)}
+.btn-texto:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+/* ---------- filtros ---------- */
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+.filtro{
+  background:var(--superficie);border:1px solid var(--borda);color:var(--texto-suave);
+  font-family:inherit;font-size:12.5px;padding:5px 12px;border-radius:99px;cursor:pointer;transition:.15s;
+}
+.filtro:hover{border-color:var(--borda-forte);color:var(--texto)}
+.filtro[aria-pressed="true"]{background:var(--texto);border-color:var(--texto);color:#fff}
+.filtro:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+/* ---------- fases ---------- */
+.fase{margin-bottom:34px}
+.cabecalho-fase{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.numero-fase{
+  width:22px;height:22px;border-radius:50%;background:var(--texto);color:#fff;
+  display:grid;place-items:center;font-size:11px;font-weight:600;flex-shrink:0;
+}
+.cabecalho-fase h2{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.descricao-fase{font-size:13px;color:var(--texto-suave);margin:0 0 14px 32px}
+
+/* ---------- endpoint ---------- */
+.endpoint{
+  background:var(--superficie);border:1px solid var(--borda);border-radius:var(--raio);
+  margin-bottom:8px;overflow:hidden;box-shadow:var(--sombra);transition:.15s;
+}
+.endpoint:hover{border-color:var(--borda-forte)}
+.endpoint.feito{opacity:.62}
+.endpoint.feito .caminho{text-decoration:line-through;text-decoration-color:var(--texto-fraco)}
+
+.topo-endpoint{display:flex;align-items:center;gap:12px;padding:13px 16px}
+.marcador{
+  appearance:none;width:17px;height:17px;border:1.5px solid var(--borda-forte);border-radius:5px;
+  cursor:pointer;flex-shrink:0;position:relative;background:var(--superficie);transition:.15s;
+}
+.marcador:hover{border-color:var(--ok)}
+.marcador:checked{background:var(--ok);border-color:var(--ok)}
+.marcador:checked::after{
+  content:"";position:absolute;left:5px;top:1.5px;width:4px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+.marcador:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+.ordem{font-size:11px;color:var(--texto-fraco);font-weight:600;min-width:18px;text-align:right}
+
+.metodo{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;letter-spacing:.04em;
+  padding:3px 7px;border-radius:4px;flex-shrink:0;
+}
+.metodo.get{background:var(--info-suave);color:var(--info)}
+.metodo.post{background:var(--ok-suave);color:var(--ok)}
+.metodo.patch{background:var(--aviso-suave);color:var(--aviso)}
+.metodo.put{background:var(--aviso-suave);color:var(--aviso)}
+.metodo.delete{background:var(--erro-suave);color:var(--erro)}
+
+.caminho{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:500;flex-shrink:0}
+.caminho em{color:var(--acento);font-style:normal}
+.titulo-endpoint{font-size:13px;color:var(--texto-suave);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.papeis{display:flex;gap:4px;flex-shrink:0}
+.papel{
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;
+  padding:2px 6px;border-radius:4px;background:var(--bg);color:var(--texto-suave);border:1px solid var(--borda);
+}
+.papel.publico{background:var(--acento-suave);color:var(--acento);border-color:transparent}
+
+.alternar{
+  background:none;border:none;cursor:pointer;color:var(--texto-fraco);padding:4px;
+  border-radius:4px;display:grid;place-items:center;flex-shrink:0;
+}
+.alternar:hover{color:var(--texto);background:var(--bg)}
+.alternar:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+.alternar svg{transition:transform .2s ease}
+.endpoint[open-detalhe] .alternar svg{transform:rotate(180deg)}
+
+/* ---------- detalhe ---------- */
+.detalhe{display:none;border-top:1px solid var(--borda);padding:18px 16px 16px 16px;background:#fcfcfb}
+.endpoint[open-detalhe] .detalhe{display:block}
+
+.bloco{margin-bottom:18px}
+.bloco:last-child{margin-bottom:0}
+.bloco h3{
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--texto-fraco);margin-bottom:7px;
+}
+.bloco p{font-size:13.5px;color:var(--texto)}
+
+.porque{
+  background:var(--acento-suave);border-left:2px solid var(--acento);
+  padding:10px 14px;border-radius:0 var(--raio-sm) var(--raio-sm) 0;font-size:13px;
+}
+.porque strong{color:var(--acento);font-weight:600}
+
+.regras{list-style:none;display:flex;flex-direction:column;gap:6px}
+.regras li{font-size:13.5px;padding-left:16px;position:relative}
+.regras li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--borda-forte)}
+.regras li.critica::before{background:var(--erro)}
+.regras li.critica{font-weight:500}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{
+  text-align:left;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--texto-fraco);padding:0 10px 6px 0;border-bottom:1px solid var(--borda);
+}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--borda);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.campo{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
+td.tipo{font-family:"IBM Plex Mono",monospace;color:var(--texto-suave);white-space:nowrap}
+.obrigatorio{color:var(--erro);font-weight:600}
+.opcional{color:var(--texto-fraco);font-size:11px}
+
+pre{
+  background:#1c1c1a;color:#e8e8e3;padding:12px 14px;border-radius:var(--raio-sm);
+  font-size:12px;line-height:1.6;overflow-x:auto;
+}
+pre .chave{color:#9ecbff}
+pre .texto{color:#a5d6a7}
+pre .numero{color:#ffcc80}
+pre .booleano{color:#ce93d8}
+
+.codigos{display:flex;flex-direction:column;gap:6px}
+.codigo{display:flex;gap:10px;align-items:baseline;font-size:13px}
+.status{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;
+  padding:2px 7px;border-radius:4px;flex-shrink:0;min-width:38px;text-align:center;
+}
+.status.s2{background:var(--ok-suave);color:var(--ok)}
+.status.s4{background:var(--aviso-suave);color:var(--aviso)}
+.status.s5{background:var(--erro-suave);color:var(--erro)}
+
+.etiquetas{display:flex;gap:5px;flex-wrap:wrap}
+.etiqueta{
+  font-size:11.5px;padding:3px 8px;border-radius:5px;background:var(--bg);
+  border:1px solid var(--borda);color:var(--texto-suave);
+}
+.etiqueta.mono{font-family:"IBM Plex Mono",monospace}
+
+.linha-copiar{display:flex;justify-content:flex-end;margin-top:-6px}
+.btn-copiar{
+  background:var(--superficie);border:1px solid var(--borda);color:var(--texto-suave);
+  font-family:inherit;font-size:11.5px;padding:4px 10px;border-radius:var(--raio-sm);cursor:pointer;
+}
+.btn-copiar:hover{border-color:var(--borda-forte);color:var(--texto)}
+.btn-copiar:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+/* ---------- pendências ---------- */
+.pendencias{
+  background:var(--aviso-suave);border:1px solid #f0e3c0;border-radius:var(--raio);
+  padding:18px 20px;margin-top:34px;
+}
+.pendencias h2{font-size:14px;font-weight:600;color:var(--aviso);margin-bottom:10px}
+.pendencias ol{padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.pendencias li{font-size:13.5px;color:#6b5310}
+.pendencias li strong{color:#4a3908}
+
+/* ---------- sugerido ---------- */
+.endpoint.sugerido{border-style:dashed}
+.selo-sugerido{
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;
+  background:var(--aviso-suave);color:var(--aviso);padding:2px 6px;border-radius:4px;flex-shrink:0;
+}
+
+.rodape{margin-top:40px;padding-top:18px;border-top:1px solid var(--borda);font-size:12px;color:var(--texto-fraco);text-align:center}
+
+@media (max-width:640px){
+  body{padding:20px 14px 60px}
+  .titulo-endpoint{display:none}
+  .topo-endpoint{flex-wrap:wrap;gap:8px}
+  .papeis{order:5}
+  table{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Plano de endpoints</h1>
+  <p class="subtitulo">ComandaFácil — <strong>Next.js 16 App Router</strong>, Prisma 7, PostgreSQL. Derivado de 8 telas e 8 tabelas. Nenhuma rota implementada ainda: <strong>29 endpoints</strong> a construir.</p>
+</header>
+
+<section class="jornada">
+  <h2>Mapa da jornada</h2>
+  <p class="nota">A ordem dos endpoints abaixo segue esta sequência. Cada passo só é testável se o anterior existir.</p>
+
+  <div class="trilha">
+    <div class="ator">Visitante<small>vira dono</small></div>
+    <div class="passos">
+      <span class="passo">Abre a landing</span><span class="seta">→</span>
+      <span class="passo">Vê planos <span class="rotas">sem rota</span></span><span class="seta">→</span>
+      <span class="passo">Cadastra estabelecimento <span class="rotas">01</span></span><span class="seta">→</span>
+      <span class="passo">Entra <span class="rotas">02</span></span>
+    </div>
+  </div>
+
+  <div class="trilha">
+    <div class="ator">Administrador<small>monta o cenário</small></div>
+    <div class="passos">
+      <span class="passo">Cria categorias <span class="rotas">05</span></span><span class="seta">→</span>
+      <span class="passo">Cria produtos <span class="rotas">09</span></span><span class="seta">→</span>
+      <span class="passo">Cria mesas <span class="rotas">14</span></span><span class="seta">→</span>
+      <span class="passo">Cadastra equipe <span class="rotas">17</span></span>
+    </div>
+  </div>
+
+  <div class="trilha">
+    <div class="ator">Garçom<small>atende a mesa</small></div>
+    <div class="passos">
+      <span class="passo">Entra <span class="rotas">02</span></span><span class="seta">→</span>
+      <span class="passo">Vê o salão <span class="rotas">22</span></span><span class="seta">→</span>
+      <span class="passo">Lança pedido <span class="rotas">21</span></span><span class="seta">→</span>
+      <span class="passo">Corrige o pedido <span class="rotas">24</span></span>
+    </div>
+  </div>
+
+  <div class="trilha">
+    <div class="ator">Cozinha<small>prepara</small></div>
+    <div class="passos">
+      <span class="passo">Filtra pendentes <span class="rotas">22</span></span><span class="seta">→</span>
+      <span class="passo">Abre o detalhe <span class="rotas">23</span></span><span class="seta">→</span>
+      <span class="passo">Inicia preparo <span class="rotas">25</span></span><span class="seta">→</span>
+      <span class="passo">Marca pronto <span class="rotas">26</span></span>
+      <span class="passo vazio">Tela não se atualiza sozinha <span class="rotas">sem rota</span></span>
+    </div>
+  </div>
+
+  <div class="trilha">
+    <div class="ator">Admin / Garçom<small>desfaz</small></div>
+    <div class="passos">
+      <span class="passo">Cancela pedido <span class="rotas">27</span></span>
+      <span class="passo vazio">Botão não existe na tela <span class="rotas">sem rota</span></span>
+    </div>
+  </div>
+
+  <div class="trilha">
+    <div class="ator">Administrador<small>paga</small></div>
+    <div class="passos">
+      <span class="passo vazio">Escolhe plano <span class="rotas">sem tela</span></span><span class="seta">→</span>
+      <span class="passo">Vai ao checkout <span class="rotas">28</span></span><span class="seta">→</span>
+      <span class="passo">Stripe confirma <span class="rotas">29</span></span>
+    </div>
+  </div>
+</section>
+
+<section class="decisoes">
+  <h2>Decisões que valem para toda a API</h2>
+  <div class="grade-decisoes">
+    <div class="decisao"><div class="rotulo">Formato</div><div class="valor">Route handlers REST (<span class="mono">app/api/**/route.ts</span>)</div></div>
+    <div class="decisao"><div class="rotulo">Autenticação</div><div class="valor">JWT sem estado, token único <span class="valor assumido"></span></div></div>
+    <div class="decisao"><div class="rotulo">Onde fica o token</div><div class="valor">Cookie httpOnly</div></div>
+    <div class="decisao"><div class="rotulo">Payload do token</div><div class="valor mono">id, role, estabelecimentoId</div></div>
+    <div class="decisao"><div class="rotulo">Segundo fator</div><div class="valor">Não usa</div></div>
+    <div class="decisao"><div class="rotulo">Escopo dos dados</div><div class="valor">Por estabelecimento, vindo do token</div></div>
+    <div class="decisao"><div class="rotulo">Prefixo</div><div class="valor mono assumido">/api</div></div>
+    <div class="decisao"><div class="rotulo">Envelope</div><div class="valor">Objeto puro; erro em <span class="mono">{ error }</span></div></div>
+    <div class="decisao"><div class="rotulo">Paginação</div><div class="valor mono">?page= &amp; ?limit=</div></div>
+    <div class="decisao"><div class="rotulo">Remoção</div><div class="valor">Soft delete via <span class="mono">deleted_at</span></div></div>
+    <div class="decisao"><div class="rotulo">Validação</div><div class="valor">Zod na borda da rota <span class="valor assumido"></span></div></div>
+    <div class="decisao"><div class="rotulo">Idioma das chaves</div><div class="valor assumido">Português camelCase (segue o Prisma)</div></div>
+  </div>
+</section>
+
+<section class="painel-progresso">
+  <div class="linha-progresso">
+    <div class="contagem"><span id="feitos">0</span> de <span>29 endpoints implementados</span></div>
+    <div class="acoes-progresso">
+      <button class="btn-texto" id="expandir">Expandir tudo</button>
+      <button class="btn-texto" id="limpar">Desmarcar tudo</button>
+    </div>
+  </div>
+  <div class="barra"><div class="barra-preenchida" id="preenchida"></div></div>
+</section>
+
+<div class="filtros">
+  <button class="filtro" aria-pressed="true" data-papel="todos">Todos</button>
+  <button class="filtro" aria-pressed="false" data-papel="publico">Público</button>
+  <button class="filtro" aria-pressed="false" data-papel="admin">Admin</button>
+  <button class="filtro" aria-pressed="false" data-papel="garcom">Garçom</button>
+  <button class="filtro" aria-pressed="false" data-papel="cozinha">Cozinha</button>
+</div>
+
+<!-- ============ FASE 0 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">0</div><h2>Acesso</h2></div>
+  <p class="descricao-fase">Sem estabelecimento e sem token, nada mais existe. Tudo começa aqui.</p>
+
+  <article class="endpoint" data-papeis="publico">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e1">
+      <span class="ordem">01</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/cadastro</span>
+      <span class="titulo-endpoint">Criar estabelecimento e conta do dono</span>
+      <span class="papeis"><span class="papel publico">público</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Recebe os três passos do formulário de cadastro de uma vez e cria, numa única transação, o registro do estabelecimento e o usuário administrador dono dele. O front valida passo a passo, mas só envia ao apertar "Criar Minha Conta" — por isso é um endpoint só, não três.</p></div>
+
+      <div class="bloco"><div class="porque"><strong>Por que é o primeiro:</strong> é a única rota que cria um estabelecimento. Sem ela não existe tenant, e todo o resto da API escopa por tenant.</div></div>
+
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">email</td><td class="tipo">string</td><td>Vira o e-mail do admin. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">senha</td><td class="tipo">string</td><td>Mínimo 8 caracteres. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">tipoDocumento</td><td class="tipo">"cpf" | "cnpj"</td><td>Os dois botões do passo 2. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">documento</td><td class="tipo">string</td><td>Só dígitos: 11 (CPF) ou 14 (CNPJ). A máscara é do front. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">nomeEstabelecimento</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">telefone</td><td class="tipo">string</td><td>Só dígitos: 10 ou 11. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">endereco</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">estado</td><td class="tipo">UF</td><td>Uma das 27. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">cep</td><td class="tipo">string</td><td>8 dígitos. <span class="opcional">opcional — a tela não exige</span></td></tr>
+          <tr><td class="campo">cidade</td><td class="tipo">string</td><td><span class="opcional">opcional — a tela não exige</span></td></tr>
+        </table>
+      </div>
+
+      <div class="bloco"><h3>Resposta 201</h3>
+        <pre>{
+  <span class="chave">"usuario"</span>: {
+    <span class="chave">"id"</span>: <span class="numero">1</span>,
+    <span class="chave">"nome"</span>: <span class="texto">"Restaurante do Odair"</span>,
+    <span class="chave">"role"</span>: <span class="texto">"admin"</span>,
+    <span class="chave">"estabelecimentoId"</span>: <span class="numero">1</span>
+  }
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Estabelecimento e usuário admin nascem na mesma transação. Se um falhar, os dois voltam atrás — um estabelecimento sem dono é órfão e ninguém consegue entrar nele.</li>
+          <li class="critica">O mesmo documento é gravado em dois lugares: <span class="mono">estabelecimentos.documento</span> (dado fiscal) e <span class="mono">usuarios.documento</span> (credencial de login). Os dois são UNIQUE.</li>
+          <li>A senha é gravada como hash bcrypt em <span class="mono">senha_hash</span>, nunca em texto.</li>
+          <li>O cadastro já libera o acesso — nenhuma assinatura é exigida (plano gratuito).</li>
+          <li>Não confirma e-mail: a conta nasce ativa e o token já volta no cookie.</li>
+          <li>O front valida CPF/CNPJ por dígito verificador via <span class="mono">MaskedInput</span>; a API precisa revalidar, porque validação de cliente não é garantia.</li>
+        </ul>
+      </div>
+
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Campo ausente, documento com dígito verificador inválido, UF fora da lista</span></div>
+          <div class="codigo"><span class="status s4">409</span><span>Documento ou e-mail já cadastrado</span></div>
+        </div>
+      </div>
+
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/cadastro</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">estabelecimentos</span><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="publico">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e2">
+      <span class="ordem">02</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/auth/login</span>
+      <span class="titulo-endpoint">Entrar com CPF ou CNPJ e senha</span>
+      <span class="papeis"><span class="papel publico">público</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Procura o usuário pelo documento, confere a senha contra o hash e devolve o token no cookie. É o mesmo endpoint para os três papéis — o papel sai do registro no banco, não da tela de onde partiu a chamada. O dono entra com o CNPJ do estabelecimento; o funcionário, com o próprio CPF.</p></div>
+
+      <div class="bloco"><div class="porque"><strong>Por que vem aqui:</strong> todos os 27 endpoints seguintes exigem token. Sem este, nada mais é testável.</div></div>
+
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">documento</td><td class="tipo">string</td><td>Só dígitos, 11 ou 14. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">senha</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+        </table>
+      </div>
+
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"usuario"</span>: {
+    <span class="chave">"id"</span>: <span class="numero">2</span>,
+    <span class="chave">"nome"</span>: <span class="texto">"Carlos Silva"</span>,
+    <span class="chave">"role"</span>: <span class="texto">"garcom"</span>,
+    <span class="chave">"estabelecimentoId"</span>: <span class="numero">1</span>
+  }
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">A mensagem de erro é idêntica para documento inexistente e senha errada, para não revelar quais CPFs/CNPJs estão cadastrados. A tela já faz isso ("CPF ou senha inválidos").</li>
+          <li class="critica">Usuário com <span class="mono">ativo = false</span> ou <span class="mono">deleted_at</span> preenchido não entra, mesmo com a senha correta.</li>
+          <li>O token vai em cookie httpOnly, <span class="mono">Secure</span>, <span class="mono">SameSite=Lax</span>. O corpo devolve só os dados do usuário.</li>
+          <li>O payload carrega <span class="mono">estabelecimentoId</span> — é ele que escopa todos os outros endpoints.</li>
+          <li>Limite de tentativas por documento, para travar força bruta.</li>
+          <li>O tipo de documento escolhido na tela é só conveniência de máscara; a API procura pelo número, não pelo tipo.</li>
+        </ul>
+      </div>
+
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Documento ou senha ausente ou fora do formato</span></div>
+          <div class="codigo"><span class="status s4">401</span><span>Credenciais inválidas</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Conta desativada</span></div>
+          <div class="codigo"><span class="status s4">429</span><span>Tentativas demais</span></div>
+        </div>
+      </div>
+
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/login</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom cozinha">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e3">
+      <span class="ordem">03</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/auth/sessao</span>
+      <span class="titulo-endpoint">Quem está logado</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span><span class="papel">cozinha</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Devolve o usuário do token. O front chama ao carregar para reidratar a store do Zustand e decidir se mostra a tela, o <span class="mono">AccessDenied</span> ou o redirecionamento para <span class="mono">/login</span>.</p></div>
+
+      <div class="bloco"><div class="porque"><strong>Por que vem aqui:</strong> é como você confirma, no navegador, que o login do passo 02 realmente gravou o cookie.</div></div>
+
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">2</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Carlos Silva"</span>,
+  <span class="chave">"role"</span>: <span class="texto">"garcom"</span>,
+  <span class="chave">"estabelecimentoId"</span>: <span class="numero">1</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Relê o usuário no banco, não confia só no payload do token. Como a sessão é JWT sem estado, é aqui que um funcionário desativado perde o acesso — sem essa releitura, o token dele continuaria valendo até expirar.</li>
+          <li>Substitui o <span class="mono">hasHydrated</span> da store: hoje o front decide isso lendo o localStorage.</li>
+        </ul>
+      </div>
+
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">401</span><span>Sem cookie, token expirado ou usuário desativado</span></div>
+        </div>
+      </div>
+
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">ProtectedRoute</span><span class="etiqueta mono">AppShell</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom cozinha">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e4">
+      <span class="ordem">04</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/auth/logout</span>
+      <span class="titulo-endpoint">Sair</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span><span class="papel">cozinha</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Apaga o cookie de sessão. Existe como rota (e não só como limpeza no cliente) porque o cookie é httpOnly — o JavaScript da página não consegue removê-lo sozinho.</p></div>
+
+      <div class="bloco"><div class="porque"><strong>Por que vem aqui:</strong> fecha o ciclo do acesso. Com 02, 03 e 04 no ar dá para entrar, confirmar e sair antes de escrever qualquer regra de negócio.</div></div>
+
+      <div class="bloco"><h3>Resposta 204</h3><p>Sem corpo.</p></div>
+
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li>Como o token é JWT sem estado, o que sai continua tecnicamente válido até expirar — não há tabela de sessão para invalidar. Por isso a expiração deve ser curta.</li>
+          <li>Responde 204 mesmo sem cookie válido: sair de onde já não se está não é erro.</li>
+        </ul>
+      </div>
+
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">AppShell</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta">nenhuma</span></div></div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ FASE 1 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">1</div><h2>Cardápio</h2></div>
+  <p class="descricao-fase">Categoria antes de produto: <span class="mono">produtos.categoria_id</span> é obrigatório, então não há o que cadastrar sem categoria.</p>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e5">
+      <span class="ordem">05</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/categorias</span>
+      <span class="titulo-endpoint">Criar categoria</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Cria um grupo do cardápio (Bebidas, Pizzas, Sobremesas). O <span class="mono">CategoryModal</span> serve para criar e editar — sem <span class="mono">initialValues</span> ele chama esta rota.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que abre a fase:</strong> é a primeira coisa que o admin consegue criar depois de entrar. Nada no cardápio existe antes dela.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">nome</td><td class="tipo">string</td><td>O botão só habilita com nome preenchido. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">descricao</td><td class="tipo">string</td><td>O placeholder diz "opcional". <span class="opcional">opcional</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 201</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">3</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Sobremesas"</span>,
+  <span class="chave">"descricao"</span>: <span class="texto">"Doces para fechar a refeição"</span>,
+  <span class="chave">"totalProdutos"</span>: <span class="numero">0</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">O <span class="mono">estabelecimento_id</span> vem do token, nunca do corpo. Aceitar do corpo deixaria qualquer um criar categoria no restaurante alheio.</li>
+          <li>Nome único dentro do estabelecimento, garantido pelo índice parcial <span class="mono">categorias_estabelecimento_nome_ativa</span> — que ignora as excluídas, então dá para recriar uma categoria com nome já usado antes.</li>
+          <li>Nasce com <span class="mono">totalProdutos = 0</span>; o campo é contagem, não coluna.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Nome vazio</span></div>
+          <div class="codigo"><span class="status s4">401</span><span>Sem sessão</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">409</span><span>Já existe categoria ativa com esse nome</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">categorias</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e6">
+      <span class="ordem">06</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/categorias</span>
+      <span class="titulo-endpoint">Listar categorias com contagem de produtos</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Devolve as categorias do estabelecimento. Serve três telas diferentes: a grade de <span class="mono">/configuracoes</span>, o select de categoria do <span class="mono">NewProductModal</span> e o acordeão do <span class="mono">NewOrderModal</span> — por isso é um endpoint só, não três.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que logo depois de criar:</strong> criar e listar fecham o ciclo mais curto de verificação — dá para confirmar o 05 sem precisar de mais nada.</div></div>
+      <div class="bloco"><h3>Parâmetros de consulta</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">page</td><td class="tipo">number</td><td>1-indexado. <span class="opcional">padrão 1</span></td></tr>
+          <tr><td class="campo">limit</td><td class="tipo">number</td><td>O front manda o que o <span class="mono">useResponsiveGrid</span> calculou. <span class="opcional">padrão 20</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"items"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">1</span>,
+      <span class="chave">"nome"</span>: <span class="texto">"Bebidas"</span>,
+      <span class="chave">"descricao"</span>: <span class="texto">"Refrigerantes, sucos e águas"</span>,
+      <span class="chave">"totalProdutos"</span>: <span class="numero">4</span>
+    }
+  ],
+  <span class="chave">"page"</span>: <span class="numero">1</span>,
+  <span class="chave">"limit"</span>: <span class="numero">20</span>,
+  <span class="chave">"total"</span>: <span class="numero">10</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Filtra por <span class="mono">estabelecimento_id</span> do token e por <span class="mono">deleted_at IS NULL</span>. As duas condições valem para toda listagem deste plano.</li>
+          <li><span class="mono">totalProdutos</span> é um <span class="mono">_count</span> de produtos ativos — o <span class="mono">CategoryCard</span> exibe isso como subtítulo.</li>
+          <li>Quando serve os modais de pedido/produto, o front pede <span class="mono">limit</span> alto: o select precisa de todas, não de uma página.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">401</span><span>Sem sessão</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span><span class="etiqueta mono">NewProductModal</span><span class="etiqueta mono">NewOrderModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">categorias</span><span class="etiqueta mono">produtos</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e7">
+      <span class="ordem">07</span>
+      <span class="metodo put">PUT</span>
+      <span class="caminho">/api/categorias/<em>:id</em></span>
+      <span class="titulo-endpoint">Editar categoria</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Troca nome e descrição. Mesmo <span class="mono">CategoryModal</span> do 05, agora com <span class="mono">initialValues</span> — título vira "Editar Categoria" e o botão, "Salvar Alterações".</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que aqui:</strong> ordem interna do recurso — criar, listar, alterar, remover.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">nome</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">descricao</td><td class="tipo">string</td><td><span class="opcional">opcional</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">1</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Bebidas geladas"</span>,
+  <span class="chave">"descricao"</span>: <span class="texto">"Refrigerantes, sucos e águas"</span>,
+  <span class="chave">"totalProdutos"</span>: <span class="numero">4</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Categoria de outro estabelecimento responde <span class="mono">404</span>, não <span class="mono">403</span> — 403 confirmaria que o id existe, vazando informação sobre dado de terceiro.</li>
+          <li>Renomear não mexe nos produtos: eles apontam por <span class="mono">categoria_id</span>, não pelo nome.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Nome vazio</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Categoria inexistente, excluída, ou de outro estabelecimento</span></div>
+          <div class="codigo"><span class="status s4">409</span><span>Outra categoria ativa já usa esse nome</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">categorias</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e8">
+      <span class="ordem">08</span>
+      <span class="metodo delete">DELETE</span>
+      <span class="caminho">/api/categorias/<em>:id</em></span>
+      <span class="titulo-endpoint">Excluir categoria</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Marca <span class="mono">deleted_at</span>. A tela confirma antes pelo <span class="mono">ConfirmationModal</span> ("Esta ação não pode ser desfeita").</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que fecha o recurso:</strong> remover é a última operação do ciclo CRUD, e depende de já existir algo criado e listado.</div></div>
+      <div class="bloco"><h3>Resposta 204</h3><p>Sem corpo.</p></div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Categoria com produto ativo não pode sair: o banco tem <span class="mono">onDelete: Restrict</span> em <span class="mono">produtos.categoria_id</span>, e um soft delete deixaria produtos apontando para uma categoria invisível. Responde <span class="mono">422</span>.</li>
+          <li>É exclusão lógica: nada some da tabela, só deixa de ser listado.</li>
+          <li>O índice parcial libera o nome de volta, então dá para recriar uma categoria com o mesmo nome depois.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Categoria inexistente ou de outro estabelecimento</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Ainda há produtos ativos nessa categoria</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">categorias</span><span class="etiqueta mono">produtos</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e9">
+      <span class="ordem">09</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/produtos</span>
+      <span class="titulo-endpoint">Criar produto</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Cadastra um item do cardápio com nome, preço e categoria — os três campos do <span class="mono">NewProductModal</span>.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que depois de categoria:</strong> <span class="mono">categoria_id</span> é obrigatório no banco. Sem o endpoint 05 no ar, não há id válido para mandar aqui.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">nome</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">preco</td><td class="tipo">number</td><td>Maior que zero — o botão só habilita assim. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">categoriaId</td><td class="tipo">number</td><td>Hoje o modal manda o <em>nome</em> da categoria; ver pendência 1. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">disponivel</td><td class="tipo">boolean</td><td><span class="opcional">opcional — padrão true</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 201</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">12</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Pizza Calabresa"</span>,
+  <span class="chave">"preco"</span>: <span class="texto">"48.00"</span>,
+  <span class="chave">"disponivel"</span>: <span class="booleano">true</span>,
+  <span class="chave">"categoria"</span>: { <span class="chave">"id"</span>: <span class="numero">2</span>, <span class="chave">"nome"</span>: <span class="texto">"Pizzas"</span> }
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">A categoria precisa pertencer ao mesmo estabelecimento do token. Sem essa checagem, dá para pendurar um produto seu numa categoria de outro restaurante mandando um id qualquer.</li>
+          <li><span class="mono">preco</span> é <span class="mono">Decimal(10,2)</span> — trafega como string no JSON para não perder centavo em arredondamento de float.</li>
+          <li>O <span class="mono">MaskedInput type="currency"</span> entrega o valor em formato brasileiro; a API recebe número já normalizado.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Nome vazio, preço zero ou negativo</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Categoria inexistente ou de outro estabelecimento</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/produtos</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">produtos</span><span class="etiqueta mono">categorias</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e10">
+      <span class="ordem">10</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/produtos</span>
+      <span class="titulo-endpoint">Listar produtos</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Devolve o cardápio. Alimenta a tabela de <span class="mono">/produtos</span> (admin) e o acordeão de itens do <span class="mono">NewOrderModal</span> (garçom), agrupado por categoria.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que aqui:</strong> confirma o 09 e já entrega o cardápio de que a fase de atendimento vai depender.</div></div>
+      <div class="bloco"><h3>Parâmetros de consulta</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">categoriaId</td><td class="tipo">number</td><td>Filtra por categoria. <span class="opcional">opcional — nenhuma tela usa ainda</span></td></tr>
+          <tr><td class="campo">disponivel</td><td class="tipo">boolean</td><td>O modal de pedido deve pedir <span class="mono">true</span>. <span class="opcional">opcional</span></td></tr>
+          <tr><td class="campo">page</td><td class="tipo">number</td><td><span class="opcional">padrão 1</span></td></tr>
+          <tr><td class="campo">limit</td><td class="tipo">number</td><td><span class="opcional">padrão 20</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"items"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">12</span>,
+      <span class="chave">"nome"</span>: <span class="texto">"Pizza Calabresa"</span>,
+      <span class="chave">"preco"</span>: <span class="texto">"48.00"</span>,
+      <span class="chave">"disponivel"</span>: <span class="booleano">true</span>,
+      <span class="chave">"categoria"</span>: { <span class="chave">"id"</span>: <span class="numero">2</span>, <span class="chave">"nome"</span>: <span class="texto">"Pizzas"</span> }
+    }
+  ],
+  <span class="chave">"page"</span>: <span class="numero">1</span>,
+  <span class="chave">"limit"</span>: <span class="numero">20</span>,
+  <span class="chave">"total"</span>: <span class="numero">17</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">A categoria vem aninhada, não como <span class="mono">categoriaNome</span> solto: a coluna "Categoria" da tabela é dado de outra entidade, então é <span class="mono">include</span>, não coluna.</li>
+          <li>Escopo por estabelecimento e <span class="mono">deleted_at IS NULL</span>, como toda listagem.</li>
+          <li>Não há busca nem ordenação: nenhuma tela do projeto oferece isso hoje.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">401</span><span>Sem sessão</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/produtos</span><span class="etiqueta mono">NewOrderModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">produtos</span><span class="etiqueta mono">categorias</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e11">
+      <span class="ordem">11</span>
+      <span class="metodo put">PUT</span>
+      <span class="caminho">/api/produtos/<em>:id</em></span>
+      <span class="titulo-endpoint">Editar produto</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Troca nome, preço, categoria e disponibilidade. Mesmo modal do 09, com <span class="mono">initialValues</span> preenchido pelo ícone de lápis da tabela.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que aqui:</strong> ordem interna do recurso, depois de criar e listar.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">nome</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">preco</td><td class="tipo">number</td><td>Maior que zero. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">categoriaId</td><td class="tipo">number</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">disponivel</td><td class="tipo">boolean</td><td><span class="opcional">opcional</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">12</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Pizza Calabresa"</span>,
+  <span class="chave">"preco"</span>: <span class="texto">"52.00"</span>,
+  <span class="chave">"disponivel"</span>: <span class="booleano">true</span>,
+  <span class="chave">"categoria"</span>: { <span class="chave">"id"</span>: <span class="numero">2</span>, <span class="chave">"nome"</span>: <span class="texto">"Pizzas"</span> }
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Mudar o preço <strong>não</strong> altera pedido nenhum: <span class="mono">pedido_itens</span> guarda <span class="mono">preco_unitario</span> copiado no momento da venda. É o que mantém o histórico honesto.</li>
+          <li>A nova categoria também precisa ser do mesmo estabelecimento.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Nome vazio ou preço inválido</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Produto ou categoria fora do escopo</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/produtos</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">produtos</span><span class="etiqueta mono">categorias</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e12">
+      <span class="ordem">12</span>
+      <span class="metodo delete">DELETE</span>
+      <span class="caminho">/api/produtos/<em>:id</em></span>
+      <span class="titulo-endpoint">Excluir produto</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Marca <span class="mono">deleted_at</span> e tira o produto do cardápio. O <span class="mono">ConfirmationModal</span> avisa antes.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que fecha o recurso:</strong> última operação do ciclo, e a que mais depende do histórico já existir para ser testada de verdade.</div></div>
+      <div class="bloco"><h3>Resposta 204</h3><p>Sem corpo.</p></div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Pedidos antigos continuam mostrando o item normalmente — <span class="mono">pedido_itens.nome_produto</span> e <span class="mono">preco_unitario</span> estão congelados, e <span class="mono">produto_id</span> é <span class="mono">SET NULL</span>. Excluir produto nunca apaga venda.</li>
+          <li>Diferente de categoria, não há bloqueio: produto em pedido pode sair do cardápio a qualquer momento.</li>
+          <li>Some do <span class="mono">NewOrderModal</span> na hora — não dá para lançar item excluído.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Produto inexistente ou de outro estabelecimento</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/produtos</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">produtos</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint sugerido" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e13">
+      <span class="ordem">13</span>
+      <span class="metodo patch">PATCH</span>
+      <span class="caminho">/api/produtos/<em>:id</em>/disponibilidade</span>
+      <span class="titulo-endpoint">Ligar e desligar o produto do dia</span>
+      <span class="selo-sugerido">sugerido</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Alterna <span class="mono">produtos.disponivel</span> sem mexer no resto do cadastro. É o caso "acabou a picanha hoje": o produto continua no cardápio, mas não pode ser lançado.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que é sugerido:</strong> a coluna existe no banco e nenhuma tela a controla. O endpoint está desenhado, mas falta decidir onde o controle entra em <span class="mono">/produtos</span> — um switch na linha da tabela é o caminho natural. Ver pendência 4.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">disponivel</td><td class="tipo">boolean</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">12</span>,
+  <span class="chave">"disponivel"</span>: <span class="booleano">false</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li>Indisponível não é o mesmo que excluído: continua na tabela de <span class="mono">/produtos</span>, só não aparece no modal de novo pedido.</li>
+          <li>Não afeta pedido já lançado com aquele item.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Campo ausente ou não booleano</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Produto fora do escopo</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta">nenhuma ainda</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">produtos</span></div></div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ FASE 2 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">2</div><h2>Salão</h2></div>
+  <p class="descricao-fase">As mesas do salão. Recurso pequeno — a tela só cria e remove, nunca edita.</p>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e14">
+      <span class="ordem">14</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/mesas</span>
+      <span class="titulo-endpoint">Adicionar mesa</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Cria uma mesa pelo número. O <span class="mono">NewMesaModal</span> sugere o próximo número livre como placeholder, mas quem digita é a pessoa.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que antes de pedidos:</strong> <span class="mono">pedidos.mesa_id</span> é obrigatório. Sem mesa cadastrada, o garçom não tem onde lançar.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">numero</td><td class="tipo">number</td><td>Inteiro positivo — a tela filtra não-dígitos. <span class="obrigatorio">obrigatório</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 201</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">21</span>,
+  <span class="chave">"numero"</span>: <span class="numero">21</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">O número é único <em>dentro do estabelecimento</em>, não no sistema todo — dois restaurantes podem ter a Mesa 5. Garantido pelo índice parcial <span class="mono">mesas_estabelecimento_numero_ativa</span>.</li>
+          <li>Como o índice ignora mesas excluídas, remover a Mesa 5 e criá-la de novo funciona.</li>
+          <li>Não existe edição de mesa: trocar o número é remover e criar.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Número ausente, zero ou negativo</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">409</span><span>Já existe mesa ativa com esse número</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">mesas</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e15">
+      <span class="ordem">15</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/mesas</span>
+      <span class="titulo-endpoint">Listar mesas</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Devolve as mesas ativas. Serve a grade de <span class="mono">/configuracoes</span> e o select "Selecionar Mesa" do <span class="mono">NewOrderModal</span>.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que aqui:</strong> confirma o 14 e entrega o select de que o lançamento de pedido depende.</div></div>
+      <div class="bloco"><h3>Parâmetros de consulta</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">page</td><td class="tipo">number</td><td><span class="opcional">padrão 1</span></td></tr>
+          <tr><td class="campo">limit</td><td class="tipo">number</td><td><span class="opcional">padrão 20</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"items"</span>: [
+    { <span class="chave">"id"</span>: <span class="numero">1</span>, <span class="chave">"numero"</span>: <span class="numero">1</span> },
+    { <span class="chave">"id"</span>: <span class="numero">2</span>, <span class="chave">"numero"</span>: <span class="numero">2</span> }
+  ],
+  <span class="chave">"page"</span>: <span class="numero">1</span>,
+  <span class="chave">"limit"</span>: <span class="numero">20</span>,
+  <span class="chave">"total"</span>: <span class="numero">20</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li>Ordenado por <span class="mono">numero</span> crescente — é como a grade de <span class="mono">/configuracoes</span> e o select esperam.</li>
+          <li>Escopo por estabelecimento e <span class="mono">deleted_at IS NULL</span>.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">401</span><span>Sem sessão</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span><span class="etiqueta mono">NewOrderModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">mesas</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e16">
+      <span class="ordem">16</span>
+      <span class="metodo delete">DELETE</span>
+      <span class="caminho">/api/mesas/<em>:id</em></span>
+      <span class="titulo-endpoint">Remover mesa</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Marca <span class="mono">deleted_at</span> na mesa. A tela confirma com "Remover Mesa?" antes.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que fecha a fase:</strong> com criar, listar e remover no ar, o salão está completo e o atendimento pode começar.</div></div>
+      <div class="bloco"><h3>Resposta 204</h3><p>Sem corpo.</p></div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Mesa com pedido em aberto (<span class="mono">pendente</span> ou <span class="mono">em-preparo</span>) não sai: responde <span class="mono">422</span>. Remover a mesa de um pedido que a cozinha está preparando deixaria o pedido órfão na tela.</li>
+          <li>Pedidos já finalizados não impedem a remoção — eles seguem apontando para a mesa, que continua na tabela por causa do soft delete.</li>
+          <li>O número volta a ficar livre para uma mesa nova.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Mesa inexistente ou de outro estabelecimento</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Mesa tem pedido em aberto</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/configuracoes</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">mesas</span><span class="etiqueta mono">pedidos</span></div></div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ FASE 3 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">3</div><h2>Equipe</h2></div>
+  <p class="descricao-fase">Garçons e cozinheiros. É aqui que nascem as credenciais que fazem o endpoint 02 funcionar para quem não é o dono.</p>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e17">
+      <span class="ordem">17</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/funcionarios</span>
+      <span class="titulo-endpoint">Cadastrar funcionário</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Cria um usuário com papel <span class="mono">garcom</span> ou <span class="mono">cozinha</span> dentro do estabelecimento do admin. O admin define a senha inicial direto no <span class="mono">FuncionarioModal</span> — não há convite por e-mail.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que depois do cardápio e do salão:</strong> um garçom que entra antes de existir produto e mesa não consegue fazer nada. Cadastrar equipe por último deixa o sistema utilizável no primeiro login dela.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">nome</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">documento</td><td class="tipo">string</td><td>CPF, 11 dígitos. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">dataNascimento</td><td class="tipo">string</td><td>O front entrega <span class="mono">ddMMyyyy</span>; a API espera ISO <span class="mono">yyyy-MM-dd</span>. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">role</td><td class="tipo">"garcom" | "cozinha"</td><td>Os dois botões do topo do modal. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">senha</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">telefone</td><td class="tipo">string</td><td>A tabela exibe, o modal não coleta. Ver pendência 6. <span class="opcional">opcional</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 201</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">4</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Ana Oliveira"</span>,
+  <span class="chave">"documento"</span>: <span class="texto">"98765432100"</span>,
+  <span class="chave">"dataNascimento"</span>: <span class="texto">"1995-11-22"</span>,
+  <span class="chave">"role"</span>: <span class="texto">"cozinha"</span>,
+  <span class="chave">"telefone"</span>: <span class="booleano">null</span>,
+  <span class="chave">"ativo"</span>: <span class="booleano">true</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Nunca aceita <span class="mono">role: "admin"</span> por esta rota. Um garçom promovido a admin pelo corpo da requisição é escalada de privilégio — só os dois papéis da tela entram.</li>
+          <li class="critica">O <span class="mono">senha_hash</span> nunca volta na resposta, em nenhum endpoint deste plano.</li>
+          <li>O CPF é UNIQUE global (não por estabelecimento): a mesma pessoa não se cadastra duas vezes, e o login por CPF nunca fica ambíguo.</li>
+          <li><span class="mono">estabelecimento_id</span> vem do token — o admin só cadastra na própria casa.</li>
+          <li>Nasce com <span class="mono">ativo = true</span>.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>CPF inválido, data fora do formato, papel fora dos dois permitidos</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s4">409</span><span>CPF já cadastrado</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/funcionarios</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e18">
+      <span class="ordem">18</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/funcionarios</span>
+      <span class="titulo-endpoint">Listar funcionários</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Devolve a equipe para a tabela de <span class="mono">/funcionarios</span> — nome, função, telefone e status.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que aqui:</strong> confirma o 17 sem depender de mais nada.</div></div>
+      <div class="bloco"><h3>Parâmetros de consulta</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">page</td><td class="tipo">number</td><td><span class="opcional">padrão 1</span></td></tr>
+          <tr><td class="campo">limit</td><td class="tipo">number</td><td><span class="opcional">padrão 20</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"items"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">4</span>,
+      <span class="chave">"nome"</span>: <span class="texto">"Ana Oliveira"</span>,
+      <span class="chave">"role"</span>: <span class="texto">"cozinha"</span>,
+      <span class="chave">"telefone"</span>: <span class="booleano">null</span>,
+      <span class="chave">"ativo"</span>: <span class="booleano">true</span>
+    }
+  ],
+  <span class="chave">"page"</span>: <span class="numero">1</span>,
+  <span class="chave">"limit"</span>: <span class="numero">20</span>,
+  <span class="chave">"total"</span>: <span class="numero">12</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Devolve só <span class="mono">garcom</span> e <span class="mono">cozinha</span>. O admin não aparece na própria lista de funcionários — a tela nunca o mostrou, e exibi-lo abriria o botão de excluir o dono.</li>
+          <li>Inclui inativos: a coluna Status existe justamente para diferenciá-los.</li>
+          <li>Exclui quem tem <span class="mono">deleted_at</span> preenchido.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/funcionarios</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e19">
+      <span class="ordem">19</span>
+      <span class="metodo put">PUT</span>
+      <span class="caminho">/api/funcionarios/<em>:id</em></span>
+      <span class="titulo-endpoint">Editar funcionário</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Atualiza nome, CPF, nascimento, função e — opcionalmente — a senha. O modal diz "Deixe em branco para manter a atual", então senha vazia não é erro: é "não mexer".</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que aqui:</strong> ordem interna do recurso. Também é o único caminho de redefinição de senha que o projeto tem hoje (ver pendência 7).</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">nome</td><td class="tipo">string</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">documento</td><td class="tipo">string</td><td>CPF, 11 dígitos. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">dataNascimento</td><td class="tipo">string</td><td>ISO. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">role</td><td class="tipo">"garcom" | "cozinha"</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">senha</td><td class="tipo">string</td><td>Se ausente ou vazia, mantém a atual. <span class="opcional">opcional</span></td></tr>
+          <tr><td class="campo">ativo</td><td class="tipo">boolean</td><td>Nenhuma tela alterna isso hoje. Ver pendência 5. <span class="opcional">opcional</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">4</span>,
+  <span class="chave">"nome"</span>: <span class="texto">"Ana Oliveira"</span>,
+  <span class="chave">"documento"</span>: <span class="texto">"98765432100"</span>,
+  <span class="chave">"dataNascimento"</span>: <span class="texto">"1995-11-22"</span>,
+  <span class="chave">"role"</span>: <span class="texto">"garcom"</span>,
+  <span class="chave">"telefone"</span>: <span class="booleano">null</span>,
+  <span class="chave">"ativo"</span>: <span class="booleano">true</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">O alvo precisa ser do mesmo estabelecimento e não pode ser admin — senão o admin de um restaurante edita o de outro, ou rebaixa a si mesmo.</li>
+          <li class="critica">Desativar (<span class="mono">ativo = false</span>) corta o acesso no próximo <span class="mono">GET /api/auth/sessao</span>, não na hora: o JWT já emitido continua válido até expirar.</li>
+          <li>Trocar a função de garçom para cozinha muda o que a pessoa vê em <span class="mono">/pedidos</span> — os botões vêm de <span class="mono">canManageOrders</span> / <span class="mono">canPrepareOrders</span>.</li>
+          <li>Senha nova vira hash novo; senha ausente não toca em <span class="mono">senha_hash</span>.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>CPF inválido ou papel fora dos dois permitidos</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin, ou alvo é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Funcionário fora do escopo</span></div>
+          <div class="codigo"><span class="status s4">409</span><span>CPF já usado por outra pessoa</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/funcionarios</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e20">
+      <span class="ordem">20</span>
+      <span class="metodo delete">DELETE</span>
+      <span class="caminho">/api/funcionarios/<em>:id</em></span>
+      <span class="titulo-endpoint">Excluir funcionário</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Marca <span class="mono">deleted_at</span>. A pessoa some da lista e perde o acesso, mas os pedidos que ela lançou continuam existindo.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que fecha a fase:</strong> com a equipe montada e removível, o cenário do admin está completo — daqui em diante quem age é garçom e cozinha.</div></div>
+      <div class="bloco"><h3>Resposta 204</h3><p>Sem corpo.</p></div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">É exclusão lógica justamente porque <span class="mono">pedidos.garcom_id</span> tem <span class="mono">onDelete: Restrict</span> — apagar de verdade quebraria todo pedido que a pessoa lançou.</li>
+          <li class="critica">O admin não pode excluir a si mesmo nem outro admin: o estabelecimento ficaria sem dono e sem ninguém para gerenciar.</li>
+          <li>Quem foi excluído não passa mais no login, mesmo com a senha certa.</li>
+          <li>O CPF continua ocupado (UNIQUE global): recontratar a pessoa é reativar o cadastro, não criar outro.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin, ou alvo é admin</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Funcionário fora do escopo</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/funcionarios</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">usuarios</span><span class="etiqueta mono">pedidos</span></div></div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ FASE 4 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">4</div><h2>Atendimento</h2></div>
+  <p class="descricao-fase">O garçom lança o pedido. Só funciona com cardápio, salão e equipe já no ar.</p>
+
+  <article class="endpoint" data-papeis="admin garcom">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e21">
+      <span class="ordem">21</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/pedidos</span>
+      <span class="titulo-endpoint">Lançar pedido</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Cria o pedido e seus itens numa transação só. O corpo manda apenas <span class="mono">produtoId</span> e quantidade — o servidor busca nome e preço no banco e congela os dois em <span class="mono">pedido_itens</span>.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que é o ápice da jornada:</strong> depende de tudo que veio antes — mesa (14), produto (09), categoria (05) e uma sessão de garçom (17 + 02). É o primeiro endpoint que junta o sistema inteiro.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">mesaId</td><td class="tipo">number</td><td>Do select "Selecionar Mesa". <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">itens</td><td class="tipo">array</td><td>Ao menos um item — o botão só habilita assim. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">itens[].produtoId</td><td class="tipo">number</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">itens[].quantidade</td><td class="tipo">number</td><td>Inteiro maior que zero, do <span class="mono">QuantityStepper</span>. <span class="obrigatorio">obrigatório</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 201</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">57</span>,
+  <span class="chave">"status"</span>: <span class="texto">"pendente"</span>,
+  <span class="chave">"mesa"</span>: { <span class="chave">"id"</span>: <span class="numero">3</span>, <span class="chave">"numero"</span>: <span class="numero">3</span> },
+  <span class="chave">"garcom"</span>: { <span class="chave">"id"</span>: <span class="numero">2</span>, <span class="chave">"nome"</span>: <span class="texto">"Carlos Silva"</span> },
+  <span class="chave">"itens"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">91</span>,
+      <span class="chave">"produtoId"</span>: <span class="numero">1</span>,
+      <span class="chave">"nomeProduto"</span>: <span class="texto">"Coca-Cola Lata"</span>,
+      <span class="chave">"precoUnitario"</span>: <span class="texto">"6.00"</span>,
+      <span class="chave">"quantidade"</span>: <span class="numero">2</span>
+    }
+  ],
+  <span class="chave">"total"</span>: <span class="texto">"12.00"</span>,
+  <span class="chave">"createdAt"</span>: <span class="texto">"2026-09-16T17:03:11.482Z"</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">O preço <strong>nunca</strong> vem do corpo da requisição. Aceitar <span class="mono">precoUnitario</span> do cliente deixaria qualquer um lançar uma picanha por R$ 0,01. O servidor lê de <span class="mono">produtos.preco</span> e copia.</li>
+          <li class="critica">O <span class="mono">garcom_id</span> sai do token, não do corpo — ninguém lança pedido em nome de outra pessoa.</li>
+          <li class="critica">Mesa e todos os produtos precisam ser do mesmo estabelecimento do token, senão <span class="mono">404</span>.</li>
+          <li>Produto com <span class="mono">disponivel = false</span> ou <span class="mono">deleted_at</span> é recusado com <span class="mono">422</span>.</li>
+          <li>Pedido e itens numa transação só: um pedido sem item é um card vazio na tela.</li>
+          <li>Nasce <span class="mono">pendente</span>. O horário exibido ("Pedido recebido às 14:02") vem de <span class="mono">createdAt</span>.</li>
+          <li><span class="mono">total</span> é calculado da soma dos itens, não é coluna do banco.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Lista de itens vazia, quantidade zero ou negativa</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel é cozinha (não gerencia pedidos)</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Mesa ou produto fora do escopo</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Produto indisponível ou excluído</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/pedidos</span><span class="etiqueta mono">NewOrderModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span><span class="etiqueta mono">pedido_itens</span><span class="etiqueta mono">produtos</span><span class="etiqueta mono">mesas</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom cozinha">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e22">
+      <span class="ordem">22</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/pedidos</span>
+      <span class="titulo-endpoint">Listar pedidos por status</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span><span class="papel">cozinha</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Devolve os cards de <span class="mono">/pedidos</span>. É o único endpoint do plano que os três papéis consomem — a diferença entre eles está nos botões do detalhe, não no que enxergam.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que logo depois de criar:</strong> fecha o ciclo curto — lançar um pedido e vê-lo aparecer na grade prova os dois endpoints de uma vez.</div></div>
+      <div class="bloco"><h3>Parâmetros de consulta</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">status</td><td class="tipo">enum</td><td><span class="mono">pendente</span>, <span class="mono">em-preparo</span>, <span class="mono">pronto</span>, <span class="mono">cancelado</span>. Ausente = todos. <span class="opcional">opcional</span></td></tr>
+          <tr><td class="campo">page</td><td class="tipo">number</td><td><span class="opcional">padrão 1</span></td></tr>
+          <tr><td class="campo">limit</td><td class="tipo">number</td><td>Vem do <span class="mono">useResponsiveGrid</span>, varia com a tela. <span class="opcional">padrão 20</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"items"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">57</span>,
+      <span class="chave">"status"</span>: <span class="texto">"pendente"</span>,
+      <span class="chave">"mesa"</span>: { <span class="chave">"id"</span>: <span class="numero">3</span>, <span class="chave">"numero"</span>: <span class="numero">3</span> },
+      <span class="chave">"totalItens"</span>: <span class="numero">2</span>,
+      <span class="chave">"resumoItens"</span>: <span class="texto">"2x Coca-Cola Lata"</span>,
+      <span class="chave">"total"</span>: <span class="texto">"12.00"</span>,
+      <span class="chave">"createdAt"</span>: <span class="texto">"2026-09-16T17:03:11.482Z"</span>
+    }
+  ],
+  <span class="chave">"page"</span>: <span class="numero">1</span>,
+  <span class="chave">"limit"</span>: <span class="numero">8</span>,
+  <span class="chave">"total"</span>: <span class="numero">14</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">O filtro da tela usa rótulos no plural (<span class="mono">pendentes</span>, <span class="mono">prontos</span>) e o banco usa singular. A tradução é do front — o parâmetro aqui é o valor do enum.</li>
+          <li>O card não precisa dos itens inteiros: <span class="mono">totalItens</span>, <span class="mono">resumoItens</span> e <span class="mono">total</span> bastam. Os itens completos só no endpoint 23.</li>
+          <li>Ordenado por <span class="mono">createdAt</span> decrescente: pedido novo no topo.</li>
+          <li>Escopo por estabelecimento. Não há escopo por garçom — a tela mostra o salão todo para qualquer papel.</li>
+          <li>Pedido não tem soft delete: nada some, o que sai de cena vira <span class="mono">cancelado</span>.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Status fora do enum</span></div>
+          <div class="codigo"><span class="status s4">401</span><span>Sem sessão</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/pedidos</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span><span class="etiqueta mono">pedido_itens</span><span class="etiqueta mono">mesas</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin garcom cozinha">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e23">
+      <span class="ordem">23</span>
+      <span class="metodo get">GET</span>
+      <span class="caminho">/api/pedidos/<em>:id</em></span>
+      <span class="titulo-endpoint">Detalhe do pedido</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span><span class="papel">cozinha</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Alimenta o <span class="mono">OrderDetailModal</span>: itens linha a linha, subtotal, total geral e o horário do rodapé.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que antes das transições:</strong> é a tela de onde saem os botões "Iniciar Preparo" e "Marcar como Pronto". Sem ela não há como disparar 25, 26 e 27 pela interface.</div></div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">57</span>,
+  <span class="chave">"status"</span>: <span class="texto">"pendente"</span>,
+  <span class="chave">"mesa"</span>: { <span class="chave">"id"</span>: <span class="numero">3</span>, <span class="chave">"numero"</span>: <span class="numero">3</span> },
+  <span class="chave">"garcom"</span>: { <span class="chave">"id"</span>: <span class="numero">2</span>, <span class="chave">"nome"</span>: <span class="texto">"Carlos Silva"</span> },
+  <span class="chave">"itens"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">91</span>,
+      <span class="chave">"produtoId"</span>: <span class="numero">1</span>,
+      <span class="chave">"nomeProduto"</span>: <span class="texto">"Coca-Cola Lata"</span>,
+      <span class="chave">"precoUnitario"</span>: <span class="texto">"6.00"</span>,
+      <span class="chave">"quantidade"</span>: <span class="numero">2</span>,
+      <span class="chave">"subtotal"</span>: <span class="texto">"12.00"</span>
+    }
+  ],
+  <span class="chave">"total"</span>: <span class="texto">"12.00"</span>,
+  <span class="chave">"createdAt"</span>: <span class="texto">"2026-09-16T17:03:11.482Z"</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Pedido de outro estabelecimento responde <span class="mono">404</span>, não <span class="mono">403</span>.</li>
+          <li>Os valores vêm de <span class="mono">pedido_itens</span>, não de <span class="mono">produtos</span> — um pedido antigo mostra o preço da época, mesmo que o cardápio tenha mudado.</li>
+          <li><span class="mono">nomeProduto</span> continua preenchido mesmo com <span class="mono">produtoId: null</span> (produto excluído depois da venda).</li>
+          <li>O modal mostra subtotal e total geral com o mesmo valor: não há taxa nem desconto no projeto.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">401</span><span>Sem sessão</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Pedido inexistente ou de outro estabelecimento</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/pedidos</span><span class="etiqueta mono">OrderDetailModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span><span class="etiqueta mono">pedido_itens</span><span class="etiqueta mono">mesas</span><span class="etiqueta mono">usuarios</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint sugerido" data-papeis="admin garcom">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e24">
+      <span class="ordem">24</span>
+      <span class="metodo put">PUT</span>
+      <span class="caminho">/api/pedidos/<em>:id</em></span>
+      <span class="titulo-endpoint">Corrigir itens e mesa do pedido</span>
+      <span class="selo-sugerido">sugerido</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Substitui a lista de itens inteira e, se preciso, corrige a mesa — o caso de o garçom ter lançado na mesa errada. Não é edição parcial: o corpo manda o pedido como ele deve ficar.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que é sugerido:</strong> o botão "Editar Pedido" existe no <span class="mono">OrderDetailModal</span>, mas o handler em <span class="mono">app/pedidos/page.tsx:264</span> é um <span class="mono">TODO</span> que só fecha o modal. O contrato abaixo está desenhado; falta a tela de edição existir. Ver pendência 3.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">mesaId</td><td class="tipo">number</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">itens</td><td class="tipo">array</td><td>Lista completa, não um delta. Ao menos um item. <span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">itens[].produtoId</td><td class="tipo">number</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+          <tr><td class="campo">itens[].quantidade</td><td class="tipo">number</td><td><span class="obrigatorio">obrigatório</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">57</span>,
+  <span class="chave">"status"</span>: <span class="texto">"pendente"</span>,
+  <span class="chave">"mesa"</span>: { <span class="chave">"id"</span>: <span class="numero">5</span>, <span class="chave">"numero"</span>: <span class="numero">5</span> },
+  <span class="chave">"itens"</span>: [
+    {
+      <span class="chave">"id"</span>: <span class="numero">94</span>,
+      <span class="chave">"produtoId"</span>: <span class="numero">1</span>,
+      <span class="chave">"nomeProduto"</span>: <span class="texto">"Coca-Cola Lata"</span>,
+      <span class="chave">"precoUnitario"</span>: <span class="texto">"6.00"</span>,
+      <span class="chave">"quantidade"</span>: <span class="numero">3</span>
+    }
+  ],
+  <span class="chave">"total"</span>: <span class="texto">"18.00"</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Só enquanto o status é <span class="mono">pendente</span>. Depois que a cozinha começa, o pedido congela — editar o que já está na chapa responde <span class="mono">422</span>.</li>
+          <li class="critica">Os preços são recongelados no momento da edição, lidos de novo em <span class="mono">produtos.preco</span>. Nunca vêm do corpo.</li>
+          <li>A troca de itens apaga e recria as linhas de <span class="mono">pedido_itens</span> numa transação — o <span class="mono">onDelete: Cascade</span> cuida da limpeza.</li>
+          <li>A nova mesa precisa ser do mesmo estabelecimento.</li>
+          <li>Esvaziar a lista não é o caminho para desistir do pedido: para isso existe o endpoint 27.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Lista vazia ou quantidade inválida</span></div>
+          <div class="codigo"><span class="status s4">403</span><span>Papel é cozinha</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Pedido, mesa ou produto fora do escopo</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Pedido não está mais pendente</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">OrderDetailModal</span><span class="etiqueta">tela de edição não existe</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span><span class="etiqueta mono">pedido_itens</span><span class="etiqueta mono">produtos</span><span class="etiqueta mono">mesas</span></div></div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ FASE 5 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">5</div><h2>Preparo</h2></div>
+  <p class="descricao-fase">As três transições de estado do pedido. Cada uma é uma rota com nome de verbo de negócio, não um <span class="mono">PATCH</span> que aceita qualquer status — é o que impede o cliente de pular etapa.</p>
+
+  <article class="endpoint" data-papeis="admin cozinha">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e25">
+      <span class="ordem">25</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/pedidos/<em>:id</em>/iniciar-preparo</span>
+      <span class="titulo-endpoint">Iniciar preparo</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">cozinha</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Move o pedido de <span class="mono">pendente</span> para <span class="mono">em-preparo</span>. É o botão laranja com ícone de chama do <span class="mono">OrderDetailModal</span>.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que abre a fase:</strong> é a primeira transição possível. Nenhuma das outras duas faz sentido antes dela.</div></div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">57</span>,
+  <span class="chave">"status"</span>: <span class="texto">"em-preparo"</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Só aceita a partir de <span class="mono">pendente</span>. Qualquer outro status responde <span class="mono">422</span> — a máquina de estados vive no servidor, não na visibilidade do botão.</li>
+          <li class="critica">A tela já esconde o botão quando o status não permite (<span class="mono">onStartPrep</span> só é passado se <span class="mono">status === "pendente"</span>), mas isso é conveniência visual. A regra precisa existir na API também.</li>
+          <li>Papel vem de <span class="mono">canPrepareOrders</span>: admin e cozinha. Garçom não prepara.</li>
+          <li>Operação idempotente na prática: chamar duas vezes seguidas dá <span class="mono">422</span> na segunda, não corrompe nada.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel é garçom</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Pedido fora do escopo</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Pedido não está pendente</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/pedidos</span><span class="etiqueta mono">OrderDetailModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint" data-papeis="admin cozinha">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e26">
+      <span class="ordem">26</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/pedidos/<em>:id</em>/marcar-pronto</span>
+      <span class="titulo-endpoint">Marcar como pronto</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">cozinha</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Move de <span class="mono">em-preparo</span> para <span class="mono">pronto</span>. É o botão vermelho "Marcar como Pronto", e fecha o fluxo normal do pedido.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que depois do 25:</strong> a transição só existe a partir do estado que o 25 produz. Testar esta rota exige ter passado pela anterior.</div></div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">57</span>,
+  <span class="chave">"status"</span>: <span class="texto">"pronto"</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Só aceita a partir de <span class="mono">em-preparo</span>. Não dá para saltar de <span class="mono">pendente</span> direto para <span class="mono">pronto</span>.</li>
+          <li class="critica"><span class="mono">pronto</span> é estado final: não há transição saindo dele neste plano, nem para cancelado.</li>
+          <li>O projeto não tem "entregue" nem fechamento de conta — a jornada do pedido termina aqui.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel é garçom</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Pedido fora do escopo</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Pedido não está em preparo</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/pedidos</span><span class="etiqueta mono">OrderDetailModal</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint sugerido" data-papeis="admin garcom">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e27">
+      <span class="ordem">27</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/pedidos/<em>:id</em>/cancelar</span>
+      <span class="titulo-endpoint">Cancelar pedido</span>
+      <span class="selo-sugerido">sugerido</span>
+      <span class="papeis"><span class="papel">admin</span><span class="papel">garçom</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Move o pedido para <span class="mono">cancelado</span>, encerrando-o sem preparo concluído.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que é sugerido:</strong> o status <span class="mono">cancelado</span> existe no enum do banco e no filtro de <span class="mono">/pedidos</span>, mas <strong>nenhum botão da interface produz ele</strong> — hoje é um filtro que só encontra o que os dados mockados já traziam prontos. A regra abaixo foi decidida nesta conversa; falta o botão. Ver pendência 2.</div></div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"id"</span>: <span class="numero">57</span>,
+  <span class="chave">"status"</span>: <span class="texto">"cancelado"</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Aceita a partir de <span class="mono">pendente</span> ou <span class="mono">em-preparo</span>. Pedido <span class="mono">pronto</span> não cancela — a comida já foi feita.</li>
+          <li class="critica">Quem cancela é admin ou garçom (<span class="mono">canManageOrders</span>), não a cozinha. Cancelar é decisão de atendimento, não de produção.</li>
+          <li>O pedido continua na tabela e na listagem sob o filtro "Cancelados": é registro de estado, não exclusão.</li>
+          <li>Os itens ficam intactos, com preços congelados — o histórico do que foi pedido e depois cancelado se preserva.</li>
+          <li>Estado final: não há como reabrir um pedido cancelado.</li>
+          <li>Vale confirmar com um <span class="mono">ConfirmationModal</span>, como o projeto já faz nas outras ações irreversíveis.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel é cozinha</span></div>
+          <div class="codigo"><span class="status s4">404</span><span>Pedido fora do escopo</span></div>
+          <div class="codigo"><span class="status s4">422</span><span>Pedido já está pronto ou cancelado</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta mono">/pedidos</span><span class="etiqueta">botão não existe ainda</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">pedidos</span></div></div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ FASE 6 ============ -->
+<section class="fase">
+  <div class="cabecalho-fase"><div class="numero-fase">6</div><h2>Assinatura</h2></div>
+  <p class="descricao-fase">Stripe. Os dois endpoints são sugeridos: a tabela <span class="mono">assinaturas</span> existe no banco e a landing anuncia os planos, mas não há tela de checkout em lugar nenhum do projeto.</p>
+
+  <article class="endpoint sugerido" data-papeis="admin">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e28">
+      <span class="ordem">28</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/assinatura/checkout</span>
+      <span class="titulo-endpoint">Abrir o checkout do Stripe</span>
+      <span class="selo-sugerido">sugerido</span>
+      <span class="papeis"><span class="papel">admin</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Cria (ou reaproveita) o cliente no Stripe, abre uma sessão de Checkout para o plano Premium e devolve a URL para onde o navegador deve ir.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que é sugerido:</strong> a landing tem o botão "Ver Planos e Preços", mas não existe rota <span class="mono">/planos</span> nem tela de upgrade. O endpoint está desenhado; falta o destino daquele botão. Ver pendência 8.</div></div>
+      <div class="bloco"><h3>Corpo da requisição</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr>
+          <tr><td class="campo">priceId</td><td class="tipo">string</td><td>O <span class="mono">price</span> do Stripe. <span class="obrigatorio">obrigatório</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{
+  <span class="chave">"checkoutUrl"</span>: <span class="texto">"https://checkout.stripe.com/c/pay/cs_test_..."</span>
+}</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Só admin. Funcionário não contrata plano em nome do estabelecimento.</li>
+          <li class="critica">O <span class="mono">stripe_customer_id</span> é gravado em <span class="mono">estabelecimentos</span> na primeira vez e reaproveitado depois — criar um cliente novo a cada tentativa duplicaria cobranças no Stripe.</li>
+          <li>Este endpoint <strong>não</strong> grava a assinatura. Quem faz isso é o webhook (29): até o Stripe confirmar, nada mudou.</li>
+          <li>O acesso ao sistema não depende disso — a conta já nasce no plano gratuito.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">403</span><span>Papel não é admin</span></div>
+          <div class="codigo"><span class="status s5">502</span><span>Stripe indisponível</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta">nenhuma ainda</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">estabelecimentos</span></div></div>
+    </div>
+  </article>
+
+  <article class="endpoint sugerido" data-papeis="publico">
+    <div class="topo-endpoint">
+      <input type="checkbox" class="marcador" id="e29">
+      <span class="ordem">29</span>
+      <span class="metodo post">POST</span>
+      <span class="caminho">/api/webhooks/stripe</span>
+      <span class="titulo-endpoint">Receber eventos do Stripe</span>
+      <span class="selo-sugerido">sugerido</span>
+      <span class="papeis"><span class="papel publico">Stripe</span></span>
+      <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="detalhe">
+      <div class="bloco"><h3>O que faz</h3><p>Recebe os eventos de assinatura do Stripe e reflete o estado na tabela <span class="mono">assinaturas</span>. É a única escrita nessa tabela — nenhuma tela grava ali.</p></div>
+      <div class="bloco"><div class="porque"><strong>Por que fecha o plano:</strong> é o único endpoint que nenhuma pessoa chama. Ele existe porque o Stripe é a fonte da verdade do pagamento, e o banco precisa de um lugar para escutar.</div></div>
+      <div class="bloco"><h3>Eventos tratados</h3>
+        <table>
+          <tr><th>Evento</th><th>Efeito</th></tr>
+          <tr><td class="campo">checkout.session.completed</td><td>Cria a linha em <span class="mono">assinaturas</span></td></tr>
+          <tr><td class="campo">customer.subscription.updated</td><td>Atualiza <span class="mono">status</span>, <span class="mono">periodo_fim</span>, <span class="mono">cancelar_ao_fim</span></td></tr>
+          <tr><td class="campo">customer.subscription.deleted</td><td>Marca <span class="mono">status = canceled</span></td></tr>
+          <tr><td class="campo">invoice.payment_failed</td><td>Marca <span class="mono">status = past_due</span></td></tr>
+        </table>
+      </div>
+      <div class="bloco"><h3>Resposta 200</h3>
+        <pre>{ <span class="chave">"received"</span>: <span class="booleano">true</span> }</pre>
+        <div class="linha-copiar"><button class="btn-copiar">Copiar exemplo</button></div>
+      </div>
+      <div class="bloco"><h3>Regras</h3>
+        <ul class="regras">
+          <li class="critica">Valida a assinatura do webhook com o segredo do Stripe antes de qualquer coisa. Sem isso, qualquer um na internet dá Premium a si mesmo mandando um POST.</li>
+          <li class="critica">Precisa do corpo <strong>bruto</strong> da requisição para conferir a assinatura — se o route handler fizer <span class="mono">JSON.parse</span> antes, a verificação falha sempre.</li>
+          <li class="critica">Idempotente por <span class="mono">event.id</span>: o Stripe reenvia o mesmo evento quando não recebe 200, e processar duas vezes duplicaria a assinatura.</li>
+          <li>Fica fora da autenticação por cookie — quem chama é o Stripe, não um navegador logado.</li>
+          <li>Responde 200 mesmo para evento que não interessa, senão o Stripe fica reenviando para sempre.</li>
+          <li>O vínculo com o estabelecimento vem do <span class="mono">stripe_customer_id</span> gravado no endpoint 28.</li>
+        </ul>
+      </div>
+      <div class="bloco"><h3>Erros</h3>
+        <div class="codigos">
+          <div class="codigo"><span class="status s4">400</span><span>Assinatura do webhook inválida</span></div>
+        </div>
+      </div>
+      <div class="bloco"><h3>Telas que consomem</h3><div class="etiquetas"><span class="etiqueta">nenhuma — chamado pelo Stripe</span></div></div>
+      <div class="bloco"><h3>Tabelas</h3><div class="etiquetas"><span class="etiqueta mono">assinaturas</span><span class="etiqueta mono">estabelecimentos</span></div></div>
+    </div>
+  </article>
+</section>
+
+<section class="pendencias">
+  <h2>Pendências</h2>
+  <ol>
+    <li><strong>Os mocks do front usam chaves em inglês; o banco, em português.</strong> As telas trabalham com <span class="mono">{ name, price, category }</span> e <span class="mono">{ name, qty, price }</span>, e o <span class="mono">NewProductModal</span> ainda manda o <em>nome</em> da categoria como valor do select, não o id. O schema Prisma usa <span class="mono">nome</span>, <span class="mono">preco</span>, <span class="mono">categoriaId</span>. Adotei o lado do Prisma no contrato acima, mas alguém precisa renomear no front — ou inverter a decisão. Afeta praticamente todo endpoint.</li>
+    <li><strong>Cancelar não tem botão.</strong> O status existe no enum e no filtro, e a regra ficou decidida (admin e garçom, até ficar pronto), mas o <span class="mono">OrderDetailModal</span> não tem esse botão. Bloqueia o endpoint 27 na prática.</li>
+    <li><strong>Editar pedido é um TODO.</strong> <span class="mono">app/pedidos/page.tsx:264</span> só fecha o modal. Falta a tela de edição — provavelmente reaproveitando o <span class="mono">NewOrderModal</span> com valores iniciais. Bloqueia o endpoint 24.</li>
+    <li><strong><span class="mono">produtos.disponivel</span> não tem controle na tela.</strong> A coluna existe, o endpoint 13 está desenhado, mas nada em <span class="mono">/produtos</span> liga ou desliga.</li>
+    <li><strong><span class="mono">usuarios.ativo</span> também não.</strong> A tabela de <span class="mono">/funcionarios</span> mostra o badge Ativo/Inativo, mas o <span class="mono">FuncionarioModal</span> não tem esse campo — não há como desativar alguém pela interface. Deixei como campo opcional do endpoint 19.</li>
+    <li><strong>Telefone do funcionário é exibido mas nunca coletado.</strong> A coluna aparece na tabela e <span class="mono">app/funcionarios/page.tsx:219</span> cria todo mundo com <span class="mono">phone: ""</span>. Ou o modal ganha o campo, ou a coluna sai da tabela.</li>
+    <li><strong>Ninguém recupera a própria senha.</strong> Funcionário não tem e-mail no cadastro, então não há canal — a redefinição só acontece pelo admin no endpoint 19. Para o admin, que tem e-mail, não existe fluxo nenhum: se ele esquecer a senha, perde o estabelecimento. Exigiria a tabela de tokens que decidimos não criar.</li>
+    <li><strong>Stripe não tem tela.</strong> A landing promete "Ver Planos e Preços" e o botão não leva a lugar nenhum. Sem uma rota <span class="mono">/planos</span>, os endpoints 28 e 29 não têm por onde ser acionados.</li>
+    <li><strong>A paginação do front é local.</strong> <span class="mono">usePagination</span> fatia um array em memória e o <span class="mono">pageSize</span> vem do viewport via <span class="mono">useResponsiveGrid</span>. Para consumir <span class="mono">?page=&amp;limit=</span>, o front precisa mandar o tamanho calculado e refazer a busca a cada troca de página — hoje ele só re-renderiza.</li>
+    <li><strong>A tela da cozinha não se atualiza sozinha.</strong> Não há polling nem realtime em <span class="mono">/pedidos</span>. Um pedido lançado pelo garçom só aparece para a cozinha se alguém recarregar a página — o que inviabiliza o fluxo na prática. Decidir entre consulta periódica, SSE ou websocket muda o desenho do endpoint 22.</li>
+    <li><strong>A sessão do front não carrega o estabelecimento.</strong> <span class="mono">AuthUser</span> em <span class="mono">app/lib/store/auth-store.ts</span> guarda só <span class="mono">{ id, name, role }</span>. Num sistema multi-estabelecimento falta <span class="mono">estabelecimentoId</span>, que os endpoints 01, 02 e 03 já devolvem.</li>
+    <li><strong>Tipo do id diverge.</strong> Os mocks usam string (<span class="mono">id: "1"</span>, <span class="mono">id: "coca-cola"</span>) e o banco usa <span class="mono">Int</span> autoincremento. O JSON vai trazer número; o front precisa parar de comparar com string.</li>
+  </ol>
+</section>
+
+<p class="rodape">Gerado pela skill de mapeamento de endpoints a partir de 8 telas e 8 tabelas. Os itens marcados ficam salvos neste navegador.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var CHAVE = "plano-endpoints-feitos";
+  var marcadores = Array.prototype.slice.call(document.querySelectorAll(".marcador"));
+  var preenchida = document.getElementById("preenchida");
+  var contadorFeitos = document.getElementById("feitos");
+
+  function ler(){
+    try { return JSON.parse(localStorage.getItem(CHAVE)) || {}; }
+    catch (e) { return {}; }
+  }
+  function gravar(estado){
+    try { localStorage.setItem(CHAVE, JSON.stringify(estado)); }
+    catch (e) {}
+  }
+  function atualizarProgresso(){
+    var feitos = marcadores.filter(function(m){ return m.checked; }).length;
+    contadorFeitos.textContent = feitos;
+    preenchida.style.width = (marcadores.length ? (feitos / marcadores.length) * 100 : 0) + "%";
+  }
+
+  var estado = ler();
+  marcadores.forEach(function(m){
+    m.checked = !!estado[m.id];
+    m.closest(".endpoint").classList.toggle("feito", m.checked);
+    m.addEventListener("change", function(){
+      var atual = ler();
+      if (m.checked) { atual[m.id] = true; } else { delete atual[m.id]; }
+      gravar(atual);
+      m.closest(".endpoint").classList.toggle("feito", m.checked);
+      atualizarProgresso();
+    });
+  });
+  atualizarProgresso();
+
+  // abrir e fechar detalhe
+  document.querySelectorAll(".alternar").forEach(function(botao){
+    botao.addEventListener("click", function(){
+      var cartao = botao.closest(".endpoint");
+      var aberto = cartao.hasAttribute("open-detalhe");
+      if (aberto) { cartao.removeAttribute("open-detalhe"); }
+      else { cartao.setAttribute("open-detalhe", ""); }
+      botao.setAttribute("aria-label", aberto ? "Ver detalhes" : "Esconder detalhes");
+    });
+  });
+
+  // expandir tudo
+  var btnExpandir = document.getElementById("expandir");
+  btnExpandir.addEventListener("click", function(){
+    var cartoes = document.querySelectorAll(".endpoint");
+    var algumFechado = Array.prototype.some.call(cartoes, function(c){ return !c.hasAttribute("open-detalhe"); });
+    cartoes.forEach(function(c){
+      if (algumFechado) { c.setAttribute("open-detalhe", ""); } else { c.removeAttribute("open-detalhe"); }
+    });
+    btnExpandir.textContent = algumFechado ? "Recolher tudo" : "Expandir tudo";
+  });
+
+  // desmarcar tudo
+  document.getElementById("limpar").addEventListener("click", function(){
+    gravar({});
+    marcadores.forEach(function(m){
+      m.checked = false;
+      m.closest(".endpoint").classList.remove("feito");
+    });
+    atualizarProgresso();
+  });
+
+  // filtro por papel
+  var filtros = Array.prototype.slice.call(document.querySelectorAll(".filtro"));
+  filtros.forEach(function(f){
+    f.addEventListener("click", function(){
+      filtros.forEach(function(o){ o.setAttribute("aria-pressed", String(o === f)); });
+      var papel = f.dataset.papel;
+      document.querySelectorAll(".endpoint").forEach(function(c){
+        var papeis = c.dataset.papeis || "";
+        c.style.display = (papel === "todos" || papeis.indexOf(papel) !== -1) ? "" : "none";
+      });
+      document.querySelectorAll(".fase").forEach(function(fase){
+        var visiveis = Array.prototype.filter.call(fase.querySelectorAll(".endpoint"), function(c){
+          return c.style.display !== "none";
+        });
+        fase.style.display = visiveis.length ? "" : "none";
+      });
+    });
+  });
+
+  // copiar exemplo
+  document.querySelectorAll(".btn-copiar").forEach(function(botao){
+    botao.addEventListener("click", function(){
+      var bloco = botao.closest(".bloco").querySelector("pre");
+      if (!bloco) { return; }
+      var texto = bloco.innerText;
+      var original = botao.textContent;
+      function avisar(ok){
+        botao.textContent = ok ? "Copiado" : "Não deu";
+        setTimeout(function(){ botao.textContent = original; }, 1400);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(function(){ avisar(true); }, function(){ avisar(false); });
+      } else {
+        avisar(false);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

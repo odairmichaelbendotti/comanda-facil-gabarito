@@ -9,104 +9,225 @@ datasource db {
   provider = "postgresql"
 }
 
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
 enum RoleUsuario {
   admin
   garcom
   cozinha
 }
 
+enum TipoDocumento {
+  cpf
+  cnpj
+}
+
+// Os valores espelham as strings usadas pela UI em app/pedidos/page.tsx.
 enum StatusPedido {
   pendente
-  em_preparo   @map("em-preparo")
+  em_preparo @map("em-preparo")
   pronto
   cancelado
 }
 
-model Usuario {
-  id              Int          @id @default(autoincrement())
-  nome            String
-  cpf             String       @unique
-  senhaHash       String       @map("senha_hash")
-  role            RoleUsuario
-  telefone        String?
-  dataNascimento  DateTime?    @map("data_nascimento") @db.Date
-  ativo           Boolean      @default(true)
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
+// Estados brasileiros — mesma lista de BRAZILIAN_STATES em app/cadastro/page.tsx.
+enum UfBrasil {
+  AC
+  AL
+  AP
+  AM
+  BA
+  CE
+  DF
+  ES
+  GO
+  MA
+  MT
+  MS
+  MG
+  PA
+  PB
+  PR
+  PE
+  PI
+  RJ
+  RN
+  RS
+  RO
+  RR
+  SC
+  SP
+  SE
+  TO
+}
 
+// Status emitidos pelo Stripe para uma subscription.
+enum StatusAssinatura {
+  trialing
+  active
+  past_due           @map("past_due")
+  canceled
+  incomplete
+  incomplete_expired @map("incomplete_expired")
+  unpaid
+  paused
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model Estabelecimento {
+  id               Int           @id @default(autoincrement())
+  nome             String
+  tipoDocumento    TipoDocumento @map("tipo_documento")
+  documento        String        @unique
+  telefone         String
+  cep              String?
+  logradouro       String
+  numero           String
+  complemento      String?
+  bairro           String?
+  cidade           String?
+  estado           UfBrasil
+  stripeCustomerId String?       @unique @map("stripe_customer_id")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  usuarios   Usuario[]
+  categorias Categoria[]
+  produtos   Produto[]
+  mesas      Mesa[]
+  pedidos    Pedido[]
+  assinatura Assinatura?
+
+  @@map("estabelecimentos")
+}
+
+model Usuario {
+  id                Int           @id @default(autoincrement())
+  estabelecimentoId Int           @map("estabelecimento_id")
+  nome              String
+  tipoDocumento     TipoDocumento @map("tipo_documento")
+  documento         String        @unique
+  senhaHash         String        @map("senha_hash")
+  role              RoleUsuario
+  email             String?       @unique
+  telefone          String?
+  dataNascimento    DateTime?     @map("data_nascimento") @db.Date
+  ativo             Boolean       @default(true)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  deletedAt         DateTime?     @map("deleted_at")
+
+  estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
   pedidos         Pedido[]
 
+  @@index([estabelecimentoId])
   @@map("usuarios")
 }
 
+model Assinatura {
+  id                   Int              @id @default(autoincrement())
+  estabelecimentoId    Int              @unique @map("estabelecimento_id")
+  stripeSubscriptionId String           @unique @map("stripe_subscription_id")
+  stripePriceId        String           @map("stripe_price_id")
+  status               StatusAssinatura
+  periodoFim           DateTime?        @map("periodo_fim")
+  cancelarAoFim        Boolean          @default(false) @map("cancelar_ao_fim")
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
+
+  estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
+  @@map("assinaturas")
+}
+
 model Categoria {
-  id          Int       @id @default(autoincrement())
-  nome        String
-  descricao   String?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id                Int       @id @default(autoincrement())
+  estabelecimentoId Int       @map("estabelecimento_id")
+  nome              String
+  descricao         String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
 
-  produtos    Produto[]
+  estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+  produtos        Produto[]
 
+  @@index([estabelecimentoId])
   @@map("categorias")
 }
 
 model Produto {
-  id           Int           @id @default(autoincrement())
-  nome         String
-  preco        Decimal       @db.Decimal(10, 2)
-  disponivel   Boolean       @default(true)
-  categoriaId  Int           @map("categoria_id")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  id                Int       @id @default(autoincrement())
+  estabelecimentoId Int       @map("estabelecimento_id")
+  categoriaId       Int       @map("categoria_id")
+  nome              String
+  preco             Decimal   @db.Decimal(10, 2)
+  disponivel        Boolean   @default(true)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
 
-  categoria    Categoria     @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
-  pedidoItens  PedidoItem[]
+  estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+  categoria       Categoria       @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  pedidoItens     PedidoItem[]
 
+  @@index([estabelecimentoId])
   @@index([categoriaId])
   @@map("produtos")
 }
 
 model Mesa {
-  id          Int       @id @default(autoincrement())
-  numero      Int       @unique
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id                Int       @id @default(autoincrement())
+  estabelecimentoId Int       @map("estabelecimento_id")
+  numero            Int
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
 
-  pedidos     Pedido[]
+  estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+  pedidos         Pedido[]
 
+  @@index([estabelecimentoId])
   @@map("mesas")
 }
 
 model Pedido {
-  id          Int           @id @default(autoincrement())
-  mesaId      Int           @map("mesa_id")
-  garcomId    Int           @map("garcom_id")
-  status      StatusPedido  @default(pendente)
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
+  id                Int          @id @default(autoincrement())
+  estabelecimentoId Int          @map("estabelecimento_id")
+  mesaId            Int          @map("mesa_id")
+  garcomId          Int          @map("garcom_id")
+  status            StatusPedido @default(pendente)
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
 
-  mesa        Mesa          @relation(fields: [mesaId], references: [id], onDelete: Restrict)
-  garcom      Usuario       @relation(fields: [garcomId], references: [id], onDelete: Restrict)
-  itens       PedidoItem[]
+  estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+  mesa            Mesa            @relation(fields: [mesaId], references: [id], onDelete: Restrict)
+  garcom          Usuario         @relation(fields: [garcomId], references: [id], onDelete: Restrict)
+  itens           PedidoItem[]
 
+  @@index([estabelecimentoId])
   @@index([mesaId])
   @@index([garcomId])
   @@map("pedidos")
 }
 
 model PedidoItem {
-  id             Int       @id @default(autoincrement())
-  pedidoId       Int       @map("pedido_id")
-  produtoId      Int?      @map("produto_id")
-  nomeProduto    String    @map("nome_produto")
-  precoUnitario  Decimal   @map("preco_unitario") @db.Decimal(10, 2)
-  quantidade     Int
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id            Int      @id @default(autoincrement())
+  pedidoId      Int      @map("pedido_id")
+  produtoId     Int?     @map("produto_id")
+  nomeProduto   String   @map("nome_produto")
+  precoUnitario Decimal  @map("preco_unitario") @db.Decimal(10, 2)
+  quantidade    Int
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-  pedido         Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
-  produto        Produto?  @relation(fields: [produtoId], references: [id], onDelete: SetNull)
+  pedido  Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produto Produto? @relation(fields: [produtoId], references: [id], onDelete: SetNull)
 
   @@index([pedidoId])
   @@index([produtoId])

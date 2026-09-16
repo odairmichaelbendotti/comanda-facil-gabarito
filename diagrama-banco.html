@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Diagrama do banco de dados</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-dots: #161b22;
+    --card-bg: #161b22;
+    --card-border: #30363d;
+    --card-border-highlight: #58a6ff;
+    --header-bg: #1c2128;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+      "DejaVu Sans Mono", monospace;
+    --pk: #d29922;
+    --fk: #58a6ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    background-image: radial-gradient(var(--bg-dots) 1px, transparent 1px);
+    background-size: 22px 22px;
+    color: var(--text);
+    font-family: var(--mono);
+    overflow: auto;
+  }
+
+  #canvas {
+    position: relative;
+    width: 3200px;
+    height: 2200px;
+  }
+
+  h1 {
+    position: fixed;
+    top: 16px;
+    left: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .card {
+    position: absolute;
+    width: 260px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card.highlighted {
+    border-color: var(--card-border-highlight);
+    box-shadow: 0 0 0 1px var(--card-border-highlight), 0 4px 20px rgba(88, 166, 255, 0.35);
+  }
+
+  .card-header {
+    padding: 10px 14px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--card-border);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .card-header:active { cursor: grabbing; }
+
+  .col-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .col-row:last-child { border-bottom: none; }
+
+  .col-row.fk-row { cursor: pointer; }
+  .col-row.fk-row:hover { background: rgba(88, 166, 255, 0.08); }
+
+  .marker {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-align: center;
+    padding: 1px 0;
+    border-radius: 3px;
+  }
+
+  .marker.pk { color: #0d1117; background: var(--pk); }
+  .marker.fk { color: #0d1117; background: var(--fk); }
+
+  .col-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-type { color: var(--text-dim); text-align: right; white-space: nowrap; }
+</style>
+</head>
+<body>
+<h1>Diagrama do banco de dados</h1>
+<div id="canvas"></div>
+
+<script>
+// >>> SCHEMA_DATA_START — a skill substitui só este bloco pelas tabelas reais,
+// mantendo o resto do arquivo (HTML/CSS/JS) intocado.
+const SCHEMA = {
+  tables: [
+    {
+      name: "estabelecimentos",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "nome", type: "text" },
+        { name: "tipo_documento", type: "enum(cpf|cnpj)" },
+        { name: "documento", type: "text UNIQUE" },
+        { name: "telefone", type: "text" },
+        { name: "cep", type: "text NULL" },
+        { name: "endereco", type: "text" },
+        { name: "cidade", type: "text NULL" },
+        { name: "estado", type: "enum(27 UFs)" },
+        { name: "stripe_customer_id", type: "text UNIQUE NULL" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" }
+      ]
+    },
+    {
+      name: "usuarios",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "estabelecimento_id", type: "int", fk: "estabelecimentos" },
+        { name: "nome", type: "text" },
+        { name: "tipo_documento", type: "enum(cpf|cnpj)" },
+        { name: "documento", type: "text UNIQUE" },
+        { name: "senha_hash", type: "text" },
+        { name: "role", type: "enum(admin|garcom|cozinha)" },
+        { name: "email", type: "text UNIQUE NULL" },
+        { name: "telefone", type: "text NULL" },
+        { name: "data_nascimento", type: "date NULL" },
+        { name: "ativo", type: "boolean" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" },
+        { name: "deleted_at", type: "timestamptz NULL" }
+      ]
+    },
+    {
+      name: "assinaturas",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "estabelecimento_id", type: "int UNIQUE", fk: "estabelecimentos" },
+        { name: "stripe_subscription_id", type: "text UNIQUE" },
+        { name: "stripe_price_id", type: "text" },
+        { name: "status", type: "enum(active|past_due|...)" },
+        { name: "periodo_fim", type: "timestamptz NULL" },
+        { name: "cancelar_ao_fim", type: "boolean" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" }
+      ]
+    },
+    {
+      name: "categorias",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "estabelecimento_id", type: "int", fk: "estabelecimentos" },
+        { name: "nome", type: "text" },
+        { name: "descricao", type: "text NULL" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" },
+        { name: "deleted_at", type: "timestamptz NULL" }
+      ]
+    },
+    {
+      name: "produtos",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "estabelecimento_id", type: "int", fk: "estabelecimentos" },
+        { name: "categoria_id", type: "int", fk: "categorias" },
+        { name: "nome", type: "text" },
+        { name: "preco", type: "numeric(10,2)" },
+        { name: "disponivel", type: "boolean" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" },
+        { name: "deleted_at", type: "timestamptz NULL" }
+      ]
+    },
+    {
+      name: "mesas",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "estabelecimento_id", type: "int", fk: "estabelecimentos" },
+        { name: "numero", type: "int" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" },
+        { name: "deleted_at", type: "timestamptz NULL" }
+      ]
+    },
+    {
+      name: "pedidos",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "estabelecimento_id", type: "int", fk: "estabelecimentos" },
+        { name: "mesa_id", type: "int", fk: "mesas" },
+        { name: "garcom_id", type: "int", fk: "usuarios" },
+        { name: "status", type: "enum(pendente|em-preparo|pronto|cancelado)" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" }
+      ]
+    },
+    {
+      name: "pedido_itens",
+      columns: [
+        { name: "id", type: "serial", pk: true },
+        { name: "pedido_id", type: "int", fk: "pedidos" },
+        { name: "produto_id", type: "int NULL", fk: "produtos" },
+        { name: "nome_produto", type: "text" },
+        { name: "preco_unitario", type: "numeric(10,2)" },
+        { name: "quantidade", type: "int" },
+        { name: "created_at", type: "timestamptz" },
+        { name: "updated_at", type: "timestamptz" }
+      ]
+    }
+  ]
+};
+// <<< SCHEMA_DATA_END
+
+(function render() {
+  const canvas = document.getElementById("canvas");
+  const cardsByTable = {};
+
+  const cols = 3;
+  const cardWidth = 260;
+  const gapX = 60;
+  const gapY = 50;
+  const startX = 40;
+  const startY = 50;
+
+  SCHEMA.tables.forEach((table, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = startX + col * (cardWidth + gapX);
+    const y = startY + row * 260;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.left = x + "px";
+    card.style.top = y + "px";
+    card.dataset.table = table.name;
+
+    const header = document.createElement("div");
+    header.className = "card-header";
+    header.textContent = table.name;
+    card.appendChild(header);
+
+    table.columns.forEach((col) => {
+      const rowEl = document.createElement("div");
+      rowEl.className = "col-row" + (col.fk ? " fk-row" : "");
+
+      const marker = document.createElement("div");
+      marker.className = "marker" + (col.pk ? " pk" : col.fk ? " fk" : "");
+      marker.textContent = col.pk ? "PK" : col.fk ? "FK" : "";
+      rowEl.appendChild(marker);
+
+      const name = document.createElement("div");
+      name.className = "col-name";
+      name.textContent = col.name;
+      rowEl.appendChild(name);
+
+      const type = document.createElement("div");
+      type.className = "col-type";
+      type.textContent = col.type;
+      rowEl.appendChild(type);
+
+      if (col.fk) {
+        rowEl.addEventListener("click", () => highlightTable(col.fk));
+      }
+
+      card.appendChild(rowEl);
+    });
+
+    canvas.appendChild(card);
+    cardsByTable[table.name] = card;
+    makeDraggable(card, header);
+  });
+
+  function highlightTable(tableName) {
+    const target = cardsByTable[tableName];
+    if (!target) return;
+    const alreadyOn = target.classList.contains("highlighted");
+    Object.values(cardsByTable).forEach((c) => c.classList.remove("highlighted"));
+    if (!alreadyOn) {
+      target.classList.add("highlighted");
+      target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
+  }
+
+  function makeDraggable(card, handle) {
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    handle.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      offsetX = e.clientX - card.offsetLeft;
+      offsetY = e.clientY - card.offsetTop;
+      card.style.zIndex = 1000;
+      handle.setPointerCapture(e.pointerId);
+    });
+
+    handle.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      card.style.left = (e.clientX - offsetX) + "px";
+      card.style.top = (e.clientY - offsetY) + "px";
+    });
+
+    handle.addEventListener("pointerup", (e) => {
+      dragging = false;
+      card.style.zIndex = "";
+      handle.releasePointerCapture(e.pointerId);
+    });
+  }
+})();
+</script>
+</body>
+</html>

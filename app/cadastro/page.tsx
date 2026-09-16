@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -39,8 +40,10 @@ const BRAZILIAN_STATES = [
 ];
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [documentType, setDocumentType] = useState<"cnpj" | "cpf">("cnpj");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -49,9 +52,12 @@ export default function SignUpPage() {
     establishmentName: "",
     phone: "",
     cep: "",
-    address: "",
-    city: "",
-    state: "",
+    logradouro: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -94,8 +100,9 @@ export default function SignUpPage() {
       if (formData.phone.length !== 10 && formData.phone.length !== 11) {
         newErrors.phone = "Telefone inválido";
       }
-      if (!formData.address) newErrors.address = "Endereço é obrigatório";
-      if (!formData.state) newErrors.state = "Estado é obrigatório";
+      if (!formData.logradouro) newErrors.logradouro = "Endereço é obrigatório";
+      if (!formData.numero) newErrors.numero = "Número é obrigatório";
+      if (!formData.estado) newErrors.estado = "Estado é obrigatório";
     }
 
     setErrors(newErrors);
@@ -112,11 +119,48 @@ export default function SignUpPage() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep(currentStep)) {
-      // TODO: Submit form data
-      console.log("Form submitted:", formData);
+    if (!validateStep(currentStep)) return;
+
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      const payload = {
+        email: formData.email,
+        senha: formData.password,
+        tipoDocumento: documentType.toUpperCase(),
+        documento: formData.document,
+        nomeEstabelecimento: formData.establishmentName,
+        telefone: formData.phone,
+        cep: formData.cep || undefined,
+        logradouro: formData.logradouro,
+        numero: formData.numero,
+        complemento: formData.complemento || undefined,
+        bairro: formData.bairro || undefined,
+        cidade: formData.cidade || undefined,
+        estado: formData.estado,
+      };
+
+      const response = await fetch("/api/cadastro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({ submit: data.error || "Erro ao criar conta" });
+        return;
+      }
+
+      router.push("/pedidos");
+    } catch (error) {
+      setErrors({ submit: "Erro ao conectar com o servidor" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -261,27 +305,51 @@ export default function SignUpPage() {
               />
             </div>
             <Input
-              label="Endereço Completo"
-              name="address"
-              placeholder="Rua, número, bairro..."
-              value={formData.address}
+              label="Logradouro"
+              name="logradouro"
+              placeholder="Ex: Rua das Flores"
+              value={formData.logradouro}
               onChange={handleInputChange}
-              error={errors.address}
+              error={errors.logradouro}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Número"
+                name="numero"
+                placeholder="123"
+                value={formData.numero}
+                onChange={handleInputChange}
+                error={errors.numero}
+              />
+              <Input
+                label="Complemento"
+                name="complemento"
+                placeholder="Apt 456 (opcional)"
+                value={formData.complemento}
+                onChange={handleInputChange}
+              />
+            </div>
+            <Input
+              label="Bairro"
+              name="bairro"
+              placeholder="Ex: Centro"
+              value={formData.bairro}
+              onChange={handleInputChange}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 label="Cidade"
-                name="city"
+                name="cidade"
                 placeholder="São Paulo"
-                value={formData.city}
+                value={formData.cidade}
                 onChange={handleInputChange}
               />
               <NativeSelect
                 label="Estado"
-                name="state"
-                value={formData.state}
+                name="estado"
+                value={formData.estado}
                 onChange={handleInputChange}
-                error={errors.state}
+                error={errors.estado}
                 placeholder="Selecione"
                 options={BRAZILIAN_STATES}
               />
@@ -335,6 +403,12 @@ export default function SignUpPage() {
             {stepContent[currentStep as keyof typeof stepContent]}
           </div>
 
+          {errors.submit && (
+            <p className="mb-4 text-body-sm text-(--color-status-danger-text)">
+              {errors.submit}
+            </p>
+          )}
+
           {/* Divider */}
           <div className="mb-6 h-px bg-(--color-border-subtle)" />
 
@@ -356,12 +430,18 @@ export default function SignUpPage() {
                 variant="primary"
                 className="w-full sm:flex-1"
                 onClick={handleNext}
+                disabled={isSubmitting}
               >
                 Próximo
               </Button>
             ) : (
-              <Button type="submit" variant="primary" className="w-full">
-                Criar Minha Conta
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Criando..." : "Criar Minha Conta"}
               </Button>
             )}
           </div>
