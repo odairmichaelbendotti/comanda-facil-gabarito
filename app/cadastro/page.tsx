@@ -122,7 +122,6 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (formData.cep.length !== 8) {
-      setCepLoading(false);
       return;
     }
 
@@ -130,6 +129,8 @@ export default function SignUpPage() {
       setCepLoading(true);
       try {
         const response = await fetch(`https://viacep.com.br/ws/${formData.cep}/json/`);
+        if (!response.ok) throw new Error("Erro ao buscar CEP");
+
         const data = await response.json();
 
         if (data.erro) {
@@ -139,10 +140,10 @@ export default function SignUpPage() {
 
         setFormData((prev) => ({
           ...prev,
-          logradouro: data.logradouro || prev.logradouro,
-          bairro: data.bairro || prev.bairro,
-          cidade: data.localidade || prev.cidade,
-          estado: data.uf || prev.estado,
+          logradouro: data.logradouro || "",
+          bairro: data.bairro || "",
+          cidade: data.localidade || "",
+          estado: data.uf || "",
         }));
       } catch (error) {
         console.error("Erro ao buscar CEP:", error);
@@ -332,13 +333,25 @@ export default function SignUpPage() {
                   </p>
                 )}
               </div>
-              <MaskedInput
-                type="cep"
-                label="CEP"
-                name="cep"
-                defaultValue={formData.cep}
-                onValueChange={handleMaskedChange("cep")}
-              />
+              <div>
+                <MaskedInput
+                  type="cep"
+                  label="CEP"
+                  name="cep"
+                  defaultValue={formData.cep}
+                  onValueChange={handleMaskedChange("cep")}
+                />
+                {cepLoading && (
+                  <p className="mt-1.5 text-body-sm text-(--color-text-secondary)">
+                    Buscando endereço...
+                  </p>
+                )}
+                {formData.cep.length === 8 && !cepLoading && formData.logradouro && (
+                  <p className="mt-1.5 text-body-sm text-(--color-status-success-text)">
+                    ✓ Endereço encontrado
+                  </p>
+                )}
+              </div>
             </div>
             <Input
               label="Logradouro"
