@@ -401,8 +401,9 @@ export default function PreviewPage() {
 
       <Section title="SidebarPlanIndicators">
         <div className="flex w-60 flex-col gap-4">
-          <SidebarPlanIndicators />
+          <SidebarPlanIndicators ordersUsed={17} ordersLimit={30} />
           <SidebarPlanIndicators ordersUsed={28} ordersLimit={30} />
+          <SidebarPlanIndicators premium />
         </div>
       </Section>
 

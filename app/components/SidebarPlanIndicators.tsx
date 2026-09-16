@@ -17,7 +17,19 @@ export default function SidebarPlanIndicators({
 
   return (
     <div className={`flex w-full flex-1 flex-col gap-3 ${className}`}>
-      {!premium && (
+      {premium ? (
+        <div className="flex w-full flex-col gap-2.5 rounded-md border border-(--color-status-warning-border) bg-(--color-status-warning-bg) p-3">
+          <div className="flex w-full items-center gap-2">
+            <LuStar className="size-4 shrink-0 text-(--color-status-warning-text)" />
+            <p className="text-label-sm font-semibold text-(--color-status-warning-text)">
+              Restaurante Premium
+            </p>
+          </div>
+          <p className="text-body-sm text-(--color-status-warning-text)">
+            Pedidos ilimitados
+          </p>
+        </div>
+      ) : (
         <div className="flex w-full flex-col gap-2.5 rounded-md border border-(--color-border-subtle) bg-(--color-status-neutral-bg) p-3">
           <div className="flex w-full items-center gap-2">
             <LuPackage className="size-4 shrink-0 text-(--color-text-secondary)" />
@@ -38,18 +50,6 @@ export default function SidebarPlanIndicators({
           </div>
         </div>
       )}
-
-      <div className="flex w-full flex-col gap-2.5 rounded-md border border-(--color-status-warning-border) bg-(--color-status-warning-bg) p-3">
-        <div className="flex w-full items-center gap-2">
-          <LuStar className="size-4 shrink-0 text-(--color-status-warning-text)" />
-          <p className="text-label-sm font-semibold text-(--color-status-warning-text)">
-            Restaurante Premium
-          </p>
-        </div>
-        <p className="text-body-sm text-(--color-status-warning-text)">
-          Pedidos ilimitados
-        </p>
-      </div>
     </div>
   );
 }
