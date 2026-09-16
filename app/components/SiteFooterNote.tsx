@@ -1,6 +1,12 @@
-export default function PremiumUpgradeFooter() {
+interface SiteFooterNoteProps {
+  className?: string;
+}
+
+export default function SiteFooterNote({ className = "" }: SiteFooterNoteProps) {
   return (
-    <div className="flex w-full flex-col items-center gap-1.5 px-6 pt-2 pb-6 text-center sm:px-20">
+    <div
+      className={`flex w-full flex-col items-center gap-1.5 px-6 pt-2 pb-6 text-center sm:px-20 ${className}`}
+    >
       <p className="text-body-sm text-(--color-text-tertiary)">
         Dúvidas? Entre em contato com nosso suporte através de{" "}
         <a

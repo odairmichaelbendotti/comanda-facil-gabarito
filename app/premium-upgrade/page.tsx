@@ -1,8 +1,8 @@
 "use client";
 
 import ProtectedRoute from "../components/ProtectedRoute";
+import SiteFooterNote from "../components/SiteFooterNote";
 import { useAuthStore } from "../lib/store/auth-store";
-import PremiumUpgradeFooter from "./_components/PremiumUpgradeFooter";
 import PremiumUpgradeHero from "./_components/PremiumUpgradeHero";
 import PremiumUpgradeNavbar from "./_components/PremiumUpgradeNavbar";
 import PricingPlanCard from "./_components/PricingPlanCard";
@@ -64,7 +64,7 @@ function PremiumUpgradePageContent() {
       </div>
 
       <TrustSignals />
-      <PremiumUpgradeFooter />
+      <SiteFooterNote />
     </div>
   );
 }
