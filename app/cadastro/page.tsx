@@ -10,6 +10,16 @@ import MaskedInput from "../components/MaskedInput";
 import NativeSelect from "../components/NativeSelect";
 import { isValidCnpj, isValidCpf } from "../lib/document";
 
+// Which formData keys each step's UI shows and validates — used to scope
+// "does this step currently block advancing" to that step's own fields, so
+// an unresolved error left behind on a later step (e.g. after Voltar) never
+// disables the Próximo button on an earlier one.
+const STEP_FIELDS: Record<number, string[]> = {
+  1: ["email", "password", "confirmPassword"],
+  2: ["document"],
+  3: ["establishmentName", "phone", "logradouro", "numero", "estado"],
+};
+
 const BRAZILIAN_STATES = [
   { value: "AC", label: "Acre" },
   { value: "AL", label: "Alagoas" },
@@ -62,8 +72,8 @@ export default function SignUpPage() {
     estado: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const hasBlockingErrors = Object.entries(errors).some(
-    ([field, message]) => field !== "submit" && !!message,
+  const hasBlockingErrors = STEP_FIELDS[currentStep].some(
+    (field) => !!errors[field],
   );
 
   const handleInputChange = (
