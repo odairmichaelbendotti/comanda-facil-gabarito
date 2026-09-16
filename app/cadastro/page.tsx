@@ -210,7 +210,7 @@ export default function SignUpPage() {
       const payload = {
         email: formData.email,
         senha: formData.password,
-        tipoDocumento: documentType.toUpperCase(),
+        tipoDocumento: documentType,
         documento: formData.document,
         nomeEstabelecimento: formData.establishmentName,
         telefone: formData.phone,
