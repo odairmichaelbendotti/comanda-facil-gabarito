@@ -61,6 +61,9 @@ export default function SignUpPage() {
     estado: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const hasBlockingErrors = Object.entries(errors).some(
+    ([field, message]) => field !== "submit" && !!message,
+  );
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -486,7 +489,7 @@ export default function SignUpPage() {
                 variant="primary"
                 className="w-full sm:flex-1"
                 onClick={handleNext}
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasBlockingErrors}
               >
                 Próximo
               </Button>
@@ -495,7 +498,7 @@ export default function SignUpPage() {
                 type="submit"
                 variant="primary"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasBlockingErrors}
               >
                 {isSubmitting ? "Criando..." : "Criar Minha Conta"}
               </Button>
