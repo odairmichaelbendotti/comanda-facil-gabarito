@@ -9,10 +9,10 @@ export default function PremiumUpgradeNavbar() {
   const router = useRouter();
 
   return (
-    <div className="flex w-full items-center justify-between border-b border-(--color-border-subtle) px-6 py-6 sm:px-20">
-      <Logo size="lg" />
-      <Button variant="secondary" onClick={() => router.push("/pedidos")}>
-        <span className="flex items-center gap-2">
+    <div className="flex w-full items-center justify-between border-b border-(--color-border-subtle) px-6 py-4 sm:px-20">
+      <Logo size="sm" />
+      <Button variant="secondary" size="sm" onClick={() => router.push("/pedidos")}>
+        <span className="flex items-center gap-1.5">
           <LuArrowLeft className="size-3.5" />
           Voltar ao Painel
         </span>

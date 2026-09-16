@@ -1,6 +1,6 @@
 export default function PremiumUpgradeFooter() {
   return (
-    <div className="flex w-full flex-col items-center gap-2 px-6 pt-6 pb-12 text-center sm:px-20">
+    <div className="flex w-full flex-col items-center gap-1.5 px-6 pt-2 pb-6 text-center sm:px-20">
       <p className="text-body-sm text-(--color-text-tertiary)">
         Dúvidas? Entre em contato com nosso suporte através de{" "}
         <a

@@ -40,7 +40,7 @@ function PremiumUpgradePageContent() {
       <PremiumUpgradeNavbar />
       <PremiumUpgradeHero />
 
-      <div className="flex w-full flex-col items-center justify-center gap-8 px-6 pt-8 pb-12 sm:flex-row sm:items-start sm:px-20">
+      <div className="flex w-full flex-col items-center justify-center gap-5 px-6 pt-2 pb-6 sm:flex-row sm:items-start sm:px-20">
         <PricingPlanCard
           variant="free"
           current={!isPremium}
