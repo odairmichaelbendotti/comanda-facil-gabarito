@@ -19,6 +19,7 @@ interface SidebarProps {
   userName?: string;
   plano?: PlanoInfo | null;
   onLogout?: () => void;
+  onUpgradeClick?: () => void;
   className?: string;
 }
 
@@ -28,6 +29,7 @@ export default function Sidebar({
   userName = "Odair Michael",
   plano,
   onLogout,
+  onUpgradeClick,
   className = "",
 }: SidebarProps) {
   return (
@@ -57,6 +59,7 @@ export default function Sidebar({
         premium={plano?.premium}
         ordersUsed={plano?.pedidosUsados}
         ordersLimit={plano?.pedidosLimite ?? undefined}
+        onUpgradeClick={onUpgradeClick}
       />
 
       <div className="flex flex-col gap-3">
