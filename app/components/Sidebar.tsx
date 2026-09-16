@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { LuLogOut } from "react-icons/lu";
 import Logo from "./Logo";
 import SidebarNavItem from "./SidebarNavItem";
+import SidebarPlanIndicators from "./SidebarPlanIndicators";
 import ThemeToggle from "./ThemeToggle";
 
 interface SidebarItem {
@@ -49,7 +50,7 @@ export default function Sidebar({
         ))}
       </div>
 
-      <div className="flex-1" />
+      <SidebarPlanIndicators />
 
       <div className="flex flex-col gap-3">
         <div className="h-px w-full bg-[var(--color-border-default)]" />

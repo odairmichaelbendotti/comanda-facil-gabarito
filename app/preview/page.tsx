@@ -40,6 +40,7 @@ import PageLoadingState from "../components/PageLoadingState";
 import Pagination from "../components/Pagination";
 import Sidebar from "../components/Sidebar";
 import SidebarNavItem from "../components/SidebarNavItem";
+import SidebarPlanIndicators from "../components/SidebarPlanIndicators";
 import Tab from "../components/Tab";
 import Table from "../components/Table";
 import Textarea from "../components/Textarea";
@@ -395,6 +396,13 @@ export default function PreviewPage() {
       <Section title="AccessDenied">
         <div className="h-90 w-full border border-dashed border-[var(--color-border-subtle)]">
           <AccessDenied />
+        </div>
+      </Section>
+
+      <Section title="SidebarPlanIndicators">
+        <div className="flex w-60 flex-col gap-4">
+          <SidebarPlanIndicators />
+          <SidebarPlanIndicators ordersUsed={28} ordersLimit={30} />
         </div>
       </Section>
 
