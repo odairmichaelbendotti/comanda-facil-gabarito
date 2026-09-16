@@ -88,7 +88,11 @@ export default function SignUpPage() {
     const newErrors: Record<string, string> = {};
 
     if (step === 1) {
-      if (!formData.email) newErrors.email = "Email é obrigatório";
+      if (!formData.email) {
+        newErrors.email = "Email é obrigatório";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = "Email inválido";
+      }
       if (!formData.password) {
         newErrors.password = "Senha é obrigatória";
       } else if (formData.password.length < 8) {
