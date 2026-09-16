@@ -68,6 +68,10 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
     router.push("/login");
   }
 
+  function handleUpgradeClick() {
+    router.push("/premium-upgrade");
+  }
+
   const visibleNavItems = user
     ? navItems.filter((item) => {
         const allowedRoles = getAllowedRoles(item.href);
@@ -83,6 +87,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         userName={user?.name}
         plano={plano}
         onLogout={handleLogout}
+        onUpgradeClick={handleUpgradeClick}
         className="hidden md:flex"
       />
 
@@ -124,6 +129,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
           userName={user?.name}
           plano={plano}
           onLogout={handleLogout}
+          onUpgradeClick={handleUpgradeClick}
         />
         <button
           type="button"
