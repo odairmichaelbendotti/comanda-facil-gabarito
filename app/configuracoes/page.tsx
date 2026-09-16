@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppShell from "../components/AppShell";
 import CategoryModal, { CategoryFormValues } from "../components/CategoryModal";
 import ConfirmationModal from "../components/ConfirmationModal";
@@ -28,19 +28,6 @@ interface Mesa {
   number: number;
 }
 
-const initialCategories: Category[] = [
-  { id: "bebidas", name: "Bebidas", description: "Refrigerantes, sucos e águas", productCount: 4 },
-  { id: "pizzas", name: "Pizzas", description: "Sabores salgados tradicionais", productCount: 8 },
-  { id: "sobremesas", name: "Sobremesas", description: "Doces para fechar a refeição", productCount: 6 },
-  { id: "porcoes", name: "Porções", description: "Aperitivos para compartilhar", productCount: 5 },
-  { id: "pratos", name: "Pratos", description: "Pratos principais do cardápio", productCount: 7 },
-  { id: "massas", name: "Massas", description: "Massas artesanais da casa", productCount: 3 },
-  { id: "saladas", name: "Saladas", description: "Opções leves e frescas", productCount: 4 },
-  { id: "lanches", name: "Lanches", description: "Sanduíches e petiscos", productCount: 6 },
-  { id: "cafes", name: "Cafés", description: "Cafés e bebidas quentes", productCount: 5 },
-  { id: "vinhos", name: "Vinhos", description: "Carta de vinhos selecionados", productCount: 9 },
-];
-
 const initialMesas: Mesa[] = Array.from({ length: 20 }, (_, index) => ({
   id: `mesa-${index + 1}`,
   number: index + 1,
@@ -56,7 +43,9 @@ export default function ConfiguracoesPage() {
 
 function ConfiguracoesPageContent() {
   const [activeTab, setActiveTab] = useState<ConfigTab>("categorias");
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -67,6 +56,44 @@ function ConfiguracoesPageContent() {
   const [mesaToDelete, setMesaToDelete] = useState<string | null>(null);
 
   const nextMesaNumber = mesas.reduce((max, mesa) => Math.max(max, mesa.number), 0) + 1;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // limit=500 asks for "all of them" in one page — the endpoint documents
+    // this as intentional for callers (like this one) that paginate
+    // client-side instead of server-side, via usePagination/useResponsiveGrid
+    // below, which need the full list to slice from.
+    fetch("/api/categorias?limit=500", { cache: "no-store" })
+      .then(async (response) => {
+        if (cancelled) return;
+        const data = await response.json();
+
+        if (!response.ok) {
+          setCategoriesError(data.error || "Erro ao carregar categorias");
+          return;
+        }
+
+        setCategories(
+          data.items.map((item: { id: number; nome: string; descricao: string | null; totalProdutos: number }) => ({
+            id: String(item.id),
+            name: item.nome,
+            description: item.descricao ?? "",
+            productCount: item.totalProdutos,
+          })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setCategoriesError("Erro ao conectar com o servidor");
+      })
+      .finally(() => {
+        if (!cancelled) setCategoriesLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const editingCategory = categories.find((category) => category.id === editingCategoryId);
   const categoryDeleteInfo = categories.find((c) => c.id === categoryToDelete);
@@ -181,15 +208,24 @@ function ConfiguracoesPageContent() {
 
       <div key={activeTab} className="animate-fade-in-up flex flex-1 flex-col">
         {activeTab === "categorias" ? (
-          <CategoriesSection
-            categories={categoriesPagination.pageItems}
-            currentPage={categoriesPagination.currentPage}
-            totalPages={categoriesPagination.totalPages}
-            onPageChange={categoriesPagination.setPage}
-            onEdit={openEditCategoryModal}
-            onDelete={openDeleteCategoryConfirm}
-            gridRef={categoriesGridRef}
-          />
+          categoriesError ? (
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-body-sm text-(--color-status-danger-text)">
+                {categoriesError}
+              </p>
+            </div>
+          ) : (
+            <CategoriesSection
+              categories={categoriesPagination.pageItems}
+              loading={categoriesLoading}
+              currentPage={categoriesPagination.currentPage}
+              totalPages={categoriesPagination.totalPages}
+              onPageChange={categoriesPagination.setPage}
+              onEdit={openEditCategoryModal}
+              onDelete={openDeleteCategoryConfirm}
+              gridRef={categoriesGridRef}
+            />
+          )
         ) : (
           <MesasSection
             mesas={mesasPagination.pageItems}
