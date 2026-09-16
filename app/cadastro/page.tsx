@@ -8,6 +8,7 @@ import Input from "../components/Input";
 import Logo from "../components/Logo";
 import MaskedInput from "../components/MaskedInput";
 import NativeSelect from "../components/NativeSelect";
+import { isValidCnpj, isValidCpf } from "../lib/document";
 
 const BRAZILIAN_STATES = [
   { value: "AC", label: "Acre" },
@@ -98,7 +99,12 @@ export default function SignUpPage() {
       }
     } else if (step === 2) {
       const expectedLength = documentType === "cnpj" ? 14 : 11;
-      if (formData.document.length !== expectedLength) {
+      const isValid =
+        formData.document.length === expectedLength &&
+        (documentType === "cnpj"
+          ? isValidCnpj(formData.document)
+          : isValidCpf(formData.document));
+      if (!isValid) {
         newErrors.document =
           documentType === "cnpj" ? "CNPJ inválido" : "CPF inválido";
       }
