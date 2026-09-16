@@ -10,6 +10,9 @@ import {
   LuUsers,
   LuX,
 } from "react-icons/lu";
+import { useAuthStore } from "../lib/store/auth-store";
+import { getAllowedRoles } from "../lib/permissions";
+import Logo from "./Logo";
 import Sidebar from "./Sidebar";
 
 const navItems = [
@@ -32,10 +35,10 @@ const navItems = [
     href: "/configuracoes",
   },
   {
-    key: "garcons",
+    key: "funcionarios",
     icon: <LuUsers className="size-4.5" />,
-    label: "Garçons",
-    href: "/garcons",
+    label: "Funcionários",
+    href: "/funcionarios",
   },
 ];
 
@@ -47,6 +50,8 @@ interface AppShellProps {
 export default function AppShell({ activeHref, children }: AppShellProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -58,14 +63,23 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
   }, [menuOpen]);
 
   function handleLogout() {
+    logout();
     router.push("/login");
   }
+
+  const visibleNavItems = user
+    ? navItems.filter((item) => {
+        const allowedRoles = getAllowedRoles(item.href);
+        return !allowedRoles || allowedRoles.includes(user.role);
+      })
+    : [];
 
   return (
     <div className="flex h-screen overflow-hidden bg-(--color-bg-canvas)">
       <Sidebar
-        items={navItems}
+        items={visibleNavItems}
         activeHref={activeHref}
+        userName={user?.name}
         onLogout={handleLogout}
         className="hidden md:flex"
       />
@@ -80,9 +94,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         >
           <LuMenu className="size-4.5" />
         </button>
-        <p className="font-display text-body-lg font-semibold text-(--color-text-primary)">
-          ComandaFácil
-        </p>
+        <Logo size="sm" />
         <span className="size-10" aria-hidden="true" />
       </div>
 
@@ -105,8 +117,9 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         }`}
       >
         <Sidebar
-          items={navItems}
+          items={visibleNavItems}
           activeHref={activeHref}
+          userName={user?.name}
           onLogout={handleLogout}
         />
         <button
@@ -119,7 +132,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         </button>
       </div>
 
-      <main className="animate-fade-in-up flex flex-1 flex-col gap-6 overflow-y-auto px-4 pt-20 pb-10 sm:px-6 md:p-12 md:pt-8">
+      <main className="animate-fade-in-up flex flex-1 flex-col gap-6 overflow-y-auto scroll-smooth px-4 pt-20 pb-10 sm:px-6 md:p-12 md:pt-8 motion-reduce:scroll-auto">
         {children}
       </main>
     </div>

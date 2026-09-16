@@ -2,21 +2,23 @@ import { LuPlus } from "react-icons/lu";
 import Button from "../../components/Button";
 import PageHeader from "../../components/PageHeader";
 
-interface GarconsHeaderProps {
-  onNewWaiter: () => void;
+interface FuncionariosHeaderProps {
+  onNewFuncionario: () => void;
 }
 
-export default function GarconsHeader({ onNewWaiter }: GarconsHeaderProps) {
+export default function FuncionariosHeader({
+  onNewFuncionario,
+}: FuncionariosHeaderProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <PageHeader
-        title="Garçons"
-        subtitle="Gerencie os garçons do seu restaurante"
+        title="Funcionários"
+        subtitle="Gerencie os funcionários do seu restaurante"
       />
-      <Button className="self-start sm:self-auto" onClick={onNewWaiter}>
+      <Button className="self-start sm:self-auto" onClick={onNewFuncionario}>
         <span className="flex items-center gap-2">
           <LuPlus className="size-3.5" />
-          Novo Garçom
+          Novo Funcionário
         </span>
       </Button>
     </div>

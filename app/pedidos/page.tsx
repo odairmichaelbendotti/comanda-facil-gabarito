@@ -7,13 +7,21 @@ import OrderDetailModal, {
   OrderDetailItem,
 } from "../components/OrderDetailModal";
 import { PAGINATION_RESERVED_HEIGHT } from "../components/Pagination";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { useAuthStore } from "../lib/store/auth-store";
+import { canManageOrders, canPrepareOrders } from "../lib/permissions";
 import { usePagination } from "../lib/use-pagination";
 import { useResponsiveGrid } from "../lib/use-responsive-grid";
 import PedidosHeader from "./_components/PedidosHeader";
 import PedidosFilterBar from "./_components/PedidosFilterBar";
 import PedidosGrid, { OrderStatus } from "./_components/PedidosGrid";
 
-type FilterKey = "todos" | "em-producao" | "entregues" | "cancelados";
+type FilterKey =
+  | "todos"
+  | "pendentes"
+  | "em-preparo"
+  | "prontos"
+  | "cancelados";
 
 interface Order {
   id: string;
@@ -27,14 +35,14 @@ const initialOrders: Order[] = [
   {
     id: "56",
     table: "Mesa 56",
-    status: "em-producao",
+    status: "em-preparo",
     items: [{ name: "Coca-Cola Lata", qty: 1, price: 6 }],
     receivedAt: "14:02",
   },
   {
     id: "52",
     table: "Mesa 52",
-    status: "em-producao",
+    status: "em-preparo",
     items: [
       { name: "Coca-Cola Lata", qty: 1, price: 6 },
       { name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 },
@@ -44,14 +52,14 @@ const initialOrders: Order[] = [
   {
     id: "12",
     table: "Mesa 12",
-    status: "em-producao",
+    status: "em-preparo",
     items: [{ name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 }],
     receivedAt: "14:41",
   },
   {
     id: "8",
     table: "Mesa 8",
-    status: "em-producao",
+    status: "em-preparo",
     items: [
       { name: "Água Mineral", qty: 2, price: 6 },
       { name: "Picanha", qty: 1, price: 40 },
@@ -61,7 +69,7 @@ const initialOrders: Order[] = [
   {
     id: "21",
     table: "Mesa 21",
-    status: "entregue",
+    status: "pronto",
     items: [{ name: "Pizza Marguerita", qty: 1, price: 42 }],
     receivedAt: "13:18",
   },
@@ -75,21 +83,21 @@ const initialOrders: Order[] = [
   {
     id: "3",
     table: "Mesa 3",
-    status: "em-producao",
+    status: "pendente",
     items: [{ name: "Suco Natural", qty: 2, price: 8 }],
     receivedAt: "15:03",
   },
   {
     id: "17",
     table: "Mesa 17",
-    status: "entregue",
+    status: "pronto",
     items: [{ name: "Pizza Calabresa", qty: 1, price: 48 }],
     receivedAt: "13:40",
   },
   {
     id: "29",
     table: "Mesa 29",
-    status: "em-producao",
+    status: "pendente",
     items: [
       { name: "Guaraná Lata", qty: 1, price: 5 },
       { name: "Pudim", qty: 1, price: 10 },
@@ -99,7 +107,7 @@ const initialOrders: Order[] = [
   {
     id: "34",
     table: "Mesa 34",
-    status: "entregue",
+    status: "pronto",
     items: [{ name: "Picanha", qty: 1, price: 40 }],
     receivedAt: "12:58",
   },
@@ -113,14 +121,14 @@ const initialOrders: Order[] = [
   {
     id: "41",
     table: "Mesa 41",
-    status: "em-producao",
+    status: "pendente",
     items: [{ name: "Pizza Marguerita", qty: 1, price: 42 }],
     receivedAt: "15:21",
   },
   {
     id: "18",
     table: "Mesa 18",
-    status: "entregue",
+    status: "pronto",
     items: [
       { name: "Coca-Cola Lata", qty: 2, price: 6 },
       { name: "Pizza Calabresa", qty: 1, price: 48 },
@@ -130,7 +138,7 @@ const initialOrders: Order[] = [
   {
     id: "27",
     table: "Mesa 27",
-    status: "em-producao",
+    status: "pendente",
     items: [{ name: "Água Mineral", qty: 3, price: 6 }],
     receivedAt: "15:30",
   },
@@ -138,21 +146,34 @@ const initialOrders: Order[] = [
 
 const statusConfig: Record<
   OrderStatus,
-  { label: string; variant: "neutral" | "success" | "danger" }
+  { label: string; variant: "neutral" | "success" | "warning" | "danger" }
 > = {
-  "em-producao": { label: "Em produção", variant: "neutral" },
-  entregue: { label: "Entregue", variant: "success" },
+  pendente: { label: "Pendente", variant: "warning" },
+  "em-preparo": { label: "Em Preparo", variant: "neutral" },
+  pronto: { label: "Pronto", variant: "success" },
   cancelado: { label: "Cancelado", variant: "danger" },
 };
 
 function matchesFilter(order: Order, filter: FilterKey) {
   if (filter === "todos") return true;
-  if (filter === "entregues") return order.status === "entregue";
+  if (filter === "pendentes") return order.status === "pendente";
+  if (filter === "prontos") return order.status === "pronto";
   if (filter === "cancelados") return order.status === "cancelado";
   return order.status === filter;
 }
 
 export default function PedidosPage() {
+  return (
+    <ProtectedRoute>
+      <PedidosPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function PedidosPageContent() {
+  const role = useAuthStore((state) => state.user!.role);
+  const canManage = canManageOrders(role);
+  const canPrepare = canPrepareOrders(role);
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [activeFilter, setActiveFilter] = useState<FilterKey>("todos");
   const [newOrderOpen, setNewOrderOpen] = useState(false);
@@ -167,10 +188,20 @@ export default function PedidosPage() {
   function markSelectedOrderReady() {
     setOrders((current) =>
       current.map((order) =>
-        order.id === selectedOrderId ? { ...order, status: "entregue" } : order,
+        order.id === selectedOrderId ? { ...order, status: "pronto" } : order,
       ),
     );
     setDetailsOpen(false);
+  }
+
+  function startSelectedOrderPrep() {
+    setOrders((current) =>
+      current.map((order) =>
+        order.id === selectedOrderId
+          ? { ...order, status: "em-preparo" }
+          : order,
+      ),
+    );
   }
 
   const visibleOrders = orders.filter((order) =>
@@ -192,7 +223,9 @@ export default function PedidosPage() {
 
   return (
     <AppShell activeHref="/pedidos">
-      <PedidosHeader onNewOrder={() => setNewOrderOpen(true)} />
+      <PedidosHeader
+        onNewOrder={canManage ? () => setNewOrderOpen(true) : undefined}
+      />
 
       <PedidosFilterBar
         activeFilter={activeFilter}
@@ -222,17 +255,27 @@ export default function PedidosPage() {
         order={{
           table: selectedOrder.table,
           items: selectedOrder.items,
-          isInProgress: selectedOrder.status === "em-producao",
+          isInProgress: selectedOrder.status === "em-preparo",
           receivedAt: selectedOrder.receivedAt,
         }}
-        onEditOrder={() => {
-          // TODO: wire up edit order functionality
-          setDetailsOpen(false);
-        }}
-        onStartPrep={() => {
-          // TODO: wire up start prep functionality
-        }}
-        onMarkReady={markSelectedOrderReady}
+        onEditOrder={
+          canManage
+            ? () => {
+                // TODO: wire up edit order functionality
+                setDetailsOpen(false);
+              }
+            : undefined
+        }
+        onStartPrep={
+          canPrepare && selectedOrder.status === "pendente"
+            ? startSelectedOrderPrep
+            : undefined
+        }
+        onMarkReady={
+          canPrepare && selectedOrder.status === "em-preparo"
+            ? markSelectedOrderReady
+            : undefined
+        }
       />
     </AppShell>
   );

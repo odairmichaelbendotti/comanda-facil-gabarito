@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${plusJakartaSans.variable} h-full scroll-smooth antialiased motion-reduce:scroll-auto`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

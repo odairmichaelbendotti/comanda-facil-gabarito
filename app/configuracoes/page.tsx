@@ -6,6 +6,7 @@ import CategoryModal, { CategoryFormValues } from "../components/CategoryModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import NewMesaModal from "../components/NewMesaModal";
 import { PAGINATION_RESERVED_HEIGHT } from "../components/Pagination";
+import ProtectedRoute from "../components/ProtectedRoute";
 import { usePagination } from "../lib/use-pagination";
 import { useResponsiveGrid } from "../lib/use-responsive-grid";
 import ConfiguracoesHeader from "./_components/ConfiguracoesHeader";
@@ -46,6 +47,14 @@ const initialMesas: Mesa[] = Array.from({ length: 20 }, (_, index) => ({
 }));
 
 export default function ConfiguracoesPage() {
+  return (
+    <ProtectedRoute>
+      <ConfiguracoesPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function ConfiguracoesPageContent() {
   const [activeTab, setActiveTab] = useState<ConfigTab>("categorias");
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);

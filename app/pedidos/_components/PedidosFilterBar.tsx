@@ -1,6 +1,11 @@
 import FilterTab from "../../components/FilterTab";
 
-type FilterKey = "todos" | "em-producao" | "entregues" | "cancelados";
+type FilterKey =
+  | "todos"
+  | "pendentes"
+  | "em-preparo"
+  | "prontos"
+  | "cancelados";
 
 interface PedidosFilterBarProps {
   activeFilter: FilterKey;
@@ -9,8 +14,9 @@ interface PedidosFilterBarProps {
 
 const filters: { key: FilterKey; label: string }[] = [
   { key: "todos", label: "Todos" },
-  { key: "em-producao", label: "Em produção" },
-  { key: "entregues", label: "Entregues" },
+  { key: "pendentes", label: "Pendentes" },
+  { key: "em-preparo", label: "Em Preparo" },
+  { key: "prontos", label: "Prontos" },
   { key: "cancelados", label: "Cancelados" },
 ];
 

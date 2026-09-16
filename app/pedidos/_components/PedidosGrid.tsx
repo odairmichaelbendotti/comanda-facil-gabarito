@@ -2,7 +2,7 @@ import OrderCard from "../../components/OrderCard";
 import Pagination from "../../components/Pagination";
 import { formatCurrency } from "../../lib/format";
 
-export type OrderStatus = "em-producao" | "entregue" | "cancelado";
+export type OrderStatus = "pendente" | "em-preparo" | "pronto" | "cancelado";
 
 export interface OrderDetailItem {
   name: string;
@@ -24,7 +24,10 @@ interface PedidosGridProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   onOrderClick: (orderId: string) => void;
-  statusConfig: Record<OrderStatus, { label: string; variant: "neutral" | "success" | "danger" }>;
+  statusConfig: Record<
+    OrderStatus,
+    { label: string; variant: "neutral" | "success" | "warning" | "danger" }
+  >;
   gridRef: (node: HTMLElement | null) => void;
 }
 

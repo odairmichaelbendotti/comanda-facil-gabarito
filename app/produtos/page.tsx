@@ -7,6 +7,7 @@ import NewProductModal, {
   NewProductInput,
 } from "../components/NewProductModal";
 import { PAGINATION_RESERVED_HEIGHT } from "../components/Pagination";
+import ProtectedRoute from "../components/ProtectedRoute";
 import { usePagination } from "../lib/use-pagination";
 import { useResponsiveGrid } from "../lib/use-responsive-grid";
 import ProdutosHeader from "./_components/ProdutosHeader";
@@ -64,6 +65,14 @@ const initialProducts: Product[] = [
 ];
 
 export default function ProdutosPage() {
+  return (
+    <ProtectedRoute>
+      <ProdutosPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function ProdutosPageContent() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [newProductOpen, setNewProductOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);

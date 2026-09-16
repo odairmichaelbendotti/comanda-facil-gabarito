@@ -3,33 +3,38 @@
 import { useState } from "react";
 import AppShell from "../components/AppShell";
 import ConfirmationModal from "../components/ConfirmationModal";
-import WaiterModal, { WaiterFormValues } from "../components/WaiterModal";
+import FuncionarioModal, {
+  FuncionarioFormValues,
+} from "../components/FuncionarioModal";
 import { PAGINATION_RESERVED_HEIGHT } from "../components/Pagination";
+import ProtectedRoute from "../components/ProtectedRoute";
 import { usePagination } from "../lib/use-pagination";
 import { useResponsiveGrid } from "../lib/use-responsive-grid";
-import GarconsHeader from "./_components/GarconsHeader";
-import GarconsTable from "./_components/GarconsTable";
+import FuncionariosHeader from "./_components/FuncionariosHeader";
+import FuncionariosTable from "./_components/FuncionariosTable";
 
 function firstTableRow(container: HTMLElement) {
   return container.querySelector<HTMLElement>("[data-table-row]");
 }
 
-interface Waiter {
+interface Funcionario {
   id: string;
   name: string;
   phone: string;
   cpf: string;
   birthDate: string;
+  role: "garcom" | "cozinha";
   active: boolean;
 }
 
-const initialWaiters: Waiter[] = [
+const initialFuncionarios: Funcionario[] = [
   {
     id: "carlos-silva",
     name: "Carlos Silva",
     phone: "(11) 98765-4321",
     cpf: "12345678910",
     birthDate: "14051992",
+    role: "garcom",
     active: true,
   },
   {
@@ -38,6 +43,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 97654-3210",
     cpf: "98765432100",
     birthDate: "22111995",
+    role: "cozinha",
     active: true,
   },
   {
@@ -46,6 +52,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 96543-2109",
     cpf: "45678912312",
     birthDate: "08021988",
+    role: "garcom",
     active: false,
   },
   {
@@ -54,6 +61,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 95432-1098",
     cpf: "32165498700",
     birthDate: "30071990",
+    role: "cozinha",
     active: true,
   },
   {
@@ -62,6 +70,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 94321-0987",
     cpf: "65498732100",
     birthDate: "19091985",
+    role: "garcom",
     active: true,
   },
   {
@@ -70,6 +79,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 93210-8765",
     cpf: "11122233344",
     birthDate: "05031993",
+    role: "cozinha",
     active: true,
   },
   {
@@ -78,6 +88,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 92109-8754",
     cpf: "22233344455",
     birthDate: "17062000",
+    role: "garcom",
     active: false,
   },
   {
@@ -86,6 +97,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 91098-7643",
     cpf: "33344455566",
     birthDate: "29121991",
+    role: "cozinha",
     active: true,
   },
   {
@@ -94,6 +106,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 90987-6532",
     cpf: "44455566677",
     birthDate: "11041987",
+    role: "garcom",
     active: true,
   },
   {
@@ -102,6 +115,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 89876-5421",
     cpf: "55566677788",
     birthDate: "23081996",
+    role: "cozinha",
     active: false,
   },
   {
@@ -110,6 +124,7 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 88765-4310",
     cpf: "66677788899",
     birthDate: "02102003",
+    role: "garcom",
     active: true,
   },
   {
@@ -118,63 +133,89 @@ const initialWaiters: Waiter[] = [
     phone: "(11) 87654-3209",
     cpf: "77788899900",
     birthDate: "14071989",
+    role: "cozinha",
     active: true,
   },
 ];
 
-export default function GarconsPage() {
-  const [waiters, setWaiters] = useState<Waiter[]>(initialWaiters);
-  const [waiterModalOpen, setWaiterModalOpen] = useState(false);
-  const [editingWaiterId, setEditingWaiterId] = useState<string | null>(null);
+export default function FuncionariosPage() {
+  return (
+    <ProtectedRoute>
+      <FuncionariosPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function FuncionariosPageContent() {
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>(
+    initialFuncionarios,
+  );
+  const [funcionarioModalOpen, setFuncionarioModalOpen] = useState(false);
+  const [editingFuncionarioId, setEditingFuncionarioId] = useState<
+    string | null
+  >(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [waiterToDelete, setWaiterToDelete] = useState<string | null>(null);
+  const [funcionarioToDelete, setFuncionarioToDelete] = useState<
+    string | null
+  >(null);
 
-  const editingWaiter = waiters.find((waiter) => waiter.id === editingWaiterId);
-  const waiterDeleteInfo = waiters.find((w) => w.id === waiterToDelete);
+  const editingFuncionario = funcionarios.find(
+    (funcionario) => funcionario.id === editingFuncionarioId,
+  );
+  const funcionarioDeleteInfo = funcionarios.find(
+    (f) => f.id === funcionarioToDelete,
+  );
 
-  function openNewWaiterModal() {
-    setEditingWaiterId(null);
-    setWaiterModalOpen(true);
+  function openNewFuncionarioModal() {
+    setEditingFuncionarioId(null);
+    setFuncionarioModalOpen(true);
   }
 
-  function openEditWaiterModal(id: string) {
-    setEditingWaiterId(id);
-    setWaiterModalOpen(true);
+  function openEditFuncionarioModal(id: string) {
+    setEditingFuncionarioId(id);
+    setFuncionarioModalOpen(true);
   }
 
   function openDeleteConfirm(id: string) {
-    setWaiterToDelete(id);
+    setFuncionarioToDelete(id);
     setDeleteConfirmOpen(true);
   }
 
   function handleConfirmDelete() {
-    if (waiterToDelete) {
-      setWaiters((current) =>
-        current.filter((waiter) => waiter.id !== waiterToDelete),
+    if (funcionarioToDelete) {
+      setFuncionarios((current) =>
+        current.filter((funcionario) => funcionario.id !== funcionarioToDelete),
       );
       setDeleteConfirmOpen(false);
-      setWaiterToDelete(null);
+      setFuncionarioToDelete(null);
     }
   }
 
-  function handleSubmitWaiter(values: WaiterFormValues) {
-    if (editingWaiter) {
-      setWaiters((current) =>
-        current.map((waiter) =>
-          waiter.id === editingWaiter.id
-            ? { ...waiter, name: values.name, cpf: values.cpf, birthDate: values.birthDate }
-            : waiter,
+  function handleSubmitFuncionario(values: FuncionarioFormValues) {
+    if (editingFuncionario) {
+      setFuncionarios((current) =>
+        current.map((funcionario) =>
+          funcionario.id === editingFuncionario.id
+            ? {
+                ...funcionario,
+                name: values.name,
+                cpf: values.cpf,
+                birthDate: values.birthDate,
+                role: values.role,
+              }
+            : funcionario,
         ),
       );
       return;
     }
-    setWaiters((current) => [
+    setFuncionarios((current) => [
       ...current,
       {
         id: crypto.randomUUID(),
         name: values.name,
         cpf: values.cpf,
         birthDate: values.birthDate,
+        role: values.role,
         phone: "",
         active: true,
       },
@@ -189,34 +230,39 @@ export default function GarconsPage() {
     getItemElement: firstTableRow,
   });
   const { currentPage, totalPages, pageItems, setPage } = usePagination(
-    waiters,
+    funcionarios,
     pageSize,
   );
 
   return (
-    <AppShell activeHref="/garcons">
-      <GarconsHeader onNewWaiter={openNewWaiterModal} />
+    <AppShell activeHref="/funcionarios">
+      <FuncionariosHeader onNewFuncionario={openNewFuncionarioModal} />
 
       <div className="flex flex-1 flex-col">
-        <GarconsTable
-          waiters={waiters}
+        <FuncionariosTable
+          funcionarios={funcionarios}
           pageItems={pageItems}
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setPage}
-          onEdit={openEditWaiterModal}
+          onEdit={openEditFuncionarioModal}
           onDelete={openDeleteConfirm}
           tableRef={tableRef}
         />
       </div>
 
-      <WaiterModal
-        isOpen={waiterModalOpen}
-        onClose={() => setWaiterModalOpen(false)}
-        onSubmit={handleSubmitWaiter}
+      <FuncionarioModal
+        isOpen={funcionarioModalOpen}
+        onClose={() => setFuncionarioModalOpen(false)}
+        onSubmit={handleSubmitFuncionario}
         initialValues={
-          editingWaiter
-            ? { name: editingWaiter.name, cpf: editingWaiter.cpf, birthDate: editingWaiter.birthDate }
+          editingFuncionario
+            ? {
+                name: editingFuncionario.name,
+                cpf: editingFuncionario.cpf,
+                birthDate: editingFuncionario.birthDate,
+                role: editingFuncionario.role,
+              }
             : undefined
         }
       />
@@ -225,11 +271,11 @@ export default function GarconsPage() {
         isOpen={deleteConfirmOpen}
         onClose={() => {
           setDeleteConfirmOpen(false);
-          setWaiterToDelete(null);
+          setFuncionarioToDelete(null);
         }}
         onConfirm={handleConfirmDelete}
-        title="Excluir Garçom?"
-        description={`Tem certeza que deseja excluir "${waiterDeleteInfo?.name}"? Esta ação não pode ser desfeita.`}
+        title="Excluir Funcionário?"
+        description={`Tem certeza que deseja excluir "${funcionarioDeleteInfo?.name}"? Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
         isDangerous
       />

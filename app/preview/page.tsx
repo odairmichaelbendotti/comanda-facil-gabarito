@@ -14,6 +14,7 @@ import {
   LuUsers,
 } from "react-icons/lu";
 
+import AccessDenied from "../components/AccessDenied";
 import AccordionHeader from "../components/AccordionHeader";
 import Badge from "../components/Badge";
 import Button from "../components/Button";
@@ -24,6 +25,7 @@ import Dropdown from "../components/Dropdown";
 import EmptyState from "../components/EmptyState";
 import FilterTab from "../components/FilterTab";
 import Input from "../components/Input";
+import Logo from "../components/Logo";
 import MaskedInput from "../components/MaskedInput";
 import MesaCard from "../components/MesaCard";
 import ModalContainer from "../components/ModalContainer";
@@ -34,13 +36,14 @@ import NewProductModal from "../components/NewProductModal";
 import OrderCard from "../components/OrderCard";
 import OrderDetailModal from "../components/OrderDetailModal";
 import PageHeader from "../components/PageHeader";
+import PageLoadingState from "../components/PageLoadingState";
 import Pagination from "../components/Pagination";
 import Sidebar from "../components/Sidebar";
 import SidebarNavItem from "../components/SidebarNavItem";
 import Tab from "../components/Tab";
 import Table from "../components/Table";
 import Textarea from "../components/Textarea";
-import WaiterModal from "../components/WaiterModal";
+import FuncionarioModal from "../components/FuncionarioModal";
 
 const buttonVariants = ["primary", "secondary", "ghost", "danger"] as const;
 const badgeVariants = ["neutral", "success", "warning", "danger", "info"] as const;
@@ -81,7 +84,7 @@ export default function PreviewPage() {
   const [newProductOpen, setNewProductOpen] = useState(false);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [mesaModalOpen, setMesaModalOpen] = useState(false);
-  const [waiterModalOpen, setWaiterModalOpen] = useState(false);
+  const [funcionarioModalOpen, setFuncionarioModalOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [previewPage, setPreviewPage] = useState(1);
 
@@ -93,6 +96,11 @@ export default function PreviewPage() {
       <p className="mb-4 text-body-md text-[color:var(--color-text-secondary)]">
         Uma instância de cada variante dos componentes base do design system.
       </p>
+
+      <Section title="Logo">
+        <Logo size="sm" />
+        <Logo size="lg" />
+      </Section>
 
       <Section title="Ícones (react-icons/lu)">
         {icons.map((item) => (
@@ -354,13 +362,13 @@ export default function PreviewPage() {
         />
       </Section>
 
-      <Section title="WaiterModal">
-        <Button onClick={() => setWaiterModalOpen(true)}>
-          Abrir Novo/Editar Garçom
+      <Section title="FuncionarioModal">
+        <Button onClick={() => setFuncionarioModalOpen(true)}>
+          Abrir Novo/Editar Funcionário
         </Button>
-        <WaiterModal
-          isOpen={waiterModalOpen}
-          onClose={() => setWaiterModalOpen(false)}
+        <FuncionarioModal
+          isOpen={funcionarioModalOpen}
+          onClose={() => setFuncionarioModalOpen(false)}
         />
       </Section>
 
@@ -378,6 +386,18 @@ export default function PreviewPage() {
         <EmptyState />
       </Section>
 
+      <Section title="PageLoadingState">
+        <div className="h-40 w-full border border-dashed border-[var(--color-border-subtle)]">
+          <PageLoadingState />
+        </div>
+      </Section>
+
+      <Section title="AccessDenied">
+        <div className="h-90 w-full border border-dashed border-[var(--color-border-subtle)]">
+          <AccessDenied />
+        </div>
+      </Section>
+
       <Section title="Sidebar">
         <div className="h-175">
           <Sidebar
@@ -387,7 +407,7 @@ export default function PreviewPage() {
               { key: "pedidos", icon: <LuClipboardList className="size-4.5" />, label: "Pedidos", href: "#pedidos" },
               { key: "produtos", icon: <LuBox className="size-4.5" />, label: "Produtos", href: "#produtos" },
               { key: "configuracoes", icon: <LuTag className="size-4.5" />, label: "Configurações", href: "#configuracoes" },
-              { key: "garcons", icon: <LuUsers className="size-4.5" />, label: "Garçons", href: "#garcons" },
+              { key: "funcionarios", icon: <LuUsers className="size-4.5" />, label: "Funcionários", href: "#funcionarios" },
             ]}
           />
         </div>

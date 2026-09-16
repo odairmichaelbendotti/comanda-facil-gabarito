@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { LuLogOut } from "react-icons/lu";
+import Logo from "./Logo";
 import SidebarNavItem from "./SidebarNavItem";
 import ThemeToggle from "./ThemeToggle";
 
@@ -30,10 +31,7 @@ export default function Sidebar({
       className={`flex h-full w-60 flex-col gap-7 border border-[var(--color-border-subtle)] bg-[var(--color-bg-sidebar)] px-5 pt-7 pb-5 ${className}`}
     >
       <div className="flex flex-col gap-0.5">
-        <p className="font-display text-body-lg font-semibold text-[color:var(--color-text-primary)]">
-          Comanda
-          <span className="text-[color:var(--color-brand-primary)]">Fácil</span>
-        </p>
+        <Logo size="sm" className="self-start" />
         <p className="text-body-sm text-[color:var(--color-text-tertiary)]">
           Olá, {userName}
         </p>

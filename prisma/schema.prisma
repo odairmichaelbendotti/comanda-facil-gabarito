@@ -1,0 +1,114 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoleUsuario {
+  admin
+  garcom
+  cozinha
+}
+
+enum StatusPedido {
+  pendente
+  em_preparo   @map("em-preparo")
+  pronto
+  cancelado
+}
+
+model Usuario {
+  id              Int          @id @default(autoincrement())
+  nome            String
+  cpf             String       @unique
+  senhaHash       String       @map("senha_hash")
+  role            RoleUsuario
+  telefone        String?
+  dataNascimento  DateTime?    @map("data_nascimento") @db.Date
+  ativo           Boolean      @default(true)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  pedidos         Pedido[]
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  produtos    Produto[]
+
+  @@map("categorias")
+}
+
+model Produto {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  preco        Decimal       @db.Decimal(10, 2)
+  disponivel   Boolean       @default(true)
+  categoriaId  Int           @map("categoria_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  categoria    Categoria     @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  pedidoItens  PedidoItem[]
+
+  @@index([categoriaId])
+  @@map("produtos")
+}
+
+model Mesa {
+  id          Int       @id @default(autoincrement())
+  numero      Int       @unique
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  pedidos     Pedido[]
+
+  @@map("mesas")
+}
+
+model Pedido {
+  id          Int           @id @default(autoincrement())
+  mesaId      Int           @map("mesa_id")
+  garcomId    Int           @map("garcom_id")
+  status      StatusPedido  @default(pendente)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  mesa        Mesa          @relation(fields: [mesaId], references: [id], onDelete: Restrict)
+  garcom      Usuario       @relation(fields: [garcomId], references: [id], onDelete: Restrict)
+  itens       PedidoItem[]
+
+  @@index([mesaId])
+  @@index([garcomId])
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id             Int       @id @default(autoincrement())
+  pedidoId       Int       @map("pedido_id")
+  produtoId      Int?      @map("produto_id")
+  nomeProduto    String    @map("nome_produto")
+  precoUnitario  Decimal   @map("preco_unitario") @db.Decimal(10, 2)
+  quantidade     Int
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  pedido         Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produto        Produto?  @relation(fields: [produtoId], references: [id], onDelete: SetNull)
+
+  @@index([pedidoId])
+  @@index([produtoId])
+  @@map("pedido_itens")
+}
