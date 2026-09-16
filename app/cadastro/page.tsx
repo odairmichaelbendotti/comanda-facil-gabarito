@@ -88,7 +88,11 @@ export default function SignUpPage() {
 
     if (step === 1) {
       if (!formData.email) newErrors.email = "Email é obrigatório";
-      if (!formData.password) newErrors.password = "Senha é obrigatória";
+      if (!formData.password) {
+        newErrors.password = "Senha é obrigatória";
+      } else if (formData.password.length < 8) {
+        newErrors.password = "A senha precisa de ao menos 8 caracteres";
+      }
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "As senhas não conferem";
       }
