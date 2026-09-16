@@ -267,9 +267,9 @@ export default function SignUpPage() {
                     setDocumentType("cnpj");
                     setFormData((prev) => ({ ...prev, document: "" }));
                   }}
-                  className={`flex-1 rounded-lg px-4 py-3 text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none ${
+                  className={`flex-1 cursor-pointer rounded-lg px-4 py-3 text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none ${
                     documentType === "cnpj"
-                      ? "bg-(--color-brand-primary) text-(--color-brand-on-primary)"
+                      ? "bg-(--color-brand-primary) text-white"
                       : "border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-primary) hover:border-(--color-border-focus)"
                   }`}
                 >
@@ -281,9 +281,9 @@ export default function SignUpPage() {
                     setDocumentType("cpf");
                     setFormData((prev) => ({ ...prev, document: "" }));
                   }}
-                  className={`flex-1 rounded-lg px-4 py-3 text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none ${
+                  className={`flex-1 cursor-pointer rounded-lg px-4 py-3 text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none ${
                     documentType === "cpf"
-                      ? "bg-(--color-brand-primary) text-(--color-brand-on-primary)"
+                      ? "bg-(--color-brand-primary) text-white"
                       : "border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-primary) hover:border-(--color-border-focus)"
                   }`}
                 >
@@ -434,7 +434,7 @@ export default function SignUpPage() {
               <div
                 className={`flex size-6 items-center justify-center rounded-lg text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none sm:size-8 ${
                   step <= currentStep
-                    ? "bg-(--color-brand-primary) text-(--color-brand-on-primary)"
+                    ? "bg-(--color-brand-primary) text-white"
                     : "border border-(--color-border-default) bg-(--color-bg-canvas) text-(--color-text-tertiary)"
                 }`}
               >
