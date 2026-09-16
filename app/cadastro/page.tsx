@@ -1,14 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Button from "../components/Button";
-import Input from "../components/Input";
-import Logo from "../components/Logo";
-import MaskedInput from "../components/MaskedInput";
-import NativeSelect from "../components/NativeSelect";
+import { DocumentType } from "../components/DocumentTypeToggle";
 import { isValidCnpj, isValidCpf } from "../lib/document";
+import CadastroFooter from "./_components/CadastroFooter";
+import CadastroFormActions from "./_components/CadastroFormActions";
+import CadastroHeader from "./_components/CadastroHeader";
+import CadastroStepAccess from "./_components/CadastroStepAccess";
+import CadastroStepDocument from "./_components/CadastroStepDocument";
+import CadastroStepEstablishment from "./_components/CadastroStepEstablishment";
+import CadastroStepper from "./_components/CadastroStepper";
 
 // Which formData keys each step's UI shows and validates — used to scope
 // "does this step currently block advancing" to that step's own fields, so
@@ -20,40 +22,10 @@ const STEP_FIELDS: Record<number, string[]> = {
   3: ["establishmentName", "phone", "logradouro", "numero", "estado"],
 };
 
-const BRAZILIAN_STATES = [
-  { value: "AC", label: "Acre" },
-  { value: "AL", label: "Alagoas" },
-  { value: "AP", label: "Amapá" },
-  { value: "AM", label: "Amazonas" },
-  { value: "BA", label: "Bahia" },
-  { value: "CE", label: "Ceará" },
-  { value: "DF", label: "Distrito Federal" },
-  { value: "ES", label: "Espírito Santo" },
-  { value: "GO", label: "Goiás" },
-  { value: "MA", label: "Maranhão" },
-  { value: "MT", label: "Mato Grosso" },
-  { value: "MS", label: "Mato Grosso do Sul" },
-  { value: "MG", label: "Minas Gerais" },
-  { value: "PA", label: "Pará" },
-  { value: "PB", label: "Paraíba" },
-  { value: "PR", label: "Paraná" },
-  { value: "PE", label: "Pernambuco" },
-  { value: "PI", label: "Piauí" },
-  { value: "RJ", label: "Rio de Janeiro" },
-  { value: "RN", label: "Rio Grande do Norte" },
-  { value: "RS", label: "Rio Grande do Sul" },
-  { value: "RO", label: "Rondônia" },
-  { value: "RR", label: "Roraima" },
-  { value: "SC", label: "Santa Catarina" },
-  { value: "SP", label: "São Paulo" },
-  { value: "SE", label: "Sergipe" },
-  { value: "TO", label: "Tocantins" },
-];
-
 export default function SignUpPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [documentType, setDocumentType] = useState<"cnpj" | "cpf">("cnpj");
+  const [documentType, setDocumentType] = useState<DocumentType>("cnpj");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -93,6 +65,11 @@ export default function SignUpPage() {
         setErrors((prev) => ({ ...prev, [field]: "" }));
       }
     };
+
+  const handleDocumentTypeChange = (type: DocumentType) => {
+    setDocumentType(type);
+    setFormData((prev) => ({ ...prev, document: "" }));
+  };
 
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
@@ -143,18 +120,16 @@ export default function SignUpPage() {
     }
   };
 
+  // Errors only ever belong to the step that produced them (via validateStep,
+  // triggered by clicking Próximo/Criar Minha Conta on that step). Going back
+  // must always start the previous step from a clean slate — a leftover
+  // error from the step being left behind should never be visible or count
+  // toward blocking the earlier step's button. (Going forward is already
+  // clean: validateStep only lets handleNext advance once it returns {}.)
   const handlePrevious = () => {
+    setErrors({});
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
-
-  // Errors only ever belong to the step that produced them (via validateStep,
-  // triggered by clicking Próximo/Criar Minha Conta on that step). Arriving
-  // at any step — forward or back — must always start from a clean slate;
-  // leftover errors from a previous attempt on a different step should never
-  // be visible or count toward blocking that step's button.
-  useEffect(() => {
-    setErrors({});
-  }, [currentStep]);
 
   useEffect(() => {
     if (formData.cep.length !== 8) {
@@ -237,262 +212,57 @@ export default function SignUpPage() {
       }
 
       router.push("/pedidos");
-    } catch (error) {
+    } catch {
       setErrors({ submit: "Erro ao conectar com o servidor" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const stepContent = {
-    1: (
-      <div className="flex flex-col gap-6">
-        <div>
-          <h3 className="mb-2 text-label-md font-bold text-(--color-text-secondary)">
-            1. DADOS DE ACESSO
-          </h3>
-          <div className="flex flex-col gap-3">
-            <Input
-              label="Email"
-              name="email"
-              type="email"
-              placeholder="Ex: contato@restaurante.com"
-              value={formData.email}
-              onChange={handleInputChange}
-              error={errors.email}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Senha"
-                name="password"
-                type="password"
-                placeholder="••••••••••••"
-                value={formData.password}
-                onChange={handleInputChange}
-                error={errors.password}
-              />
-              <Input
-                label="Confirmar Senha"
-                name="confirmPassword"
-                type="password"
-                placeholder="••••••••••••"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                error={errors.confirmPassword}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    ),
-    2: (
-      <div className="flex flex-col gap-6">
-        <div>
-          <h3 className="mb-2 text-label-md font-bold text-(--color-text-secondary)">
-            2. DOCUMENTO DE IDENTIFICAÇÃO
-          </h3>
-          <div className="flex flex-col gap-3">
-            <div>
-              <label className="mb-2 block text-label-sm font-semibold text-(--color-text-primary)">
-                Tipo de Documento
-              </label>
-              <div className="flex gap-2 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDocumentType("cnpj");
-                    setFormData((prev) => ({ ...prev, document: "" }));
-                  }}
-                  className={`flex-1 cursor-pointer rounded-lg px-4 py-3 text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none ${
-                    documentType === "cnpj"
-                      ? "bg-(--color-brand-primary) text-white"
-                      : "border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-primary) hover:border-(--color-border-focus)"
-                  }`}
-                >
-                  CNPJ
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDocumentType("cpf");
-                    setFormData((prev) => ({ ...prev, document: "" }));
-                  }}
-                  className={`flex-1 cursor-pointer rounded-lg px-4 py-3 text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none ${
-                    documentType === "cpf"
-                      ? "bg-(--color-brand-primary) text-white"
-                      : "border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-primary) hover:border-(--color-border-focus)"
-                  }`}
-                >
-                  CPF
-                </button>
-              </div>
-            </div>
-            <MaskedInput
-              key={`document-${documentType}`}
-              type={documentType}
-              label="Número do Documento"
-              name="document"
-              defaultValue={formData.document}
-              onValueChange={handleMaskedChange("document")}
-              required
-            />
-            {errors.document && (
-              <p className="text-body-sm text-(--color-status-danger-text)">
-                {errors.document}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    ),
-    3: (
-      <div className="flex flex-col gap-6">
-        <div>
-          <h3 className="mb-2 text-label-md font-bold text-(--color-text-secondary)">
-            3. DADOS DO ESTABELECIMENTO
-          </h3>
-          <div className="flex flex-col gap-3">
-            <Input
-              label="Nome do Estabelecimento"
-              name="establishmentName"
-              placeholder="Ex: Restaurante do Odair"
-              value={formData.establishmentName}
-              onChange={handleInputChange}
-              error={errors.establishmentName}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <MaskedInput
-                  type="phone"
-                  label="Telefone"
-                  name="phone"
-                  defaultValue={formData.phone}
-                  onValueChange={handleMaskedChange("phone")}
-                  required
-                />
-                {errors.phone && (
-                  <p className="mt-1.5 text-body-sm text-(--color-status-danger-text)">
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-              <div>
-                <MaskedInput
-                  type="cep"
-                  label="CEP"
-                  name="cep"
-                  defaultValue={formData.cep}
-                  onValueChange={handleMaskedChange("cep")}
-                />
-                {cepLoading && (
-                  <p className="mt-1.5 text-body-sm text-(--color-text-secondary)">
-                    Buscando endereço...
-                  </p>
-                )}
-                {formData.cep.length === 8 && !cepLoading && formData.logradouro && (
-                  <p className="mt-1.5 text-body-sm text-(--color-status-success-text)">
-                    ✓ Endereço encontrado
-                  </p>
-                )}
-              </div>
-            </div>
-            <Input
-              label="Logradouro"
-              name="logradouro"
-              placeholder="Ex: Rua das Flores"
-              value={formData.logradouro}
-              onChange={handleInputChange}
-              error={errors.logradouro}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Número"
-                name="numero"
-                placeholder="123"
-                value={formData.numero}
-                onChange={handleInputChange}
-                error={errors.numero}
-              />
-              <Input
-                label="Complemento"
-                name="complemento"
-                placeholder="Apt 456 (opcional)"
-                value={formData.complemento}
-                onChange={handleInputChange}
-              />
-            </div>
-            <Input
-              label="Bairro"
-              name="bairro"
-              placeholder="Ex: Centro"
-              value={formData.bairro}
-              onChange={handleInputChange}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Cidade"
-                name="cidade"
-                placeholder="São Paulo"
-                value={formData.cidade}
-                onChange={handleInputChange}
-              />
-              <NativeSelect
-                label="Estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleInputChange}
-                error={errors.estado}
-                placeholder="Selecione"
-                options={BRAZILIAN_STATES}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    ),
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-(--color-bg-canvas) px-4 py-4 sm:py-8">
       <div className="w-full max-w-135 animate-fade-in-up rounded-2xl border border-(--color-border-subtle) bg-(--color-bg-surface) p-6 shadow-lg sm:p-10">
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <Logo size="lg" />
-          <p className="mt-1.5 text-body-sm text-(--color-text-secondary)">
-            Crie a sua conta e configure seu estabelecimento em poucos minutos.
-          </p>
-        </div>
+        <CadastroHeader />
+        <CadastroStepper currentStep={currentStep} />
 
-        {/* Stepper */}
-        <div className="mb-6 flex items-center justify-center gap-2 sm:gap-3">
-          {[1, 2, 3].map((step) => (
-            <div key={step} className="flex items-center gap-2 sm:gap-3">
-              <div
-                className={`flex size-6 items-center justify-center rounded-lg text-label-sm font-bold transition-colors duration-150 motion-reduce:transition-none sm:size-8 ${
-                  step <= currentStep
-                    ? "bg-(--color-brand-primary) text-white"
-                    : "border border-(--color-border-default) bg-(--color-bg-canvas) text-(--color-text-tertiary)"
-                }`}
-              >
-                {step}
-              </div>
-              {step < 3 && (
-                <div
-                  className={`h-px w-6 shrink-0 transition-colors duration-150 motion-reduce:transition-none sm:w-8 ${
-                    step < currentStep
-                      ? "bg-(--color-brand-primary)"
-                      : "bg-(--color-border-default)"
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Form Content */}
         <form onSubmit={handleSubmit}>
           <div className="mb-6 transition-opacity duration-150 motion-reduce:transition-none">
-            {stepContent[currentStep as keyof typeof stepContent]}
+            {currentStep === 1 && (
+              <CadastroStepAccess
+                email={formData.email}
+                password={formData.password}
+                confirmPassword={formData.confirmPassword}
+                errors={errors}
+                onChange={handleInputChange}
+              />
+            )}
+            {currentStep === 2 && (
+              <CadastroStepDocument
+                documentType={documentType}
+                onDocumentTypeChange={handleDocumentTypeChange}
+                document={formData.document}
+                onDocumentChange={handleMaskedChange("document")}
+                error={errors.document}
+              />
+            )}
+            {currentStep === 3 && (
+              <CadastroStepEstablishment
+                establishmentName={formData.establishmentName}
+                phone={formData.phone}
+                cep={formData.cep}
+                logradouro={formData.logradouro}
+                numero={formData.numero}
+                complemento={formData.complemento}
+                bairro={formData.bairro}
+                cidade={formData.cidade}
+                estado={formData.estado}
+                errors={errors}
+                cepLoading={cepLoading}
+                onChange={handleInputChange}
+                onPhoneChange={handleMaskedChange("phone")}
+                onCepChange={handleMaskedChange("cep")}
+              />
+            )}
           </div>
 
           {errors.submit && (
@@ -501,57 +271,17 @@ export default function SignUpPage() {
             </p>
           )}
 
-          {/* Divider */}
           <div className="mb-6 h-px bg-(--color-border-subtle)" />
 
-          {/* Form Actions */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:gap-3">
-            {currentStep > 1 && (
-              <Button
-                type="button"
-                variant="secondary"
-                className="w-full sm:flex-1"
-                onClick={handlePrevious}
-              >
-                Voltar
-              </Button>
-            )}
-            {currentStep < 3 ? (
-              <Button
-                key="next-button"
-                type="button"
-                variant="primary"
-                className="w-full sm:flex-1"
-                onClick={handleNext}
-                disabled={isSubmitting || hasBlockingErrors}
-              >
-                Próximo
-              </Button>
-            ) : (
-              <Button
-                key="submit-button"
-                type="submit"
-                variant="primary"
-                className="w-full"
-                disabled={isSubmitting || hasBlockingErrors}
-              >
-                {isSubmitting ? "Criando..." : "Criar Minha Conta"}
-              </Button>
-            )}
-          </div>
+          <CadastroFormActions
+            currentStep={currentStep}
+            isSubmitting={isSubmitting}
+            hasBlockingErrors={hasBlockingErrors}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+          />
 
-          {/* Footer */}
-          <div className="mt-4 text-center">
-            <p className="text-body-sm text-(--color-text-secondary)">
-              Já tem uma conta?{" "}
-              <Link
-                href="/login"
-                className="font-bold text-(--color-text-brand) transition-colors duration-150 motion-reduce:transition-none hover:text-(--color-brand-primary)"
-              >
-                Fazer Login
-              </Link>
-            </p>
-          </div>
+          <CadastroFooter />
         </form>
       </div>
     </div>
