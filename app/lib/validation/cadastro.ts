@@ -7,7 +7,10 @@ import { isValidCnpj, isValidCpf, onlyDigits } from "../document";
 
 const digitsOnly = (label: string) =>
   z
-    .string()
+    // The `error` option here also covers the base type check (missing field,
+    // wrong type) — without it, a request that omits the field entirely falls
+    // through to Zod's default English message instead of this one.
+    .string({ error: `${label} é obrigatório` })
     .trim()
     .transform(onlyDigits)
     .refine((value) => value.length > 0, { message: `${label} é obrigatório` });
@@ -25,7 +28,9 @@ const optionalText = z
 export const cadastroSchema = z
   .object({
     email: z.email({ message: "E-mail inválido" }).trim().toLowerCase(),
-    senha: z.string().min(8, { message: "A senha precisa de ao menos 8 caracteres" }),
+    senha: z
+      .string({ error: "A senha precisa de ao menos 8 caracteres" })
+      .min(8, { message: "A senha precisa de ao menos 8 caracteres" }),
 
     tipoDocumento: z.enum(TipoDocumento, {
       message: "Tipo de documento inválido",
@@ -33,7 +38,7 @@ export const cadastroSchema = z
     documento: digitsOnly("Documento"),
 
     nomeEstabelecimento: z
-      .string()
+      .string({ error: "Nome do estabelecimento é obrigatório" })
       .trim()
       .min(1, { message: "Nome do estabelecimento é obrigatório" })
       .max(120),
@@ -43,8 +48,16 @@ export const cadastroSchema = z
       { message: "Telefone inválido" },
     ),
 
-    logradouro: z.string().trim().min(1, { message: "Endereço é obrigatório" }).max(160),
-    numero: z.string().trim().min(1, { message: "Número é obrigatório" }).max(20),
+    logradouro: z
+      .string({ error: "Endereço é obrigatório" })
+      .trim()
+      .min(1, { message: "Endereço é obrigatório" })
+      .max(160),
+    numero: z
+      .string({ error: "Número é obrigatório" })
+      .trim()
+      .min(1, { message: "Número é obrigatório" })
+      .max(20),
     complemento: optionalText,
     bairro: optionalText,
     cidade: optionalText,

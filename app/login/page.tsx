@@ -11,7 +11,7 @@ import LoginHeader from "./_components/LoginHeader";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const login = useAuthStore((state) => state.login);
+  const setUser = useAuthStore((state) => state.setUser);
   const [documentType, setDocumentType] = useState<DocumentType>("cpf");
   const [document, setDocument] = useState("");
   const [password, setPassword] = useState("");
@@ -23,23 +23,41 @@ function LoginForm() {
     setDocument("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const user = login(document, password);
-      if (user) {
-        const redirectTo = searchParams.get("redirect") || "/pedidos";
-        router.replace(redirectTo);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documento: document, senha: password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFormError(
+          data.error ||
+            (documentType === "cpf" ? "CPF ou senha inválidos" : "CNPJ ou senha inválidos"),
+        );
         return;
       }
+
+      setUser({
+        id: data.usuario.id,
+        name: data.usuario.nome,
+        role: data.usuario.role,
+        estabelecimentoId: data.usuario.estabelecimentoId,
+      });
+      const redirectTo = searchParams.get("redirect") || "/pedidos";
+      router.replace(redirectTo);
+    } catch {
+      setFormError("Erro ao conectar com o servidor");
+    } finally {
       setIsSubmitting(false);
-      setFormError(
-        documentType === "cpf" ? "CPF ou senha inválidos" : "CNPJ ou senha inválidos",
-      );
-    }, 800);
+    }
   }
 
   return (

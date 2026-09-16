@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DocumentType } from "../components/DocumentTypeToggle";
 import { isValidCnpj, isValidCpf } from "../lib/document";
+import { useAuthStore } from "../lib/store/auth-store";
 import CadastroFooter from "./_components/CadastroFooter";
 import CadastroFormActions from "./_components/CadastroFormActions";
 import CadastroHeader from "./_components/CadastroHeader";
@@ -24,6 +25,7 @@ const STEP_FIELDS: Record<number, string[]> = {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
   const [currentStep, setCurrentStep] = useState(1);
   const [documentType, setDocumentType] = useState<DocumentType>("cnpj");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -211,6 +213,12 @@ export default function SignUpPage() {
         return;
       }
 
+      setUser({
+        id: data.usuario.id,
+        name: data.usuario.nome,
+        role: data.usuario.role,
+        estabelecimentoId: data.usuario.estabelecimentoId,
+      });
       router.push("/pedidos");
     } catch {
       setErrors({ submit: "Erro ao conectar com o servidor" });
