@@ -147,6 +147,15 @@ export default function SignUpPage() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
+  // Errors only ever belong to the step that produced them (via validateStep,
+  // triggered by clicking Próximo/Criar Minha Conta on that step). Arriving
+  // at any step — forward or back — must always start from a clean slate;
+  // leftover errors from a previous attempt on a different step should never
+  // be visible or count toward blocking that step's button.
+  useEffect(() => {
+    setErrors({});
+  }, [currentStep]);
+
   useEffect(() => {
     if (formData.cep.length !== 8) {
       return;

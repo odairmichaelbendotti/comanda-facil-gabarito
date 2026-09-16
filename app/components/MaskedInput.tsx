@@ -157,6 +157,8 @@ export default function MaskedInput({
           name={name}
           mask={config.mask}
           {...(config.imaskProps ?? {})}
+          unmask
+          value={rawValue}
           disabled={disabled}
           placeholder={config.placeholder}
           aria-invalid={!!errorMessage}
