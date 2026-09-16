@@ -97,8 +97,10 @@ function ConfiguracoesPageContent() {
     }
   }
 
-  function handleSubmitCategory(values: CategoryFormValues) {
+  async function handleSubmitCategory(values: CategoryFormValues) {
     if (editingCategory) {
+      // No PATCH /api/categorias endpoint yet — editing stays local-only
+      // until one exists.
       setCategories((current) =>
         current.map((category) =>
           category.id === editingCategory.id ? { ...category, ...values } : category,
@@ -106,9 +108,29 @@ function ConfiguracoesPageContent() {
       );
       return;
     }
+
+    const response = await fetch("/api/categorias", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: values.name, descricao: values.description }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Thrown, not swallowed: CategoryModal awaits this call and keeps the
+      // modal open with the message on rejection instead of closing as if
+      // the category had been created.
+      throw new Error(data.error || "Erro ao criar categoria");
+    }
+
     setCategories((current) => [
       ...current,
-      { id: crypto.randomUUID(), productCount: 0, ...values },
+      {
+        id: String(data.id),
+        name: data.nome,
+        description: data.descricao ?? "",
+        productCount: data.totalProdutos,
+      },
     ]);
   }
 

@@ -14,7 +14,10 @@ export interface CategoryFormValues {
 interface CategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit?: (values: CategoryFormValues) => void;
+  // May return a Promise (e.g. a POST /api/categorias call) — awaited before
+  // closing the modal, so a rejection keeps the modal open with the error
+  // shown instead of silently discarding what the person typed.
+  onSubmit?: (values: CategoryFormValues) => void | Promise<void>;
   initialValues?: CategoryFormValues;
 }
 
@@ -27,6 +30,8 @@ export default function CategoryModal({
   const isEditing = !!initialValues;
   const [name, setName] = useState(initialValues?.name ?? "");
   const [description, setDescription] = useState(initialValues?.description ?? "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Re-sync the draft with initialValues each time the modal transitions
   // from closed to open — done during render (React's documented pattern
@@ -38,15 +43,26 @@ export default function CategoryModal({
     if (isOpen) {
       setName(initialValues?.name ?? "");
       setDescription(initialValues?.description ?? "");
+      setSubmitError(null);
     }
   }
 
   const isValid = name.trim().length > 0;
 
-  function handleSubmit() {
-    if (!isValid) return;
-    onSubmit?.({ name: name.trim(), description: description.trim() });
-    onClose();
+  async function handleSubmit() {
+    if (!isValid || isSubmitting) return;
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      await onSubmit?.({ name: name.trim(), description: description.trim() });
+      onClose();
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Erro ao salvar categoria",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -71,8 +87,18 @@ export default function CategoryModal({
           />
         </div>
 
-        <Button type="button" onClick={handleSubmit} disabled={!isValid}>
-          {isEditing ? "Salvar Alterações" : "Adicionar Categoria"}
+        {submitError && (
+          <p className="-mt-2 text-body-sm text-(--color-status-danger-text)">
+            {submitError}
+          </p>
+        )}
+
+        <Button type="button" onClick={handleSubmit} disabled={!isValid || isSubmitting}>
+          {isSubmitting
+            ? "Salvando..."
+            : isEditing
+              ? "Salvar Alterações"
+              : "Adicionar Categoria"}
         </Button>
       </div>
     </Modal>
