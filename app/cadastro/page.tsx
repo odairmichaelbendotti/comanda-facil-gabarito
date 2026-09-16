@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Logo from "../components/Logo";
@@ -44,6 +44,7 @@ export default function SignUpPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [documentType, setDocumentType] = useState<"cnpj" | "cpf">("cnpj");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -118,6 +119,41 @@ export default function SignUpPage() {
   const handlePrevious = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
+
+  useEffect(() => {
+    if (formData.cep.length !== 8) {
+      setCepLoading(false);
+      return;
+    }
+
+    const fetchCepData = async () => {
+      setCepLoading(true);
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${formData.cep}/json/`);
+        const data = await response.json();
+
+        if (data.erro) {
+          setCepLoading(false);
+          return;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          logradouro: data.logradouro || prev.logradouro,
+          bairro: data.bairro || prev.bairro,
+          cidade: data.localidade || prev.cidade,
+          estado: data.uf || prev.estado,
+        }));
+      } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
+      } finally {
+        setCepLoading(false);
+      }
+    };
+
+    const timer = setTimeout(fetchCepData, 500);
+    return () => clearTimeout(timer);
+  }, [formData.cep]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
