@@ -145,6 +145,13 @@ export default function SignUpPage() {
           cidade: data.localidade || "",
           estado: data.uf || "",
         }));
+        setErrors((prev) => ({
+          ...prev,
+          logradouro: "",
+          bairro: "",
+          cidade: "",
+          estado: "",
+        }));
       } catch (error) {
         console.error("Erro ao buscar CEP:", error);
       } finally {
