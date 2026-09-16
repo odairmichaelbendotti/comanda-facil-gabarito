@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { LuLogOut } from "react-icons/lu";
+import { PlanoInfo } from "../lib/store/auth-store";
 import Logo from "./Logo";
 import SidebarNavItem from "./SidebarNavItem";
 import SidebarPlanIndicators from "./SidebarPlanIndicators";
@@ -16,6 +17,7 @@ interface SidebarProps {
   items: SidebarItem[];
   activeHref?: string;
   userName?: string;
+  plano?: PlanoInfo | null;
   onLogout?: () => void;
   className?: string;
 }
@@ -24,6 +26,7 @@ export default function Sidebar({
   items,
   activeHref,
   userName = "Odair Michael",
+  plano,
   onLogout,
   className = "",
 }: SidebarProps) {
@@ -50,7 +53,11 @@ export default function Sidebar({
         ))}
       </div>
 
-      <SidebarPlanIndicators />
+      <SidebarPlanIndicators
+        premium={plano?.premium}
+        ordersUsed={plano?.pedidosUsados}
+        ordersLimit={plano?.pedidosLimite ?? undefined}
+      />
 
       <div className="flex flex-col gap-3">
         <div className="h-px w-full bg-[var(--color-border-default)]" />

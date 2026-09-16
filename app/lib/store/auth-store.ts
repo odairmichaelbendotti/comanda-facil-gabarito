@@ -9,11 +9,21 @@ export interface AuthUser {
   estabelecimentoId: number;
 }
 
+// Mirrors GET /api/auth/sessao's `plano` — scoped to the establishment
+// (shared quota), not tracked per person. `pedidosLimite` is null on a
+// premium plan (no cap to display).
+export interface PlanoInfo {
+  premium: boolean;
+  pedidosUsados: number;
+  pedidosLimite: number | null;
+}
+
 interface AuthState {
   user: AuthUser | null;
+  plano: PlanoInfo | null;
   isAuthenticated: boolean;
   hasHydrated: boolean;
-  setUser: (user: AuthUser) => void;
+  setUser: (user: AuthUser, plano?: PlanoInfo | null) => void;
   logout: () => void;
   setHasHydrated: (value: boolean) => void;
 }
@@ -22,15 +32,19 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      plano: null,
       isAuthenticated: false,
       hasHydrated: false,
       // The actual credential check happens server-side (/api/auth/login,
-      // /api/cadastro) against the database and an httpOnly session cookie —
-      // this only mirrors that already-authenticated user into client state
-      // so the UI (ProtectedRoute, Sidebar, role checks) has something to
-      // read without re-deriving it from the cookie on every render.
-      setUser: (user) => set({ user, isAuthenticated: true }),
-      logout: () => set({ user: null, isAuthenticated: false }),
+      // /api/cadastro, /api/auth/sessao) against the database and an httpOnly
+      // session cookie — this only mirrors that already-authenticated user
+      // (and their plan/usage, once ProtectedRoute fetches it) into client
+      // state so the UI (Sidebar, role checks) has something to read without
+      // re-deriving it from the cookie on every render. `plano` is omitted
+      // right after login/cadastro (those endpoints don't return it) and
+      // filled in moments later by ProtectedRoute's session check.
+      setUser: (user, plano = null) => set({ user, plano, isAuthenticated: true }),
+      logout: () => set({ user: null, plano: null, isAuthenticated: false }),
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {

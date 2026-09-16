@@ -51,6 +51,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const plano = useAuthStore((state) => state.plano);
   const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         items={visibleNavItems}
         activeHref={activeHref}
         userName={user?.name}
+        plano={plano}
         onLogout={handleLogout}
         className="hidden md:flex"
       />
@@ -120,6 +122,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
           items={visibleNavItems}
           activeHref={activeHref}
           userName={user?.name}
+          plano={plano}
           onLogout={handleLogout}
         />
         <button
