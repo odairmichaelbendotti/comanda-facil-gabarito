@@ -518,6 +518,7 @@ export default function SignUpPage() {
             )}
             {currentStep < 3 ? (
               <Button
+                key="next-button"
                 type="button"
                 variant="primary"
                 className="w-full sm:flex-1"
@@ -528,6 +529,7 @@ export default function SignUpPage() {
               </Button>
             ) : (
               <Button
+                key="submit-button"
                 type="submit"
                 variant="primary"
                 className="w-full"
