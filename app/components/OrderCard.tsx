@@ -8,8 +8,8 @@ interface OrderCardProps {
   itemsCount?: number;
   itemsSummary?: string;
   total?: string;
-  // Tints the whole card with the success palette — a finished order should
-  // read as "done" at a glance, not just via the small status badge.
+  // Tints the whole card gray — a finished order should read as "done" (out
+  // of the active flow) at a glance, not just via the small status badge.
   isCompleted?: boolean;
   onClick?: () => void;
   className?: string;
@@ -30,7 +30,7 @@ export default function OrderCard({
     <div
       className={`flex w-full flex-col gap-4 rounded-lg border p-5 shadow-sm transition-colors duration-150 motion-reduce:transition-none hover:shadow-md ${
         isCompleted
-          ? "border-(--color-status-success-border) bg-(--color-status-success-bg) hover:border-(--color-status-success-border)"
+          ? "border-(--color-status-neutral-border) bg-(--color-status-neutral-bg) hover:border-(--color-status-neutral-border)"
           : "border-(--color-border-subtle) bg-(--color-bg-surface) hover:border-(--color-border-focus)"
       } ${className}`}
     >
