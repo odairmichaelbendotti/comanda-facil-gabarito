@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Button from "./Button";
 import Modal from "./Modal";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  // May return a Promise (e.g. a DELETE call) — awaited before closing, so a
+  // rejection keeps the modal open with the error shown instead of closing
+  // as if the action had succeeded. Existing synchronous callers (which
+  // return undefined) await fine and behave exactly as before.
+  onConfirm: () => void | Promise<void>;
   title?: string;
   description?: string;
   confirmLabel?: string;
@@ -24,6 +29,29 @@ export default function ConfirmationModal({
   cancelLabel = "Cancelar",
   isDangerous = true,
 }: ConfirmationModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setError(null);
+  }
+
+  async function handleConfirm() {
+    if (isSubmitting) return;
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await onConfirm();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao confirmar ação");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title || ""}>
       <div className="flex flex-col gap-4">
@@ -33,20 +61,28 @@ export default function ConfirmationModal({
           </p>
         )}
 
+        {error && (
+          <p className="text-body-sm text-(--color-status-danger-text)">
+            {error}
+          </p>
+        )}
+
         <div className="flex gap-2 w-full pt-2">
           <Button
             variant="secondary"
             onClick={onClose}
+            disabled={isSubmitting}
             className="flex-1"
           >
             {cancelLabel}
           </Button>
           <Button
             variant={isDangerous ? "danger" : "primary"}
-            onClick={onConfirm}
+            onClick={handleConfirm}
+            disabled={isSubmitting}
             className="flex-1"
           >
-            {confirmLabel}
+            {isSubmitting ? "Aguarde..." : confirmLabel}
           </Button>
         </div>
       </div>

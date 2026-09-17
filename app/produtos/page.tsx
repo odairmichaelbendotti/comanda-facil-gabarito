@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppShell from "../components/AppShell";
 import ConfirmationModal from "../components/ConfirmationModal";
 import NewProductModal, {
   NewProductInput,
+  ProductCategoryOption,
 } from "../components/NewProductModal";
 import { PAGINATION_RESERVED_HEIGHT } from "../components/Pagination";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -22,47 +23,28 @@ interface Product {
   name: string;
   price: number;
   category: string;
+  categoriaId: number;
+  disponivel: boolean;
 }
 
-const initialProducts: Product[] = [
-  { id: "coca-cola", name: "Coca-Cola Lata", price: 6, category: "Bebidas" },
-  { id: "guarana", name: "Guaraná Lata", price: 5, category: "Bebidas" },
-  { id: "agua-mineral", name: "Água Mineral", price: 6, category: "Bebidas" },
-  { id: "suco-natural", name: "Suco Natural", price: 8, category: "Bebidas" },
-  { id: "calabresa", name: "Pizza Calabresa", price: 48, category: "Pizzas" },
-  { id: "marguerita", name: "Pizza Marguerita", price: 42, category: "Pizzas" },
-  {
-    id: "frango-catupiry",
-    name: "Pizza Frango c/ Catupiry",
-    price: 50,
-    category: "Pizzas",
-  },
-  { id: "picanha", name: "Picanha", price: 40, category: "Pratos" },
-  { id: "pudim", name: "Pudim", price: 10, category: "Sobremesas" },
-  {
-    id: "petit-gateau",
-    name: "Petit Gateau",
-    price: 14,
-    category: "Sobremesas",
-  },
-  { id: "agua-com-gas", name: "Água com Gás", price: 6, category: "Bebidas" },
-  { id: "cerveja", name: "Cerveja Long Neck", price: 12, category: "Bebidas" },
-  { id: "portuguesa", name: "Pizza Portuguesa", price: 46, category: "Pizzas" },
-  {
-    id: "quatro-queijos",
-    name: "Pizza Quatro Queijos",
-    price: 52,
-    category: "Pizzas",
-  },
-  { id: "batata-frita", name: "Batata Frita", price: 22, category: "Pratos" },
-  { id: "isca-frango", name: "Isca de Frango", price: 28, category: "Pratos" },
-  {
-    id: "mousse-chocolate",
-    name: "Mousse de Chocolate",
-    price: 12,
-    category: "Sobremesas",
-  },
-];
+interface ApiProduto {
+  id: number;
+  nome: string;
+  preco: string;
+  disponivel: boolean;
+  categoria: { id: number; nome: string };
+}
+
+function mapApiProduto(produto: ApiProduto): Product {
+  return {
+    id: String(produto.id),
+    name: produto.nome,
+    price: Number(produto.preco),
+    category: produto.categoria.nome,
+    categoriaId: produto.categoria.id,
+    disponivel: produto.disponivel,
+  };
+}
 
 export default function ProdutosPage() {
   return (
@@ -73,7 +55,12 @@ export default function ProdutosPage() {
 }
 
 function ProdutosPageContent() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<ProductCategoryOption[]>([]);
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
+
   const [newProductOpen, setNewProductOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -83,6 +70,50 @@ function ProdutosPageContent() {
     (product) => product.id === editingProductId,
   );
   const productDeleteInfo = products.find((p) => p.id === productToDelete);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // limit=500 asks for "all of them" in one page — pagination here is
+    // client-side (usePagination/useResponsiveGrid below slice a full
+    // in-memory list), same convention as /configuracoes' categories fetch.
+    Promise.all([
+      fetch("/api/produtos?limit=500", { cache: "no-store" }).then((res) =>
+        res.json().then((data) => ({ ok: res.ok, data })),
+      ),
+      fetch("/api/categorias?limit=500", { cache: "no-store" }).then((res) =>
+        res.json().then((data) => ({ ok: res.ok, data })),
+      ),
+    ])
+      .then(([produtosRes, categoriasRes]) => {
+        if (cancelled) return;
+
+        if (!produtosRes.ok) {
+          setProductsError(produtosRes.data.error || "Erro ao carregar produtos");
+          return;
+        }
+        setProducts(produtosRes.data.items.map(mapApiProduto));
+
+        if (categoriasRes.ok) {
+          setCategories(
+            categoriasRes.data.items.map((item: { id: number; nome: string }) => ({
+              id: item.id,
+              nome: item.nome,
+            })),
+          );
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setProductsError("Erro ao conectar com o servidor");
+      })
+      .finally(() => {
+        if (!cancelled) setProductsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function openNewProductModal() {
     setEditingProductId(null);
@@ -99,29 +130,89 @@ function ProdutosPageContent() {
     setDeleteConfirmOpen(true);
   }
 
-  function handleConfirmDelete() {
-    if (productToDelete) {
-      setProducts((current) =>
-        current.filter((product) => product.id !== productToDelete),
-      );
-      setDeleteConfirmOpen(false);
-      setProductToDelete(null);
+  async function handleConfirmDelete() {
+    if (!productToDelete) return;
+
+    const response = await fetch(`/api/produtos/${productToDelete}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || "Erro ao excluir produto");
     }
+
+    setProducts((current) =>
+      current.filter((product) => product.id !== productToDelete),
+    );
+    setProductToDelete(null);
   }
 
-  function handleSubmitProduct(product: NewProductInput) {
-    if (editingProduct) {
+  async function handleSubmitProduct(values: NewProductInput) {
+    const payload = {
+      nome: values.name,
+      preco: values.price,
+      categoriaId: values.categoriaId,
+    };
+
+    const response = await fetch(
+      editingProduct ? `/api/produtos/${editingProduct.id}` : "/api/produtos",
+      {
+        method: editingProduct ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao salvar produto");
+    }
+
+    const saved = mapApiProduto(data);
+    setProducts((current) =>
+      editingProduct
+        ? current.map((product) => (product.id === saved.id ? saved : product))
+        : [...current, saved],
+    );
+  }
+
+  async function handleToggleDisponivel(id: string, disponivel: boolean) {
+    setTogglingIds((current) => new Set(current).add(id));
+    // Optimistic: flips immediately, reverted below only if the request
+    // fails — a network hiccup shouldn't leave the switch stuck showing the
+    // old value while the request is still in flight.
+    setProducts((current) =>
+      current.map((product) => (product.id === id ? { ...product, disponivel } : product)),
+    );
+
+    try {
+      const response = await fetch(`/api/produtos/${id}/disponibilidade`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ disponivel }),
+      });
+
+      if (!response.ok) {
+        setProducts((current) =>
+          current.map((product) =>
+            product.id === id ? { ...product, disponivel: !disponivel } : product,
+          ),
+        );
+      }
+    } catch {
       setProducts((current) =>
-        current.map((item) =>
-          item.id === editingProduct.id ? { ...item, ...product } : item,
+        current.map((product) =>
+          product.id === id ? { ...product, disponivel: !disponivel } : product,
         ),
       );
-      return;
+    } finally {
+      setTogglingIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
     }
-    setProducts((current) => [
-      ...current,
-      { id: crypto.randomUUID(), ...product },
-    ]);
   }
 
   const [pageSize, tableRef] = useResponsiveGrid({
@@ -141,23 +232,43 @@ function ProdutosPageContent() {
       <ProdutosHeader onNewProduct={openNewProductModal} />
 
       <div className="flex flex-1 flex-col">
-        <ProdutosTable
-          products={products}
-          pageItems={pageItems}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setPage}
-          onEdit={openEditProductModal}
-          onDelete={openDeleteConfirm}
-          tableRef={tableRef}
-        />
+        {productsError ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-body-sm text-(--color-status-danger-text)">
+              {productsError}
+            </p>
+          </div>
+        ) : (
+          <ProdutosTable
+            products={products}
+            pageItems={pageItems}
+            loading={productsLoading}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onEdit={openEditProductModal}
+            onDelete={openDeleteConfirm}
+            onToggleDisponivel={handleToggleDisponivel}
+            togglingIds={togglingIds}
+            tableRef={tableRef}
+          />
+        )}
       </div>
 
       <NewProductModal
         isOpen={newProductOpen}
         onClose={() => setNewProductOpen(false)}
         onCreate={handleSubmitProduct}
-        initialValues={editingProduct}
+        initialValues={
+          editingProduct
+            ? {
+                name: editingProduct.name,
+                price: editingProduct.price,
+                categoriaId: editingProduct.categoriaId,
+              }
+            : undefined
+        }
+        categories={categories}
       />
 
       <ConfirmationModal

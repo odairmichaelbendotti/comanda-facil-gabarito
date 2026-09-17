@@ -41,6 +41,7 @@ import Pagination from "../components/Pagination";
 import Sidebar from "../components/Sidebar";
 import SidebarNavItem from "../components/SidebarNavItem";
 import SidebarPlanIndicators from "../components/SidebarPlanIndicators";
+import Switch from "../components/Switch";
 import Tab from "../components/Tab";
 import Table from "../components/Table";
 import Textarea from "../components/Textarea";
@@ -88,6 +89,7 @@ export default function PreviewPage() {
   const [funcionarioModalOpen, setFuncionarioModalOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [previewPage, setPreviewPage] = useState(1);
+  const [switchOn, setSwitchOn] = useState(true);
 
   return (
     <main className="mx-auto flex w-full max-w-300 flex-col gap-2 px-6 py-10">
@@ -288,6 +290,14 @@ export default function PreviewPage() {
         </div>
       </Section>
 
+      <Section title="Switch">
+        <div className="flex items-center gap-6">
+          <Switch checked={switchOn} onChange={setSwitchOn} label="Disponibilidade" />
+          <Switch checked={false} onChange={() => {}} label="Desligado" />
+          <Switch checked disabled onChange={() => {}} label="Desabilitado ligado" />
+        </div>
+      </Section>
+
       <Section title="ModalContainer">
         <ModalContainer title="Título do Modal">
           <p className="text-body-md text-[color:var(--color-text-secondary)]">
@@ -324,6 +334,10 @@ export default function PreviewPage() {
         <NewProductModal
           isOpen={newProductOpen}
           onClose={() => setNewProductOpen(false)}
+          categories={[
+            { id: 1, nome: "Bebidas" },
+            { id: 2, nome: "Pizzas" },
+          ]}
         />
       </Section>
 

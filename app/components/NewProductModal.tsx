@@ -7,24 +7,26 @@ import MaskedInput from "./MaskedInput";
 import Modal from "./Modal";
 import NativeSelect from "./NativeSelect";
 
-const categoryOptions = [
-  { value: "Bebidas", label: "Bebidas" },
-  { value: "Pizzas", label: "Pizzas" },
-  { value: "Pratos", label: "Pratos" },
-  { value: "Sobremesas", label: "Sobremesas" },
-];
-
 export interface NewProductInput {
   name: string;
   price: number;
-  category: string;
+  categoriaId: number;
+}
+
+export interface ProductCategoryOption {
+  id: number;
+  nome: string;
 }
 
 interface NewProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate?: (product: NewProductInput) => void;
+  // May return a Promise (e.g. a POST/PUT /api/produtos call) — awaited
+  // before closing, so a rejection keeps the modal open with the error
+  // shown instead of closing as if the save had succeeded.
+  onCreate?: (product: NewProductInput) => void | Promise<void>;
   initialValues?: NewProductInput;
+  categories: ProductCategoryOption[];
 }
 
 export default function NewProductModal({
@@ -32,6 +34,7 @@ export default function NewProductModal({
   onClose,
   onCreate,
   initialValues,
+  categories,
 }: NewProductModalProps) {
   const isEditing = !!initialValues;
   const [wasOpen, setWasOpen] = useState(isOpen);
@@ -39,7 +42,11 @@ export default function NewProductModal({
   const [priceRaw, setPriceRaw] = useState(
     initialValues ? String(initialValues.price).replace(".", ",") : "",
   );
-  const [category, setCategory] = useState(initialValues?.category ?? "");
+  const [categoriaId, setCategoriaId] = useState(
+    initialValues ? String(initialValues.categoriaId) : "",
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // React's documented pattern for resetting state when a prop changes —
   // adjusted during render, not inside an effect.
@@ -48,17 +55,32 @@ export default function NewProductModal({
     if (isOpen) {
       setName(initialValues?.name ?? "");
       setPriceRaw(initialValues ? String(initialValues.price).replace(".", ",") : "");
-      setCategory(initialValues?.category ?? "");
+      setCategoriaId(initialValues ? String(initialValues.categoriaId) : "");
+      setSubmitError(null);
     }
   }
 
   const price = parseFloat(priceRaw.replace(",", ".")) || 0;
-  const isValid = name.trim().length > 0 && category.trim().length > 0 && price > 0;
+  const isValid = name.trim().length > 0 && categoriaId !== "" && price > 0;
 
-  function handleSubmit() {
-    if (!isValid) return;
-    onCreate?.({ name: name.trim(), price, category: category.trim() });
-    onClose();
+  async function handleSubmit() {
+    if (!isValid || isSubmitting) return;
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      await onCreate?.({
+        name: name.trim(),
+        price,
+        categoriaId: Number(categoriaId),
+      });
+      onClose();
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Erro ao salvar produto",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -86,16 +108,38 @@ export default function NewProductModal({
             onValueChange={setPriceRaw}
           />
 
-          <NativeSelect
-            label="Categoria"
-            options={categoryOptions}
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          />
+          <div>
+            <NativeSelect
+              label="Categoria"
+              options={categories.map((category) => ({
+                value: String(category.id),
+                label: category.nome,
+              }))}
+              value={categoriaId}
+              onChange={(event) => setCategoriaId(event.target.value)}
+              disabled={categories.length === 0}
+            />
+            {categories.length === 0 && (
+              <p className="mt-1.5 text-body-sm text-(--color-text-tertiary)">
+                Cadastre uma categoria em Configurações antes de adicionar um
+                produto.
+              </p>
+            )}
+          </div>
         </div>
 
-        <Button type="button" onClick={handleSubmit} disabled={!isValid}>
-          {isEditing ? "Salvar Alterações" : "Adicionar Produto"}
+        {submitError && (
+          <p className="-mt-2 text-body-sm text-(--color-status-danger-text)">
+            {submitError}
+          </p>
+        )}
+
+        <Button type="button" onClick={handleSubmit} disabled={!isValid || isSubmitting}>
+          {isSubmitting
+            ? "Salvando..."
+            : isEditing
+              ? "Salvar Alterações"
+              : "Adicionar Produto"}
         </Button>
       </div>
     </Modal>

@@ -24,7 +24,7 @@ const Table = forwardRef<HTMLDivElement, TableProps>(function Table(
         {columns.map((column) => (
           <div
             key={column.key}
-            className="min-w-35 flex-1 first:flex-[2] last:flex last:justify-end"
+            className="min-w-35 flex-1 overflow-hidden first:flex-[2] last:flex last:justify-end"
           >
             {column.label}
           </div>
@@ -39,7 +39,7 @@ const Table = forwardRef<HTMLDivElement, TableProps>(function Table(
           {columns.map((column) => (
             <div
               key={column.key}
-              className="min-w-35 flex-1 first:flex-[2] last:flex last:justify-end"
+              className="min-w-35 flex-1 overflow-hidden first:flex-[2] last:flex last:justify-end"
             >
               {row[column.key]}
             </div>
