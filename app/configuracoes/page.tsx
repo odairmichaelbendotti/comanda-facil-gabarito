@@ -114,51 +114,57 @@ function ConfiguracoesPageContent() {
     setDeleteConfirmOpen(true);
   }
 
-  function handleConfirmDeleteCategory() {
-    if (categoryToDelete) {
-      setCategories((current) =>
-        current.filter((category) => category.id !== categoryToDelete),
-      );
-      setDeleteConfirmOpen(false);
-      setCategoryToDelete(null);
+  async function handleConfirmDeleteCategory() {
+    if (!categoryToDelete) return;
+
+    const response = await fetch(`/api/categorias/${categoryToDelete}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      // Thrown, not swallowed: ConfirmationModal awaits this call and keeps
+      // the modal open with the message on rejection (e.g. 422 "Ainda há
+      // produtos ativos nessa categoria") instead of closing as if the
+      // category had actually been removed.
+      throw new Error(data.error || "Erro ao excluir categoria");
     }
+
+    setCategories((current) =>
+      current.filter((category) => category.id !== categoryToDelete),
+    );
+    setCategoryToDelete(null);
   }
 
   async function handleSubmitCategory(values: CategoryFormValues) {
-    if (editingCategory) {
-      // No PATCH /api/categorias endpoint yet — editing stays local-only
-      // until one exists.
-      setCategories((current) =>
-        current.map((category) =>
-          category.id === editingCategory.id ? { ...category, ...values } : category,
-        ),
-      );
-      return;
-    }
-
-    const response = await fetch("/api/categorias", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome: values.name, descricao: values.description }),
-    });
+    const response = await fetch(
+      editingCategory ? `/api/categorias/${editingCategory.id}` : "/api/categorias",
+      {
+        method: editingCategory ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: values.name, descricao: values.description }),
+      },
+    );
     const data = await response.json();
 
     if (!response.ok) {
       // Thrown, not swallowed: CategoryModal awaits this call and keeps the
       // modal open with the message on rejection instead of closing as if
-      // the category had been created.
-      throw new Error(data.error || "Erro ao criar categoria");
+      // the save had succeeded.
+      throw new Error(data.error || "Erro ao salvar categoria");
     }
 
-    setCategories((current) => [
-      ...current,
-      {
-        id: String(data.id),
-        name: data.nome,
-        description: data.descricao ?? "",
-        productCount: data.totalProdutos,
-      },
-    ]);
+    const saved: Category = {
+      id: String(data.id),
+      name: data.nome,
+      description: data.descricao ?? "",
+      productCount: data.totalProdutos,
+    };
+    setCategories((current) =>
+      editingCategory
+        ? current.map((category) => (category.id === saved.id ? saved : category))
+        : [...current, saved],
+    );
   }
 
   function handleAddMesa(number: number) {
