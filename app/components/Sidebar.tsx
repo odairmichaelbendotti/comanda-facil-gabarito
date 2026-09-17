@@ -68,14 +68,6 @@ export default function Sidebar({
         ))}
       </div>
 
-      {refreshTimer && (
-        <RefreshTimer
-          secondsLeft={refreshTimer.secondsLeft}
-          totalSeconds={refreshTimer.totalSeconds}
-          onRefreshNow={refreshTimer.onRefreshNow}
-        />
-      )}
-
       {showPlanIndicators ? (
         <SidebarPlanIndicators
           loading={planoLoading}
@@ -88,6 +80,14 @@ export default function Sidebar({
         // Empty spacer in place of SidebarPlanIndicators — it's the one
         // pushing the logout/theme footer down to the bottom of the sidebar.
         <div className="flex-1" />
+      )}
+
+      {refreshTimer && (
+        <RefreshTimer
+          secondsLeft={refreshTimer.secondsLeft}
+          totalSeconds={refreshTimer.totalSeconds}
+          onRefreshNow={refreshTimer.onRefreshNow}
+        />
       )}
 
       <div className="flex flex-col gap-3">
