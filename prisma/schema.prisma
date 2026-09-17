@@ -120,7 +120,6 @@ model Usuario {
   ativo             Boolean       @default(true)
   createdAt         DateTime      @default(now()) @map("created_at")
   updatedAt         DateTime      @updatedAt @map("updated_at")
-  deletedAt         DateTime?     @map("deleted_at")
 
   estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
   pedidos         Pedido[]
@@ -200,14 +199,18 @@ model Pedido {
   id                Int          @id @default(autoincrement())
   estabelecimentoId Int          @map("estabelecimento_id")
   mesaId            Int          @map("mesa_id")
-  garcomId          Int          @map("garcom_id")
+  garcomId          Int?         @map("garcom_id")
+  // Copiado do Usuario na criação, como pedido_itens faz com nome_produto —
+  // funcionário é removido de verdade (hard delete) quando excluído, então o
+  // pedido precisa da própria cópia do nome pra continuar legível no histórico.
+  nomeGarcom        String       @map("nome_garcom")
   status            StatusPedido @default(pendente)
   createdAt         DateTime     @default(now()) @map("created_at")
   updatedAt         DateTime     @updatedAt @map("updated_at")
 
   estabelecimento Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
   mesa            Mesa            @relation(fields: [mesaId], references: [id], onDelete: Restrict)
-  garcom          Usuario         @relation(fields: [garcomId], references: [id], onDelete: Restrict)
+  garcom          Usuario?        @relation(fields: [garcomId], references: [id], onDelete: SetNull)
   itens           PedidoItem[]
 
   @@index([estabelecimentoId])

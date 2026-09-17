@@ -49,7 +49,6 @@ export async function GET(request: NextRequest) {
       role: true,
       estabelecimentoId: true,
       ativo: true,
-      deletedAt: true,
       estabelecimento: {
         select: {
           assinatura: { select: { status: true } },
@@ -58,7 +57,7 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  if (!usuario || !usuario.ativo || usuario.deletedAt) {
+  if (!usuario || !usuario.ativo) {
     return noSessionResponse();
   }
 

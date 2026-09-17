@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TipoDocumento, UfBrasil } from "@/generated/prisma/enums";
 import { isValidCnpj, isValidCpf, onlyDigits } from "../document";
+import { optionalText } from "./shared";
 
 // Messages are in Portuguese because they are shown to the person filling the
 // form — the front renders whatever comes back in `error` without rewording it.
@@ -14,16 +15,6 @@ const digitsOnly = (label: string) =>
     .trim()
     .transform(onlyDigits)
     .refine((value) => value.length > 0, { message: `${label} é obrigatório` });
-
-const optionalText = z
-  .string()
-  .trim()
-  .max(120)
-  .optional()
-  // An empty input is the same as "not filled in" — the form sends "" for
-  // fields the person skipped, and storing empty strings as if they were data
-  // makes every later read check for two kinds of absence instead of one.
-  .transform((value) => (value ? value : undefined));
 
 export const cadastroSchema = z
   .object({
@@ -58,9 +49,9 @@ export const cadastroSchema = z
       .trim()
       .min(1, { message: "Número é obrigatório" })
       .max(20),
-    complemento: optionalText,
-    bairro: optionalText,
-    cidade: optionalText,
+    complemento: optionalText(120),
+    bairro: optionalText(120),
+    cidade: optionalText(120),
     estado: z.enum(UfBrasil, { message: "Estado inválido" }),
 
     cep: z

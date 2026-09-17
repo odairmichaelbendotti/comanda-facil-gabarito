@@ -48,7 +48,7 @@ export async function PUT(
   // that doesn't exist — 403 would confirm the id is real, leaking
   // information about someone else's data.
   const alvo = await prisma.usuario.findFirst({
-    where: { id: funcionarioId, estabelecimentoId: session.estabelecimentoId, deletedAt: null },
+    where: { id: funcionarioId, estabelecimentoId: session.estabelecimentoId },
     select: { id: true, role: true },
   });
   if (!alvo) {
@@ -131,7 +131,7 @@ export async function DELETE(
   }
 
   const alvo = await prisma.usuario.findFirst({
-    where: { id: funcionarioId, estabelecimentoId: session.estabelecimentoId, deletedAt: null },
+    where: { id: funcionarioId, estabelecimentoId: session.estabelecimentoId },
     select: { id: true, role: true },
   });
   if (!alvo) {
@@ -146,13 +146,13 @@ export async function DELETE(
     );
   }
 
-  // Logical deletion only: pedidos.garcom_id has onDelete: Restrict, so a
-  // real DELETE would fail (or worse, be blocked) the moment this person has
-  // ever lançado a single pedido. The CPF stays UNIQUE and occupied — rehiring
-  // this person later means reactivating the row, not creating a new one.
-  await prisma.usuario.update({
+  // Real deletion: pedidos.garcom_id is nullable with onDelete: SetNull (and
+  // pedidos.nome_garcom already froze this person's name at order time), so
+  // removing the row doesn't break any pedido history. This also frees up
+  // the CPF — documento is UNIQUE globally — so the same person can be
+  // rehired later as a brand-new row instead of needing a reactivation flow.
+  await prisma.usuario.delete({
     where: { id: funcionarioId },
-    data: { deletedAt: new Date() },
   });
 
   return new NextResponse(null, { status: 204 });

@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
   const where = {
     estabelecimentoId: session.estabelecimentoId,
     role: { in: [RoleUsuario.garcom, RoleUsuario.cozinha] },
-    deletedAt: null,
   };
 
   const [total, funcionarios] = await Promise.all([

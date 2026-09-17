@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
+import type { NextRequest } from "next/server";
 import type { RoleUsuario } from "@/generated/prisma/client";
 
 export const SESSION_COOKIE_NAME = "comanda-facil-session";
@@ -53,6 +54,19 @@ export async function readSessionToken(
     // mean "no session", and none of them should leak a reason to the caller.
     return null;
   }
+}
+
+// Every route that only needs to know who is calling (not whether that
+// account is still active/deleted — that check is GET /api/auth/sessao's
+// job, and lives there so it isn't repeated on every write) reads the cookie
+// and decodes the JWT the same way. This is that one-liner, shared so a
+// future change to where the token lives only has to happen here.
+export async function getSessionFromRequest(
+  request: NextRequest,
+): Promise<SessionPayload | null> {
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  if (!token) return null;
+  return readSessionToken(token);
 }
 
 // Options shared by every place that writes this cookie. httpOnly is the point:

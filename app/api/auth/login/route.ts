@@ -13,7 +13,9 @@ import {
 } from "@/app/lib/auth/session";
 import { loginSchema } from "@/app/lib/validation/login";
 
-// bcrypt and jose both need Node APIs, so this route can't run on the Edge runtime.
+// Neither bcryptjs nor jose actually require it — the real blocker is Prisma's
+// Postgres driver adapter (@prisma/adapter-pg), which needs a raw TCP socket
+// (Node's net/tls) that the Edge runtime doesn't provide.
 export const runtime = "nodejs";
 
 const INVALID_CREDENTIALS_MESSAGE = "CPF ou senha inválidos";
@@ -55,11 +57,6 @@ export async function POST(request: Request) {
   // point in the flow the tenant isn't known yet — figuring it out is the whole
   // job of this query. `documento` is globally unique across all usuarios, so
   // there is exactly one row to find, if any.
-  //
-  // deleted_at is deliberately NOT filtered out here. Excluding it would make a
-  // deleted account's document look "not found", which would return the generic
-  // 401 instead of the 403 the business rule asks for — the distinction has to
-  // survive past this query so the password can still be checked against it.
   const usuario = await prisma.usuario.findUnique({ where: { documento } });
 
   const senhaHash = usuario?.senhaHash ?? DUMMY_PASSWORD_HASH;
@@ -70,7 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: INVALID_CREDENTIALS_MESSAGE }, { status: 401 });
   }
 
-  if (!usuario.ativo || usuario.deletedAt) {
+  if (!usuario.ativo) {
     // Correct password, but the account itself doesn't get in. This is the one
     // case where the response tells the caller more than "invalid credentials"
     // — the business rule accepts that trade-off explicitly ("mesmo com a senha
