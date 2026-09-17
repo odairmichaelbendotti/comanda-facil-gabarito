@@ -71,19 +71,28 @@
 
   /* Dark mode's own neutral ramp — cooler/less brown than --color-neutral,
      used only inside .dark below (light mode keeps --color-neutral). */
-  --color-cool-gray-50: #f8f8f9;
+  --color-cool-gray-50: #f5f5f7;
   --color-cool-gray-100: #f0f0f2;
   --color-cool-gray-200: #e1e1e4;
-  --color-cool-gray-300: #c4c4c8;
-  --color-cool-gray-400: #9c9ca1;
-  --color-cool-gray-500: #717177;
-  --color-cool-gray-600: #515157;
+  --color-cool-gray-300: #b8b8bf;
+  --color-cool-gray-400: #9999a1;
+  --color-cool-gray-500: #7a7a82;
+  --color-cool-gray-600: #595961;
   --color-cool-gray-700: #38383d;
-  --color-cool-gray-750: #2e2e33;
-  --color-cool-gray-800: #27272b;
-  --color-cool-gray-850: #1f1f22;
+  --color-cool-gray-750: #333337;
+  --color-cool-gray-800: #2a2a2e;
+  --color-cool-gray-850: #222225;
   --color-cool-gray-900: #18181b;
   --color-cool-gray-950: #111113;
+
+  /* Dedicated dark-mode status backgrounds — muted, desaturated tints that
+     aren't just "the 900 shade" of their color ramp (unlike the light-mode
+     status-*-bg tokens, which do alias straight into red/amber/green/blue).
+     Dark mode only; there's no light-mode equivalent to alias from. */
+  --color-dark-success-bg: #212b24;
+  --color-dark-warning-bg: #2e261c;
+  --color-dark-danger-bg: #301f1f;
+  --color-dark-info-bg: #1f2433;
 
   /* Type scale */
   --text-display: 40px;
@@ -180,21 +189,21 @@
 }
 
 .dark {
-  --color-bg-canvas: var(--color-cool-gray-950);
+  --color-bg-canvas: var(--color-cool-gray-900);
   --color-bg-surface: var(--color-cool-gray-900);
-  --color-bg-sidebar: var(--color-cool-gray-950);
-  --color-bg-surface-elevated: var(--color-cool-gray-800);
+  --color-bg-sidebar: var(--color-cool-gray-900);
+  --color-bg-surface-elevated: var(--color-cool-gray-850);
 
   --color-brand-primary: var(--color-red-500);
   --color-brand-accent-orange: var(--color-orange-400);
-  --color-brand-accent-amber: var(--color-amber-400);
+  --color-brand-accent-amber: var(--color-amber-300);
 
   --color-text-primary: var(--color-cool-gray-50);
   --color-text-secondary: var(--color-cool-gray-300);
   --color-text-tertiary: var(--color-cool-gray-500);
 
   --color-border-subtle: var(--color-cool-gray-800);
-  --color-border-default: var(--color-cool-gray-700);
+  --color-border-default: var(--color-cool-gray-750);
   --color-border-focus: var(--color-red-400);
 
   --color-bg-input: var(--color-cool-gray-850);
@@ -205,23 +214,23 @@
   --color-text-brand: var(--color-red-400);
 
   --color-status-neutral-bg: var(--color-cool-gray-800);
-  --color-status-neutral-border: var(--color-cool-gray-700);
-  --color-status-neutral-text: var(--color-cool-gray-200);
+  --color-status-neutral-border: var(--color-cool-gray-750);
+  --color-status-neutral-text: var(--color-cool-gray-300);
 
-  --color-status-success-bg: var(--color-green-900);
-  --color-status-success-border: var(--color-green-700);
+  --color-status-success-bg: var(--color-dark-success-bg);
+  --color-status-success-border: var(--color-green-500);
   --color-status-success-text: var(--color-green-200);
 
-  --color-status-warning-bg: var(--color-amber-900);
-  --color-status-warning-border: var(--color-amber-700);
+  --color-status-warning-bg: var(--color-dark-warning-bg);
+  --color-status-warning-border: var(--color-amber-400);
   --color-status-warning-text: var(--color-amber-200);
 
-  --color-status-danger-bg: var(--color-red-900);
-  --color-status-danger-border: var(--color-red-700);
+  --color-status-danger-bg: var(--color-dark-danger-bg);
+  --color-status-danger-border: var(--color-red-400);
   --color-status-danger-text: var(--color-red-200);
 
-  --color-status-info-bg: var(--color-blue-900);
-  --color-status-info-border: var(--color-blue-700);
+  --color-status-info-bg: var(--color-dark-info-bg);
+  --color-status-info-border: var(--color-blue-500);
   --color-status-info-text: var(--color-blue-200);
 }
 
