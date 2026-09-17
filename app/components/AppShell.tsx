@@ -42,12 +42,23 @@ const navItems = [
   },
 ];
 
+interface RefreshTimerConfig {
+  secondsLeft: number;
+  totalSeconds: number;
+  onRefreshNow: () => void;
+}
+
 interface AppShellProps {
   activeHref: string;
   children: ReactNode;
+  refreshTimer?: RefreshTimerConfig;
 }
 
-export default function AppShell({ activeHref, children }: AppShellProps) {
+export default function AppShell({
+  activeHref,
+  children,
+  refreshTimer,
+}: AppShellProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
@@ -93,6 +104,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         plano={plano}
         showPlanIndicators={showPlanIndicators}
         planoLoading={showPlanIndicators && !planoLoaded}
+        refreshTimer={refreshTimer}
         onLogout={handleLogout}
         onUpgradeClick={handleUpgradeClick}
         className="hidden md:flex"
@@ -137,6 +149,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
           plano={plano}
           showPlanIndicators={showPlanIndicators}
           planoLoading={showPlanIndicators && !planoLoaded}
+          refreshTimer={refreshTimer}
           onLogout={handleLogout}
           onUpgradeClick={handleUpgradeClick}
         />

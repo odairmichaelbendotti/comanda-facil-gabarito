@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AppShell from "../components/AppShell";
 import ConfirmationModal from "../components/ConfirmationModal";
 import NewOrderModal, {
@@ -79,6 +79,10 @@ async function fetchOrders(filter: FilterKey): Promise<Order[]> {
   );
 }
 
+// The Sidebar's RefreshTimer counts down from this, in step with the
+// background poll below.
+const REFRESH_INTERVAL_SECONDS = 30;
+
 const statusConfig: Record<
   OrderStatus,
   { label: string; variant: "neutral" | "success" | "warning" | "danger" }
@@ -132,6 +136,21 @@ function PedidosPageContent() {
   const [actionPending, setActionPending] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(
+    REFRESH_INTERVAL_SECONDS,
+  );
+
+  // The 1s tick reads these instead of `activeFilter` state directly so the
+  // interval effect below can mount once (empty deps) and still always poll
+  // whichever filter is currently active and reset the right countdown,
+  // without tearing down and restarting the interval every time the person
+  // switches tabs.
+  const activeFilterRef = useRef(activeFilter);
+  const secondsRef = useRef(REFRESH_INTERVAL_SECONDS);
+
+  useEffect(() => {
+    activeFilterRef.current = activeFilter;
+  }, [activeFilter]);
 
   function handleFilterChange(filter: FilterKey) {
     // Reset loading/error here (a user event), not inside the fetch effect —
@@ -140,6 +159,38 @@ function PedidosPageContent() {
     setOrdersError(null);
     setActiveFilter(filter);
   }
+
+  // Silent background refresh — no ordersLoading flicker, no ordersError
+  // banner on failure. A missed poll just tries again on the next tick (or
+  // the person can force one with "Buscar pedidos agora").
+  function refreshOrdersSilently() {
+    fetchOrders(activeFilterRef.current)
+      .then(setOrders)
+      .catch(() => {});
+  }
+
+  function handleRefreshNow() {
+    secondsRef.current = REFRESH_INTERVAL_SECONDS;
+    setSecondsUntilRefresh(REFRESH_INTERVAL_SECONDS);
+    refreshOrdersSilently();
+  }
+
+  useEffect(() => {
+    // The tick itself lives in this timer callback, not in the effect body —
+    // it fires once a second, asynchronously, well after the effect that
+    // registered it has already run. `secondsRef` is the real countdown;
+    // `secondsUntilRefresh` state only exists so RefreshTimer has something
+    // to render.
+    const intervalId = setInterval(() => {
+      secondsRef.current -= 1;
+      if (secondsRef.current <= 0) {
+        secondsRef.current = REFRESH_INTERVAL_SECONDS;
+        refreshOrdersSilently();
+      }
+      setSecondsUntilRefresh(secondsRef.current);
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -390,7 +441,14 @@ function PedidosPageContent() {
   );
 
   return (
-    <AppShell activeHref="/pedidos">
+    <AppShell
+      activeHref="/pedidos"
+      refreshTimer={{
+        secondsLeft: secondsUntilRefresh,
+        totalSeconds: REFRESH_INTERVAL_SECONDS,
+        onRefreshNow: handleRefreshNow,
+      }}
+    >
       <PedidosHeader
         onNewOrder={
           canManage

@@ -38,6 +38,7 @@ import OrderDetailModal from "../components/OrderDetailModal";
 import PageHeader from "../components/PageHeader";
 import PageLoadingState from "../components/PageLoadingState";
 import Pagination from "../components/Pagination";
+import RefreshTimer from "../components/RefreshTimer";
 import Sidebar from "../components/Sidebar";
 import SidebarNavItem from "../components/SidebarNavItem";
 import SidebarPlanIndicators from "../components/SidebarPlanIndicators";
@@ -441,6 +442,21 @@ export default function PreviewPage() {
       <Section title="AccessDenied">
         <div className="h-90 w-full border border-dashed border-[var(--color-border-subtle)]">
           <AccessDenied />
+        </div>
+      </Section>
+
+      <Section title="RefreshTimer">
+        <div className="flex w-60 flex-col gap-4">
+          <RefreshTimer
+            secondsLeft={15}
+            totalSeconds={30}
+            onRefreshNow={() => {}}
+          />
+          <RefreshTimer
+            secondsLeft={4}
+            totalSeconds={30}
+            onRefreshNow={() => {}}
+          />
         </div>
       </Section>
 

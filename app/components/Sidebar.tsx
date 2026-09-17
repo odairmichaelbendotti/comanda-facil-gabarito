@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { LuLogOut } from "react-icons/lu";
 import { PlanoInfo } from "../lib/store/auth-store";
 import Logo from "./Logo";
+import RefreshTimer from "./RefreshTimer";
 import SidebarNavItem from "./SidebarNavItem";
 import SidebarPlanIndicators from "./SidebarPlanIndicators";
 import ThemeToggle from "./ThemeToggle";
@@ -13,6 +14,12 @@ interface SidebarItem {
   href: string;
 }
 
+interface RefreshTimerConfig {
+  secondsLeft: number;
+  totalSeconds: number;
+  onRefreshNow: () => void;
+}
+
 interface SidebarProps {
   items: SidebarItem[];
   activeHref?: string;
@@ -20,6 +27,7 @@ interface SidebarProps {
   plano?: PlanoInfo | null;
   showPlanIndicators?: boolean;
   planoLoading?: boolean;
+  refreshTimer?: RefreshTimerConfig;
   onLogout?: () => void;
   onUpgradeClick?: () => void;
   className?: string;
@@ -32,6 +40,7 @@ export default function Sidebar({
   plano,
   showPlanIndicators = true,
   planoLoading = false,
+  refreshTimer,
   onLogout,
   onUpgradeClick,
   className = "",
@@ -58,6 +67,14 @@ export default function Sidebar({
           />
         ))}
       </div>
+
+      {refreshTimer && (
+        <RefreshTimer
+          secondsLeft={refreshTimer.secondsLeft}
+          totalSeconds={refreshTimer.totalSeconds}
+          onRefreshNow={refreshTimer.onRefreshNow}
+        />
+      )}
 
       {showPlanIndicators ? (
         <SidebarPlanIndicators
