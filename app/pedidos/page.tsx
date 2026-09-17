@@ -125,6 +125,8 @@ function PedidosPageContent() {
   >(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [actionPending, setActionPending] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   function handleFilterChange(filter: FilterKey) {
     // Reset loading/error here (a user event), not inside the fetch effect —
@@ -201,6 +203,7 @@ function PedidosPageContent() {
     setDetailsOpen(true);
     setOrderDetail(null);
     setDetailsError(null);
+    setActionError(null);
     setDetailsLoading(true);
     try {
       const response = await fetch(`/api/pedidos/${orderId}`, {
@@ -264,10 +267,27 @@ function PedidosPageContent() {
     setDetailsOpen(false);
   }
 
-  function startSelectedOrderPrep() {
-    if (!selectedOrderId) return;
-    // TODO: não há endpoint de transição de status ainda — reflete só na UI.
-    updateOrderStatus(selectedOrderId, "em-preparo");
+  async function startSelectedOrderPrep() {
+    if (!selectedOrderId || actionPending) return;
+    setActionError(null);
+    setActionPending(true);
+    try {
+      const response = await fetch(
+        `/api/pedidos/${selectedOrderId}/iniciar-preparo`,
+        { method: "POST" },
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao iniciar preparo");
+      }
+      updateOrderStatus(selectedOrderId, "em-preparo");
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Erro ao iniciar preparo",
+      );
+    } finally {
+      setActionPending(false);
+    }
   }
 
   async function handleSubmitOrder(values: NewOrderFormValues) {
@@ -376,6 +396,8 @@ function PedidosPageContent() {
         loading={detailsLoading}
         error={detailsError}
         order={orderDetail ?? undefined}
+        actionPending={actionPending}
+        actionError={actionError}
         onEditOrder={
           canManage && orderDetail?.status === "pendente"
             ? () => {

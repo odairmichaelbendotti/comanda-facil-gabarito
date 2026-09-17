@@ -26,6 +26,8 @@ interface OrderDetailModalProps {
   onEditOrder?: () => void;
   onStartPrep?: () => void;
   onMarkReady?: () => void;
+  actionPending?: boolean;
+  actionError?: string | null;
 }
 
 export default function OrderDetailModal({
@@ -37,6 +39,8 @@ export default function OrderDetailModal({
   onEditOrder,
   onStartPrep,
   onMarkReady,
+  actionPending = false,
+  actionError,
 }: OrderDetailModalProps) {
   if (error) {
     return (
@@ -136,11 +140,18 @@ export default function OrderDetailModal({
         </div>
 
         <div className="flex flex-col gap-3.5">
+          {actionError && (
+            <p className="text-body-sm text-[color:var(--color-status-danger-text)]">
+              {actionError}
+            </p>
+          )}
+
           {onEditOrder && (
             <button
               type="button"
               onClick={onEditOrder}
-              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-5 py-3 font-bold text-[color:var(--color-text-primary)] transition-colors duration-150 motion-reduce:transition-none hover:bg-[var(--color-bg-input)]"
+              disabled={actionPending}
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-5 py-3 font-bold text-[color:var(--color-text-primary)] transition-colors duration-150 motion-reduce:transition-none hover:bg-[var(--color-bg-input)] disabled:cursor-not-allowed disabled:opacity-70"
             >
               <LuPencil className="size-4" />
               Editar Pedido
@@ -151,15 +162,20 @@ export default function OrderDetailModal({
             <button
               type="button"
               onClick={onStartPrep}
-              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-orange-500 px-5 py-3 font-bold text-white transition-colors duration-150 motion-reduce:transition-none hover:bg-orange-600"
+              disabled={actionPending}
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-orange-500 px-5 py-3 font-bold text-white transition-colors duration-150 motion-reduce:transition-none hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <LuFlame className="size-4" />
-              Iniciar Preparo
+              {actionPending ? "Iniciando..." : "Iniciar Preparo"}
             </button>
           )}
 
           {onMarkReady && (
-            <Button className="w-full" onClick={onMarkReady}>
+            <Button
+              className="w-full"
+              onClick={onMarkReady}
+              disabled={actionPending}
+            >
               Marcar como Pronto
             </Button>
           )}
