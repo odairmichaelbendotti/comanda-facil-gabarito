@@ -103,6 +103,7 @@ export default function PedidosGrid({
             itemsCount={order.itemsCount}
             itemsSummary={order.itemsSummary}
             total={formatCurrency(order.total)}
+            isCompleted={order.status === "pronto"}
             onClick={() => onOrderClick(order.id)}
           />
         ))}

@@ -240,6 +240,16 @@ export default function PreviewPage() {
           itemsCount={2}
           itemsSummary="2x Pizza Calabresa"
         />
+        <OrderCard
+          className="w-70"
+          title="Mesa 8"
+          status="Pronto"
+          statusVariant="success"
+          total="R$ 48,00"
+          itemsCount={1}
+          itemsSummary="1x Pizza Marguerita"
+          isCompleted
+        />
       </Section>
 
       <Section title="CategoryCard">
