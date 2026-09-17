@@ -69,6 +69,22 @@
   --color-blue-800: #1a3f73;
   --color-blue-900: #152f55;
 
+  /* Dark mode's own neutral ramp — cooler/less brown than --color-neutral,
+     used only inside .dark below (light mode keeps --color-neutral). */
+  --color-cool-gray-50: #f8f8f9;
+  --color-cool-gray-100: #f0f0f2;
+  --color-cool-gray-200: #e1e1e4;
+  --color-cool-gray-300: #c4c4c8;
+  --color-cool-gray-400: #9c9ca1;
+  --color-cool-gray-500: #717177;
+  --color-cool-gray-600: #515157;
+  --color-cool-gray-700: #38383d;
+  --color-cool-gray-750: #2e2e33;
+  --color-cool-gray-800: #27272b;
+  --color-cool-gray-850: #1f1f22;
+  --color-cool-gray-900: #18181b;
+  --color-cool-gray-950: #111113;
+
   /* Type scale */
   --text-display: 40px;
   --text-display--line-height: 48px;
@@ -164,33 +180,33 @@
 }
 
 .dark {
-  --color-bg-canvas: #0b0808;
-  --color-bg-surface: #140f0e;
-  --color-bg-sidebar: #140f0e;
-  --color-bg-surface-elevated: var(--color-neutral-900);
+  --color-bg-canvas: var(--color-cool-gray-950);
+  --color-bg-surface: var(--color-cool-gray-900);
+  --color-bg-sidebar: var(--color-cool-gray-950);
+  --color-bg-surface-elevated: var(--color-cool-gray-800);
 
   --color-brand-primary: var(--color-red-500);
   --color-brand-accent-orange: var(--color-orange-400);
   --color-brand-accent-amber: var(--color-amber-400);
 
-  --color-text-primary: var(--color-neutral-50);
-  --color-text-secondary: var(--color-neutral-300);
-  --color-text-tertiary: var(--color-neutral-500);
+  --color-text-primary: var(--color-cool-gray-50);
+  --color-text-secondary: var(--color-cool-gray-300);
+  --color-text-tertiary: var(--color-cool-gray-500);
 
-  --color-border-subtle: var(--color-neutral-900);
-  --color-border-default: var(--color-neutral-800);
-  --color-border-focus: var(--color-red-500);
+  --color-border-subtle: var(--color-cool-gray-800);
+  --color-border-default: var(--color-cool-gray-700);
+  --color-border-focus: var(--color-red-400);
 
-  --color-bg-input: var(--color-neutral-800);
+  --color-bg-input: var(--color-cool-gray-850);
 
   --color-action-danger: var(--color-red-500);
   --color-action-danger-hover: var(--color-red-400);
   --color-brand-primary-hover: var(--color-red-400);
   --color-text-brand: var(--color-red-400);
 
-  --color-status-neutral-bg: var(--color-neutral-800);
-  --color-status-neutral-border: var(--color-neutral-700);
-  --color-status-neutral-text: var(--color-neutral-200);
+  --color-status-neutral-bg: var(--color-cool-gray-800);
+  --color-status-neutral-border: var(--color-cool-gray-700);
+  --color-status-neutral-text: var(--color-cool-gray-200);
 
   --color-status-success-bg: var(--color-green-900);
   --color-status-success-border: var(--color-green-700);

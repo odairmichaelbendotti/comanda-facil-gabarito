@@ -26,6 +26,7 @@ Freshly scaffolded Next.js 16 App Router project (`create-next-app`, template `a
 ## Design System
 
 - Cores, fontes e espaçamentos do tema ficam em `app/globals.css`, no bloco `@theme inline`. Os tokens semânticos (cores que mudam entre light/dark) ficam logo abaixo, como variáveis CSS em `:root` e `.dark` no mesmo arquivo. O carregamento das fontes (next/font/google) fica em `app/layout.tsx`.
+- O dark mode não reaproveita a rampa `--color-neutral-*` do light mode (que é morna/amarronzada) — usa uma rampa própria, `--color-cool-gray-*` (50 a 950, incluindo os múltiplos intermediários 750/850 que o design usa), mais neutra/fria, definida no mesmo bloco `@theme inline`. Confirme no Figma (Design System Foundations) antes de adicionar um token novo a `:root`/`.dark`: cada tema pode apontar pra uma rampa de primitiva diferente, não é garantido que os dois usem a mesma.
 - Cores de rampa (primitivas) viram classes normais do Tailwind, ex.: `bg-red-500`, `text-neutral-600`.
 - Cores semânticas (bg/text/border/status/brand) são variáveis CSS — use-as com a forma curta de valor arbitrário do Tailwind v4, ex.: `bg-(--color-bg-canvas)`, `text-(--color-text-primary)`. Nunca a forma longa `bg-[var(--color-bg-canvas)]`/`text-[color:var(--color-text-primary)]`. (Alguns componentes mais antigos do projeto ainda usam a forma longa — não precisa migrar por conta própria, só use a curta em código novo.)
 - Fontes: `font-sans` para texto, `font-display` para títulos.
