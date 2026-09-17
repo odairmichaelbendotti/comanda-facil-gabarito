@@ -1,4 +1,4 @@
-import { LuPencil, LuFlame } from "react-icons/lu";
+import { LuBan, LuPencil, LuFlame } from "react-icons/lu";
 import { formatCurrency } from "../lib/format";
 import Button from "./Button";
 import Modal from "./Modal";
@@ -26,6 +26,7 @@ interface OrderDetailModalProps {
   onEditOrder?: () => void;
   onStartPrep?: () => void;
   onMarkReady?: () => void;
+  onCancelOrder?: () => void;
   actionPending?: boolean;
   actionError?: string | null;
 }
@@ -39,6 +40,7 @@ export default function OrderDetailModal({
   onEditOrder,
   onStartPrep,
   onMarkReady,
+  onCancelOrder,
   actionPending = false,
   actionError,
 }: OrderDetailModalProps) {
@@ -177,6 +179,20 @@ export default function OrderDetailModal({
               disabled={actionPending}
             >
               Marcar como Pronto
+            </Button>
+          )}
+
+          {onCancelOrder && (
+            <Button
+              variant="danger"
+              className="w-full"
+              onClick={onCancelOrder}
+              disabled={actionPending}
+            >
+              <span className="flex items-center gap-2">
+                <LuBan className="size-4" />
+                Cancelar Pedido
+              </span>
             </Button>
           )}
 

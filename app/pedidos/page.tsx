@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AppShell from "../components/AppShell";
+import ConfirmationModal from "../components/ConfirmationModal";
 import NewOrderModal, {
   MesaOption,
   NewOrderFormValues,
@@ -127,6 +128,7 @@ function PedidosPageContent() {
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [actionPending, setActionPending] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
 
   function handleFilterChange(filter: FilterKey) {
     // Reset loading/error here (a user event), not inside the fetch effect —
@@ -309,6 +311,27 @@ function PedidosPageContent() {
     }
   }
 
+  function openCancelConfirm() {
+    // Closes the detail modal first, like onEditOrder already does —
+    // two Modal instances open at once fight over the same document-level
+    // Escape/Tab handlers (see app/components/Modal.tsx), so only one is
+    // ever open here.
+    setDetailsOpen(false);
+    setCancelConfirmOpen(true);
+  }
+
+  async function handleConfirmCancel() {
+    if (!selectedOrderId) return;
+    const response = await fetch(`/api/pedidos/${selectedOrderId}/cancelar`, {
+      method: "POST",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao cancelar pedido");
+    }
+    updateOrderStatus(selectedOrderId, "cancelado");
+  }
+
   async function handleSubmitOrder(values: NewOrderFormValues) {
     const body = {
       mesaId: values.mesaId,
@@ -436,6 +459,24 @@ function PedidosPageContent() {
             ? markSelectedOrderReady
             : undefined
         }
+        onCancelOrder={
+          canManage &&
+          (orderDetail?.status === "pendente" ||
+            orderDetail?.status === "em-preparo")
+            ? openCancelConfirm
+            : undefined
+        }
+      />
+
+      <ConfirmationModal
+        isOpen={cancelConfirmOpen}
+        onClose={() => setCancelConfirmOpen(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancelar Pedido?"
+        description={`Tem certeza que deseja cancelar o pedido da ${orderDetail?.table}? Esta ação não pode ser desfeita.`}
+        confirmLabel="Cancelar Pedido"
+        cancelLabel="Voltar"
+        isDangerous
       />
     </AppShell>
   );
