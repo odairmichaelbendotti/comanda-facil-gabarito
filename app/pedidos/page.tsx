@@ -260,11 +260,30 @@ function PedidosPageContent() {
     );
   }
 
-  function markSelectedOrderReady() {
-    if (!selectedOrderId) return;
-    // TODO: não há endpoint de transição de status ainda — reflete só na UI.
-    updateOrderStatus(selectedOrderId, "pronto");
-    setDetailsOpen(false);
+  async function markSelectedOrderReady() {
+    if (!selectedOrderId || actionPending) return;
+    setActionError(null);
+    setActionPending(true);
+    try {
+      const response = await fetch(
+        `/api/pedidos/${selectedOrderId}/marcar-pronto`,
+        { method: "POST" },
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao marcar pedido como pronto");
+      }
+      updateOrderStatus(selectedOrderId, "pronto");
+      setDetailsOpen(false);
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Erro ao marcar pedido como pronto",
+      );
+    } finally {
+      setActionPending(false);
+    }
   }
 
   async function startSelectedOrderPrep() {
