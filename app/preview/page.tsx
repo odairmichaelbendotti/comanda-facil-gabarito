@@ -83,6 +83,7 @@ function Section({
 export default function PreviewPage() {
   const [newOrderOpen, setNewOrderOpen] = useState(false);
   const [orderDetailOpen, setOrderDetailOpen] = useState(false);
+  const [orderDetailLoadingOpen, setOrderDetailLoadingOpen] = useState(false);
   const [newProductOpen, setNewProductOpen] = useState(false);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [mesaModalOpen, setMesaModalOpen] = useState(false);
@@ -311,12 +312,26 @@ export default function PreviewPage() {
         <Button variant="secondary" onClick={() => setOrderDetailOpen(true)}>
           Abrir Detalhes do Pedido
         </Button>
+        <Button
+          variant="secondary"
+          onClick={() => setOrderDetailLoadingOpen(true)}
+        >
+          Abrir Detalhes do Pedido (Carregando)
+        </Button>
         <Button variant="secondary" onClick={() => setNewProductOpen(true)}>
           Abrir Novo Produto
         </Button>
         <NewOrderModal
           isOpen={newOrderOpen}
           onClose={() => setNewOrderOpen(false)}
+          mesas={[
+            { id: 1, numero: 1 },
+            { id: 2, numero: 2 },
+          ]}
+          produtos={[
+            { id: 1, nome: "Coca-Cola Lata", preco: 6, categoriaId: 1, categoriaNome: "Bebidas" },
+            { id: 2, nome: "Pizza Frango c/ Catupiry", preco: 30, categoriaId: 2, categoriaNome: "Pizzas" },
+          ]}
         />
         <OrderDetailModal
           isOpen={orderDetailOpen}
@@ -331,6 +346,11 @@ export default function PreviewPage() {
             isInProgress: true,
             receivedAt: "14:32",
           }}
+        />
+        <OrderDetailModal
+          isOpen={orderDetailLoadingOpen}
+          onClose={() => setOrderDetailLoadingOpen(false)}
+          loading
         />
         <NewProductModal
           isOpen={newProductOpen}

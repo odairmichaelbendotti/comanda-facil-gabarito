@@ -20,7 +20,9 @@ export interface OrderDetail {
 interface OrderDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  order: OrderDetail;
+  loading?: boolean;
+  error?: string | null;
+  order?: OrderDetail;
   onEditOrder?: () => void;
   onStartPrep?: () => void;
   onMarkReady?: () => void;
@@ -29,11 +31,44 @@ interface OrderDetailModalProps {
 export default function OrderDetailModal({
   isOpen,
   onClose,
+  loading = false,
+  error,
   order,
   onEditOrder,
   onStartPrep,
   onMarkReady,
 }: OrderDetailModalProps) {
+  if (error) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do Pedido">
+        <p className="text-body-sm text-[color:var(--color-status-danger-text)]">
+          {error}
+        </p>
+      </Modal>
+    );
+  }
+
+  if (loading || !order) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do Pedido">
+        <div className="flex animate-pulse flex-col gap-6 motion-reduce:animate-none">
+          <div className="h-14.5 w-full rounded-md bg-[var(--color-status-neutral-bg)]" />
+          <div className="h-4 w-40 rounded bg-[var(--color-status-neutral-bg)]" />
+          <div className="flex flex-col gap-3">
+            <div className="h-3 w-28 rounded bg-[var(--color-status-neutral-bg)]" />
+            <div className="h-5 w-full rounded bg-[var(--color-status-neutral-bg)]" />
+            <div className="h-5 w-full rounded bg-[var(--color-status-neutral-bg)]" />
+          </div>
+          <div className="h-px w-full bg-[var(--color-border-subtle)]" />
+          <div className="flex flex-col gap-2.5">
+            <div className="h-4 w-full rounded bg-[var(--color-status-neutral-bg)]" />
+            <div className="h-6 w-full rounded bg-[var(--color-status-neutral-bg)]" />
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
   const subtotal = order.items.reduce(
     (sum, item) => sum + item.qty * item.price,
     0,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { formatCurrency } from "../lib/format";
 import AccordionHeader from "./AccordionHeader";
 import Button from "./Button";
@@ -8,89 +8,160 @@ import Modal from "./Modal";
 import NativeSelect from "./NativeSelect";
 import QuantityStepper from "./QuantityStepper";
 
-interface MenuItem {
-  key: string;
-  name: string;
-  price: number;
+export interface MesaOption {
+  id: number;
+  numero: number;
 }
 
-interface MenuCategory {
-  key: string;
-  label: string;
-  items: MenuItem[];
+export interface ProdutoOption {
+  id: number;
+  nome: string;
+  preco: number;
+  categoriaId: number;
+  categoriaNome: string;
 }
 
-const mesaOptions = Array.from({ length: 8 }, (_, index) => ({
-  value: String(index + 1),
-  label: `Mesa ${index + 1}`,
-}));
+export interface NewOrderFormValues {
+  mesaId: number;
+  itens: { produtoId: number; quantidade: number }[];
+}
 
-const menu: MenuCategory[] = [
-  {
-    key: "bebidas",
-    label: "Bebidas",
-    items: [
-      { key: "coca-cola", name: "Coca-Cola Lata", price: 6 },
-      { key: "guarana", name: "Guaraná Lata", price: 5 },
-      { key: "suco-natural", name: "Suco Natural", price: 8 },
-    ],
-  },
-  {
-    key: "pizzas",
-    label: "Pizzas",
-    items: [
-      { key: "calabresa", name: "Pizza Calabresa", price: 48 },
-      { key: "marguerita", name: "Pizza Marguerita", price: 42 },
-      { key: "frango-catupiry", name: "Pizza Frango c/ Catupiry", price: 50 },
-    ],
-  },
-  {
-    key: "sobremesas",
-    label: "Sobremesas",
-    items: [
-      { key: "pudim", name: "Pudim", price: 10 },
-      { key: "petit-gateau", name: "Petit Gateau", price: 14 },
-    ],
-  },
-];
+export interface NewOrderInitialValues {
+  mesaId: number;
+  itens: { produtoId: number; quantidade: number }[];
+}
 
 interface NewOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated?: () => void;
+  mesas: MesaOption[];
+  produtos: ProdutoOption[];
+  onSubmit?: (values: NewOrderFormValues) => void | Promise<void>;
+  initialValues?: NewOrderInitialValues;
 }
 
 export default function NewOrderModal({
   isOpen,
   onClose,
-  onCreated,
+  mesas,
+  produtos,
+  onSubmit,
+  initialValues,
 }: NewOrderModalProps) {
-  const [mesa, setMesa] = useState("3");
+  const isEditing = !!initialValues;
+
+  const menu = useMemo(() => {
+    const categorias = new Map<
+      number,
+      { key: string; label: string; items: ProdutoOption[] }
+    >();
+    for (const produto of produtos) {
+      const existing = categorias.get(produto.categoriaId);
+      if (existing) {
+        existing.items.push(produto);
+      } else {
+        categorias.set(produto.categoriaId, {
+          key: String(produto.categoriaId),
+          label: produto.categoriaNome,
+          items: [produto],
+        });
+      }
+    }
+    return Array.from(categorias.values());
+  }, [produtos]);
+
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  const [mesa, setMesa] = useState(
+    initialValues ? String(initialValues.mesaId) : "",
+  );
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [quantities, setQuantities] = useState<Record<string, number>>({
-    "coca-cola": 2,
-    "suco-natural": 1,
-  });
+  const [quantities, setQuantities] = useState<Record<string, number>>(
+    initialValues
+      ? Object.fromEntries(
+          initialValues.itens.map((item) => [
+            String(item.produtoId),
+            item.quantidade,
+          ]),
+        )
+      : {},
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // React's documented pattern for resetting state when a prop changes —
+  // adjusted during render, not inside an effect.
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) {
+      setMesa(
+        initialValues
+          ? String(initialValues.mesaId)
+          : mesas[0]
+            ? String(mesas[0].id)
+            : "",
+      );
+      setQuantities(
+        initialValues
+          ? Object.fromEntries(
+              initialValues.itens.map((item) => [
+                String(item.produtoId),
+                item.quantidade,
+              ]),
+            )
+          : {},
+      );
+      setSubmitError(null);
+    }
+  }
 
   const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
-  const totalPrice = menu
-    .flatMap((category) => category.items)
-    .reduce((sum, item) => sum + (quantities[item.key] ?? 0) * item.price, 0);
+  const totalPrice = produtos.reduce(
+    (sum, produto) => sum + (quantities[String(produto.id)] ?? 0) * produto.preco,
+    0,
+  );
 
-  function updateQuantity(itemKey: string, delta: number) {
+  function updateQuantity(produtoKey: string, delta: number) {
     setQuantities((current) => ({
       ...current,
-      [itemKey]: Math.max(0, (current[itemKey] ?? 0) + delta),
+      [produtoKey]: Math.max(0, (current[produtoKey] ?? 0) + delta),
     }));
   }
 
-  function handleSubmit() {
-    onCreated?.();
-    onClose();
+  const isValid = mesa !== "" && totalItems > 0;
+
+  async function handleSubmit() {
+    if (!isValid || isSubmitting) return;
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      const itens = Object.entries(quantities)
+        .filter(([, quantidade]) => quantidade > 0)
+        .map(([produtoId, quantidade]) => ({
+          produtoId: Number(produtoId),
+          quantidade,
+        }));
+      await onSubmit?.({ mesaId: Number(mesa), itens });
+      onClose();
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Erro ao salvar pedido",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
+  const mesaOptions = mesas.map((mesaOption) => ({
+    value: String(mesaOption.id),
+    label: `Mesa ${mesaOption.numero}`,
+  }));
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Novo Pedido">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? "Editar Pedido" : "Novo Pedido"}
+    >
       <div className="flex flex-col gap-4">
         <div className="h-px w-full bg-[var(--color-border-subtle)]" />
 
@@ -99,7 +170,13 @@ export default function NewOrderModal({
           value={mesa}
           onChange={(event) => setMesa(event.target.value)}
           options={mesaOptions}
+          disabled={mesas.length === 0}
         />
+        {mesas.length === 0 && (
+          <p className="-mt-2 text-body-sm text-[color:var(--color-text-tertiary)]">
+            Cadastre uma mesa antes de lançar um pedido.
+          </p>
+        )}
 
         <div className="flex flex-col gap-1">
           <p className="text-label-sm font-semibold text-[color:var(--color-text-secondary)]">
@@ -126,26 +203,29 @@ export default function NewOrderModal({
                   >
                     <div className="overflow-hidden">
                       <div className="flex flex-col gap-0.5 px-1 pt-0.5">
-                        {category.items.map((item) => (
-                          <div
-                            key={item.key}
-                            className="flex items-center justify-between gap-3 px-3 py-2.5"
-                          >
-                            <p className="min-w-0 flex-1 truncate text-body-md text-[color:var(--color-text-primary)]">
-                              {item.name}
-                            </p>
-                            <div className="flex shrink-0 items-center gap-5">
-                              <p className="text-body-md font-semibold text-[color:var(--color-text-secondary)]">
-                                {formatCurrency(item.price)}
+                        {category.items.map((item) => {
+                          const itemKey = String(item.id);
+                          return (
+                            <div
+                              key={itemKey}
+                              className="flex items-center justify-between gap-3 px-3 py-2.5"
+                            >
+                              <p className="min-w-0 flex-1 truncate text-body-md text-[color:var(--color-text-primary)]">
+                                {item.nome}
                               </p>
-                              <QuantityStepper
-                                value={quantities[item.key] ?? 0}
-                                onDecrease={() => updateQuantity(item.key, -1)}
-                                onIncrease={() => updateQuantity(item.key, 1)}
-                              />
+                              <div className="flex shrink-0 items-center gap-5">
+                                <p className="text-body-md font-semibold text-[color:var(--color-text-secondary)]">
+                                  {formatCurrency(item.preco)}
+                                </p>
+                                <QuantityStepper
+                                  value={quantities[itemKey] ?? 0}
+                                  onDecrease={() => updateQuantity(itemKey, -1)}
+                                  onIncrease={() => updateQuantity(itemKey, 1)}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -167,8 +247,22 @@ export default function NewOrderModal({
           </p>
         </div>
 
-        <Button type="button" onClick={handleSubmit} disabled={totalItems === 0}>
-          Criar Pedido
+        {submitError && (
+          <p className="text-body-sm text-[color:var(--color-status-danger-text)]">
+            {submitError}
+          </p>
+        )}
+
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!isValid || isSubmitting}
+        >
+          {isSubmitting
+            ? "Salvando..."
+            : isEditing
+              ? "Salvar Alterações"
+              : "Criar Pedido"}
         </Button>
       </div>
     </Modal>

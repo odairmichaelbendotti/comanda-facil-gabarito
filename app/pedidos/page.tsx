@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppShell from "../components/AppShell";
-import NewOrderModal from "../components/NewOrderModal";
+import NewOrderModal, {
+  MesaOption,
+  NewOrderFormValues,
+  ProdutoOption,
+} from "../components/NewOrderModal";
 import OrderDetailModal, {
-  OrderDetailItem,
+  OrderDetail,
 } from "../components/OrderDetailModal";
 import { PAGINATION_RESERVED_HEIGHT } from "../components/Pagination";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { formatTime } from "../lib/format";
 import { useAuthStore } from "../lib/store/auth-store";
 import { canManageOrders, canPrepareOrders } from "../lib/permissions";
 import { usePagination } from "../lib/use-pagination";
@@ -23,141 +28,55 @@ type FilterKey =
   | "prontos"
   | "cancelados";
 
+const FILTER_TO_STATUS: Partial<Record<FilterKey, string>> = {
+  pendentes: "pendente",
+  "em-preparo": "em-preparo",
+  prontos: "pronto",
+  cancelados: "cancelado",
+};
+
 interface Order {
   id: string;
   table: string;
   status: OrderStatus;
-  waiterName: string;
-  items: OrderDetailItem[];
+  itemsCount: number;
+  itemsSummary: string;
+  total: number;
   receivedAt: string;
 }
 
-const initialOrders: Order[] = [
-  {
-    id: "56",
-    table: "Mesa 56",
-    status: "em-preparo",
-    waiterName: "Carlos Silva",
-    items: [{ name: "Coca-Cola Lata", qty: 1, price: 6 }],
-    receivedAt: "14:02",
-  },
-  {
-    id: "52",
-    table: "Mesa 52",
-    status: "em-preparo",
-    waiterName: "Carlos Silva",
-    items: [
-      { name: "Coca-Cola Lata", qty: 1, price: 6 },
-      { name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 },
-    ],
-    receivedAt: "14:32",
-  },
-  {
-    id: "12",
-    table: "Mesa 12",
-    status: "em-preparo",
-    waiterName: "Ana Souza",
-    items: [{ name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 }],
-    receivedAt: "14:41",
-  },
-  {
-    id: "8",
-    table: "Mesa 8",
-    status: "em-preparo",
-    waiterName: "Ana Souza",
-    items: [
-      { name: "Água Mineral", qty: 2, price: 6 },
-      { name: "Picanha", qty: 1, price: 40 },
-    ],
-    receivedAt: "14:55",
-  },
-  {
-    id: "21",
-    table: "Mesa 21",
-    status: "pronto",
-    waiterName: "Carlos Silva",
-    items: [{ name: "Pizza Marguerita", qty: 1, price: 42 }],
-    receivedAt: "13:18",
-  },
-  {
-    id: "45",
-    table: "Mesa 45",
-    status: "cancelado",
-    waiterName: "Ana Souza",
-    items: [{ name: "Coca-Cola Lata", qty: 1, price: 6 }],
-    receivedAt: "12:47",
-  },
-  {
-    id: "3",
-    table: "Mesa 3",
-    status: "pendente",
-    waiterName: "Carlos Silva",
-    items: [{ name: "Suco Natural", qty: 2, price: 8 }],
-    receivedAt: "15:03",
-  },
-  {
-    id: "17",
-    table: "Mesa 17",
-    status: "pronto",
-    waiterName: "Ana Souza",
-    items: [{ name: "Pizza Calabresa", qty: 1, price: 48 }],
-    receivedAt: "13:40",
-  },
-  {
-    id: "29",
-    table: "Mesa 29",
-    status: "pendente",
-    waiterName: "Carlos Silva",
-    items: [
-      { name: "Guaraná Lata", qty: 1, price: 5 },
-      { name: "Pudim", qty: 1, price: 10 },
-    ],
-    receivedAt: "15:12",
-  },
-  {
-    id: "34",
-    table: "Mesa 34",
-    status: "pronto",
-    waiterName: "Ana Souza",
-    items: [{ name: "Picanha", qty: 1, price: 40 }],
-    receivedAt: "12:58",
-  },
-  {
-    id: "9",
-    table: "Mesa 9",
-    status: "cancelado",
-    waiterName: "Carlos Silva",
-    items: [{ name: "Petit Gateau", qty: 1, price: 14 }],
-    receivedAt: "12:20",
-  },
-  {
-    id: "41",
-    table: "Mesa 41",
-    status: "pendente",
-    waiterName: "Ana Souza",
-    items: [{ name: "Pizza Marguerita", qty: 1, price: 42 }],
-    receivedAt: "15:21",
-  },
-  {
-    id: "18",
-    table: "Mesa 18",
-    status: "pronto",
-    waiterName: "Carlos Silva",
-    items: [
-      { name: "Coca-Cola Lata", qty: 2, price: 6 },
-      { name: "Pizza Calabresa", qty: 1, price: 48 },
-    ],
-    receivedAt: "13:05",
-  },
-  {
-    id: "27",
-    table: "Mesa 27",
-    status: "pendente",
-    waiterName: "Ana Souza",
-    items: [{ name: "Água Mineral", qty: 3, price: 6 }],
-    receivedAt: "15:30",
-  },
-];
+async function fetchOrders(filter: FilterKey): Promise<Order[]> {
+  const status = FILTER_TO_STATUS[filter];
+  const query = status
+    ? `?limit=500&status=${encodeURIComponent(status)}`
+    : "?limit=500";
+
+  const response = await fetch(`/api/pedidos${query}`, { cache: "no-store" });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Erro ao carregar pedidos");
+  }
+
+  return data.items.map(
+    (item: {
+      id: number;
+      status: OrderStatus;
+      mesa: { id: number; numero: number };
+      totalItens: number;
+      resumoItens: string;
+      total: string;
+      createdAt: string;
+    }) => ({
+      id: String(item.id),
+      table: `Mesa ${item.mesa.numero}`,
+      status: item.status,
+      itemsCount: item.totalItens,
+      itemsSummary: item.resumoItens,
+      total: Number(item.total),
+      receivedAt: formatTime(item.createdAt),
+    }),
+  );
+}
 
 const statusConfig: Record<
   OrderStatus,
@@ -168,14 +87,6 @@ const statusConfig: Record<
   pronto: { label: "Pronto", variant: "success" },
   cancelado: { label: "Cancelado", variant: "danger" },
 };
-
-function matchesFilter(order: Order, filter: FilterKey) {
-  if (filter === "todos") return true;
-  if (filter === "pendentes") return order.status === "pendente";
-  if (filter === "prontos") return order.status === "pronto";
-  if (filter === "cancelados") return order.status === "cancelado";
-  return order.status === filter;
-}
 
 export default function PedidosPage() {
   return (
@@ -189,41 +100,211 @@ function PedidosPageContent() {
   const role = useAuthStore((state) => state.user!.role);
   const canManage = canManageOrders(role);
   const canPrepare = canPrepareOrders(role);
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [activeFilter, setActiveFilter] = useState<FilterKey>("todos");
-  const [newOrderOpen, setNewOrderOpen] = useState(false);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState(initialOrders[0].id);
 
-  function openOrderDetails(orderId: string) {
+  const [mesas, setMesas] = useState<MesaOption[]>([]);
+  const [produtos, setProdutos] = useState<ProdutoOption[]>([]);
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>("todos");
+
+  const [newOrderOpen, setNewOrderOpen] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [orderDetail, setOrderDetail] = useState<
+    | (OrderDetail & {
+        id: string;
+        status: OrderStatus;
+        mesaId: number;
+        rawItens: { produtoId: number; quantidade: number }[];
+      })
+    | null
+  >(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
+
+  function handleFilterChange(filter: FilterKey) {
+    // Reset loading/error here (a user event), not inside the fetch effect —
+    // an effect body shouldn't set state synchronously outside a callback.
+    setOrdersLoading(true);
+    setOrdersError(null);
+    setActiveFilter(filter);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/mesas?limit=500", { cache: "no-store" })
+      .then(async (response) => {
+        if (cancelled || !response.ok) return;
+        const data = await response.json();
+        setMesas(data.items);
+      })
+      .catch(() => {});
+
+    fetch("/api/produtos?limit=500&disponivel=true", { cache: "no-store" })
+      .then(async (response) => {
+        if (cancelled || !response.ok) return;
+        const data = await response.json();
+        setProdutos(
+          data.items.map(
+            (item: {
+              id: number;
+              nome: string;
+              preco: string;
+              categoria: { id: number; nome: string };
+            }) => ({
+              id: item.id,
+              nome: item.nome,
+              preco: Number(item.preco),
+              categoriaId: item.categoria.id,
+              categoriaNome: item.categoria.nome,
+            }),
+          ),
+        );
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchOrders(activeFilter)
+      .then((items) => {
+        if (!cancelled) setOrders(items);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setOrdersError(
+            error instanceof Error ? error.message : "Erro ao carregar pedidos",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setOrdersLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeFilter]);
+
+  async function openOrderDetails(orderId: string) {
     setSelectedOrderId(orderId);
     setDetailsOpen(true);
+    setOrderDetail(null);
+    setDetailsError(null);
+    setDetailsLoading(true);
+    try {
+      const response = await fetch(`/api/pedidos/${orderId}`, {
+        cache: "no-store",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setDetailsError(data.error || "Erro ao carregar pedido");
+        return;
+      }
+      setOrderDetail({
+        id: String(data.id),
+        status: data.status,
+        mesaId: data.mesa.id,
+        table: `Mesa ${data.mesa.numero}`,
+        waiterName: data.garcom?.nome,
+        items: data.itens.map(
+          (item: {
+            nomeProduto: string;
+            quantidade: number;
+            precoUnitario: string;
+          }) => ({
+            name: item.nomeProduto,
+            qty: item.quantidade,
+            price: Number(item.precoUnitario),
+          }),
+        ),
+        rawItens: data.itens.map(
+          (item: { produtoId: number; quantidade: number }) => ({
+            produtoId: item.produtoId,
+            quantidade: item.quantidade,
+          }),
+        ),
+        isInProgress: data.status === "em-preparo",
+        receivedAt: formatTime(data.createdAt),
+      });
+    } catch {
+      setDetailsError("Erro ao conectar com o servidor");
+    } finally {
+      setDetailsLoading(false);
+    }
+  }
+
+  function updateOrderStatus(orderId: string, status: OrderStatus) {
+    setOrders((current) =>
+      current.map((order) =>
+        order.id === orderId ? { ...order, status } : order,
+      ),
+    );
+    setOrderDetail((current) =>
+      current && current.id === orderId
+        ? { ...current, status, isInProgress: status === "em-preparo" }
+        : current,
+    );
   }
 
   function markSelectedOrderReady() {
-    setOrders((current) =>
-      current.map((order) =>
-        order.id === selectedOrderId ? { ...order, status: "pronto" } : order,
-      ),
-    );
+    if (!selectedOrderId) return;
+    // TODO: não há endpoint de transição de status ainda — reflete só na UI.
+    updateOrderStatus(selectedOrderId, "pronto");
     setDetailsOpen(false);
   }
 
   function startSelectedOrderPrep() {
-    setOrders((current) =>
-      current.map((order) =>
-        order.id === selectedOrderId
-          ? { ...order, status: "em-preparo" }
-          : order,
-      ),
-    );
+    if (!selectedOrderId) return;
+    // TODO: não há endpoint de transição de status ainda — reflete só na UI.
+    updateOrderStatus(selectedOrderId, "em-preparo");
   }
 
-  const visibleOrders = orders.filter((order) =>
-    matchesFilter(order, activeFilter),
-  );
-  const selectedOrder =
-    orders.find((order) => order.id === selectedOrderId) ?? orders[0];
+  async function handleSubmitOrder(values: NewOrderFormValues) {
+    const body = {
+      mesaId: values.mesaId,
+      itens: values.itens,
+    };
+
+    const response = editingOrderId
+      ? await fetch(`/api/pedidos/${editingOrderId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        })
+      : await fetch("/api/pedidos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao salvar pedido");
+    }
+
+    // Simplest consistent way to reflect a create/edit in the list and in
+    // any open detail view is to just refetch both from the server, rather
+    // than hand-reconstruct the summary/detail shapes from the response.
+    fetchOrders(activeFilter)
+      .then(setOrders)
+      .catch(() => {});
+
+    if (editingOrderId) {
+      openOrderDetails(editingOrderId);
+    }
+    setEditingOrderId(null);
+  }
 
   const [pageSize, gridRef] = useResponsiveGrid({
     gap: 20,
@@ -232,63 +313,85 @@ function PedidosPageContent() {
     minRows: 2,
   });
   const { currentPage, totalPages, pageItems, setPage } = usePagination(
-    visibleOrders,
+    orders,
     pageSize,
   );
 
   return (
     <AppShell activeHref="/pedidos">
       <PedidosHeader
-        onNewOrder={canManage ? () => setNewOrderOpen(true) : undefined}
+        onNewOrder={
+          canManage
+            ? () => {
+                setEditingOrderId(null);
+                setNewOrderOpen(true);
+              }
+            : undefined
+        }
       />
 
       <PedidosFilterBar
         activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
+        onFilterChange={handleFilterChange}
       />
 
       <div key={activeFilter} className="flex flex-1 flex-col">
-        <PedidosGrid
-          pageItems={pageItems}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setPage}
-          onOrderClick={openOrderDetails}
-          statusConfig={statusConfig}
-          gridRef={gridRef}
-        />
+        {ordersError ? (
+          <p className="text-body-md text-(--color-status-danger-text)">
+            {ordersError}
+          </p>
+        ) : (
+          <PedidosGrid
+            pageItems={pageItems}
+            loading={ordersLoading}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onOrderClick={openOrderDetails}
+            statusConfig={statusConfig}
+            gridRef={gridRef}
+          />
+        )}
       </div>
 
       <NewOrderModal
         isOpen={newOrderOpen}
-        onClose={() => setNewOrderOpen(false)}
+        onClose={() => {
+          setNewOrderOpen(false);
+          setEditingOrderId(null);
+        }}
+        mesas={mesas}
+        produtos={produtos}
+        onSubmit={handleSubmitOrder}
+        initialValues={
+          editingOrderId && orderDetail
+            ? { mesaId: orderDetail.mesaId, itens: orderDetail.rawItens }
+            : undefined
+        }
       />
 
       <OrderDetailModal
         isOpen={detailsOpen}
         onClose={() => setDetailsOpen(false)}
-        order={{
-          table: selectedOrder.table,
-          waiterName: selectedOrder.waiterName,
-          items: selectedOrder.items,
-          isInProgress: selectedOrder.status === "em-preparo",
-          receivedAt: selectedOrder.receivedAt,
-        }}
+        loading={detailsLoading}
+        error={detailsError}
+        order={orderDetail ?? undefined}
         onEditOrder={
-          canManage
+          canManage && orderDetail?.status === "pendente"
             ? () => {
-                // TODO: wire up edit order functionality
                 setDetailsOpen(false);
+                setEditingOrderId(selectedOrderId);
+                setNewOrderOpen(true);
               }
             : undefined
         }
         onStartPrep={
-          canPrepare && selectedOrder.status === "pendente"
+          canPrepare && orderDetail?.status === "pendente"
             ? startSelectedOrderPrep
             : undefined
         }
         onMarkReady={
-          canPrepare && selectedOrder.status === "em-preparo"
+          canPrepare && orderDetail?.status === "em-preparo"
             ? markSelectedOrderReady
             : undefined
         }

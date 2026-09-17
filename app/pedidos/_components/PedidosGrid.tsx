@@ -4,22 +4,19 @@ import { formatCurrency } from "../../lib/format";
 
 export type OrderStatus = "pendente" | "em-preparo" | "pronto" | "cancelado";
 
-export interface OrderDetailItem {
-  name: string;
-  qty: number;
-  price: number;
-}
-
 interface Order {
   id: string;
   table: string;
   status: OrderStatus;
-  items: OrderDetailItem[];
+  itemsCount: number;
+  itemsSummary: string;
+  total: number;
   receivedAt: string;
 }
 
 interface PedidosGridProps {
   pageItems: Order[];
+  loading?: boolean;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -32,21 +29,11 @@ interface PedidosGridProps {
 }
 
 const ORDER_CARD_MIN_WIDTH = 280;
-
-function itemsSummary(items: OrderDetailItem[]) {
-  return items.map((item) => `${item.qty}x ${item.name}`).join(", ");
-}
-
-function itemsCount(items: OrderDetailItem[]) {
-  return items.reduce((sum, item) => sum + item.qty, 0);
-}
-
-function orderTotal(items: OrderDetailItem[]) {
-  return items.reduce((sum, item) => sum + item.qty * item.price, 0);
-}
+const SKELETON_CARD_COUNT = 6;
 
 export default function PedidosGrid({
   pageItems,
+  loading = false,
   currentPage,
   totalPages,
   onPageChange,
@@ -54,9 +41,41 @@ export default function PedidosGrid({
   statusConfig,
   gridRef,
 }: PedidosGridProps) {
+  if (loading) {
+    return (
+      <div
+        className="grid w-full gap-5"
+        style={{
+          gridTemplateColumns: `repeat(auto-fill, minmax(${ORDER_CARD_MIN_WIDTH}px, 1fr))`,
+        }}
+      >
+        {Array.from({ length: SKELETON_CARD_COUNT }, (_, index) => (
+          <div
+            key={index}
+            className="flex w-full animate-pulse flex-col gap-4 rounded-lg border border-(--color-border-subtle) bg-(--color-bg-surface) p-5 motion-reduce:animate-none"
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-24 rounded bg-(--color-status-neutral-bg)" />
+              <div className="h-5 w-16 rounded-full bg-(--color-status-neutral-bg)" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <div className="h-3 w-16 rounded bg-(--color-status-neutral-bg)" />
+              <div className="h-3.5 w-full rounded bg-(--color-status-neutral-bg)" />
+            </div>
+            <div className="h-px w-full bg-(--color-border-subtle)" />
+            <div className="flex items-center justify-between gap-2">
+              <div className="h-6 w-20 rounded bg-(--color-status-neutral-bg)" />
+              <div className="h-9 w-20 rounded-md bg-(--color-status-neutral-bg)" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (pageItems.length === 0) {
     return (
-      <p className="text-body-md text-(--color-text-secondary)">
+      <p className="animate-fade-in-up text-body-md text-(--color-text-secondary)">
         Nenhum pedido encontrado para este filtro.
       </p>
     );
@@ -77,9 +96,9 @@ export default function PedidosGrid({
             title={order.table}
             status={statusConfig[order.status].label}
             statusVariant={statusConfig[order.status].variant}
-            itemsCount={itemsCount(order.items)}
-            itemsSummary={itemsSummary(order.items)}
-            total={formatCurrency(orderTotal(order.items))}
+            itemsCount={order.itemsCount}
+            itemsSummary={order.itemsSummary}
+            total={formatCurrency(order.total)}
             onClick={() => onOrderClick(order.id)}
           />
         ))}
