@@ -25,7 +25,7 @@ export default function PedidosFilterBar({
   onFilterChange,
 }: PedidosFilterBarProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto">
+    <div className="flex shrink-0 gap-2 overflow-x-auto">
       {filters.map((filter) => (
         <FilterTab
           key={filter.key}

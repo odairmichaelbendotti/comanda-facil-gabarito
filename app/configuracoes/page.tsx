@@ -28,11 +28,6 @@ interface Mesa {
   number: number;
 }
 
-const initialMesas: Mesa[] = Array.from({ length: 20 }, (_, index) => ({
-  id: `mesa-${index + 1}`,
-  number: index + 1,
-}));
-
 export default function ConfiguracoesPage() {
   return (
     <ProtectedRoute>
@@ -50,7 +45,9 @@ function ConfiguracoesPageContent() {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
-  const [mesas, setMesas] = useState<Mesa[]>(initialMesas);
+  const [mesas, setMesas] = useState<Mesa[]>([]);
+  const [mesasLoading, setMesasLoading] = useState(true);
+  const [mesasError, setMesasError] = useState<string | null>(null);
   const [mesaModalOpen, setMesaModalOpen] = useState(false);
   const [mesaDeleteConfirmOpen, setMesaDeleteConfirmOpen] = useState(false);
   const [mesaToDelete, setMesaToDelete] = useState<string | null>(null);
@@ -88,6 +85,40 @@ function ConfiguracoesPageContent() {
       })
       .finally(() => {
         if (!cancelled) setCategoriesLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // Same "grab everything, page client-side" convention as categories —
+    // no real salão has enough mesas to need server-side pagination.
+    fetch("/api/mesas?limit=500", { cache: "no-store" })
+      .then(async (response) => {
+        if (cancelled) return;
+        const data = await response.json();
+
+        if (!response.ok) {
+          setMesasError(data.error || "Erro ao carregar mesas");
+          return;
+        }
+
+        setMesas(
+          data.items.map((item: { id: number; numero: number }) => ({
+            id: String(item.id),
+            number: item.numero,
+          })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setMesasError("Erro ao conectar com o servidor");
+      })
+      .finally(() => {
+        if (!cancelled) setMesasLoading(false);
       });
 
     return () => {
@@ -167,8 +198,25 @@ function ConfiguracoesPageContent() {
     );
   }
 
-  function handleAddMesa(number: number) {
-    setMesas((current) => [...current, { id: crypto.randomUUID(), number }]);
+  async function handleAddMesa(number: number) {
+    const response = await fetch("/api/mesas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ numero: number }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Thrown, not swallowed: NewMesaModal awaits this call and keeps the
+      // modal open with the message on rejection (e.g. 409 "Já existe mesa
+      // ativa com esse número") instead of closing as if it had worked.
+      throw new Error(data.error || "Erro ao adicionar mesa");
+    }
+
+    setMesas((current) => [
+      ...current,
+      { id: String(data.id), number: data.numero },
+    ]);
   }
 
   function openDeleteMesaConfirm(id: string) {
@@ -176,14 +224,23 @@ function ConfiguracoesPageContent() {
     setMesaDeleteConfirmOpen(true);
   }
 
-  function handleConfirmDeleteMesa() {
-    if (mesaToDelete) {
-      setMesas((current) =>
-        current.filter((mesa) => mesa.id !== mesaToDelete),
-      );
-      setMesaDeleteConfirmOpen(false);
-      setMesaToDelete(null);
+  async function handleConfirmDeleteMesa() {
+    if (!mesaToDelete) return;
+
+    const response = await fetch(`/api/mesas/${mesaToDelete}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      // Thrown, not swallowed: ConfirmationModal awaits this call and keeps
+      // the modal open with the message on rejection (e.g. 422 "Mesa tem
+      // pedido em aberto") instead of closing as if it had been removed.
+      throw new Error(data.error || "Erro ao remover mesa");
     }
+
+    setMesas((current) => current.filter((mesa) => mesa.id !== mesaToDelete));
+    setMesaToDelete(null);
   }
 
   const [categoriesPageSize, categoriesGridRef] = useResponsiveGrid({
@@ -232,9 +289,16 @@ function ConfiguracoesPageContent() {
               gridRef={categoriesGridRef}
             />
           )
+        ) : mesasError ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-body-sm text-(--color-status-danger-text)">
+              {mesasError}
+            </p>
+          </div>
         ) : (
           <MesasSection
             mesas={mesasPagination.pageItems}
+            loading={mesasLoading}
             currentPage={mesasPagination.currentPage}
             totalPages={mesasPagination.totalPages}
             onPageChange={mesasPagination.setPage}

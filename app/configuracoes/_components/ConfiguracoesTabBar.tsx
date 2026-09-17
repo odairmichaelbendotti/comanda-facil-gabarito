@@ -17,7 +17,7 @@ export default function ConfiguracoesTabBar({
   onTabChange,
 }: ConfiguracoesTabBarProps) {
   return (
-    <div className="flex gap-8 overflow-x-auto">
+    <div className="flex shrink-0 gap-8 overflow-x-auto">
       {tabs.map((tab) => (
         <Tab
           key={tab.key}
