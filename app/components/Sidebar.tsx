@@ -18,6 +18,7 @@ interface SidebarProps {
   activeHref?: string;
   userName?: string;
   plano?: PlanoInfo | null;
+  showPlanIndicators?: boolean;
   onLogout?: () => void;
   onUpgradeClick?: () => void;
   className?: string;
@@ -28,6 +29,7 @@ export default function Sidebar({
   activeHref,
   userName = "Odair Michael",
   plano,
+  showPlanIndicators = true,
   onLogout,
   onUpgradeClick,
   className = "",
@@ -55,12 +57,18 @@ export default function Sidebar({
         ))}
       </div>
 
-      <SidebarPlanIndicators
-        premium={plano?.premium}
-        ordersUsed={plano?.pedidosUsados}
-        ordersLimit={plano?.pedidosLimite ?? undefined}
-        onUpgradeClick={onUpgradeClick}
-      />
+      {showPlanIndicators ? (
+        <SidebarPlanIndicators
+          premium={plano?.premium}
+          ordersUsed={plano?.pedidosUsados}
+          ordersLimit={plano?.pedidosLimite ?? undefined}
+          onUpgradeClick={onUpgradeClick}
+        />
+      ) : (
+        // Empty spacer in place of SidebarPlanIndicators — it's the one
+        // pushing the logout/theme footer down to the bottom of the sidebar.
+        <div className="flex-1" />
+      )}
 
       <div className="flex flex-col gap-3">
         <div className="h-px w-full bg-[var(--color-border-default)]" />

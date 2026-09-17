@@ -79,6 +79,10 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
       })
     : [];
 
+  // Only the admin owns the establishment's plan — a garçom/cozinha has no
+  // reason to see or manage it.
+  const showPlanIndicators = user?.role === "admin";
+
   return (
     <div className="flex h-screen overflow-hidden bg-(--color-bg-canvas)">
       <Sidebar
@@ -86,6 +90,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         activeHref={activeHref}
         userName={user?.name}
         plano={plano}
+        showPlanIndicators={showPlanIndicators}
         onLogout={handleLogout}
         onUpgradeClick={handleUpgradeClick}
         className="hidden md:flex"
@@ -128,6 +133,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
           activeHref={activeHref}
           userName={user?.name}
           plano={plano}
+          showPlanIndicators={showPlanIndicators}
           onLogout={handleLogout}
           onUpgradeClick={handleUpgradeClick}
         />
