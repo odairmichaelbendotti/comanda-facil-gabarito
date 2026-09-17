@@ -101,6 +101,9 @@ function PedidosPageContent() {
   const role = useAuthStore((state) => state.user!.role);
   const canManage = canManageOrders(role);
   const canPrepare = canPrepareOrders(role);
+  const user = useAuthStore((state) => state.user);
+  const plano = useAuthStore((state) => state.plano);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [mesas, setMesas] = useState<MesaOption[]>([]);
   const [produtos, setProdutos] = useState<ProdutoOption[]>([]);
@@ -364,6 +367,13 @@ function PedidosPageContent() {
 
     if (editingOrderId) {
       openOrderDetails(editingOrderId);
+    } else if (user && plano) {
+      // A new pedido counts toward this month's quota the instant it's
+      // created — GET /api/auth/sessao would confirm the same number, this
+      // just avoids waiting for the next session check to move the
+      // sidebar's usage bar. Editing an existing pedido doesn't add a row,
+      // so it never touches pedidosUsados.
+      setUser(user, { ...plano, pedidosUsados: plano.pedidosUsados + 1 });
     }
     setEditingOrderId(null);
   }
