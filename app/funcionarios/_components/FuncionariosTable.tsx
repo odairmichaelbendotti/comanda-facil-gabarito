@@ -40,6 +40,7 @@ interface Funcionario {
 interface FuncionariosTableProps {
   funcionarios: Funcionario[];
   pageItems: Funcionario[];
+  loading?: boolean;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -48,9 +49,12 @@ interface FuncionariosTableProps {
   tableRef: (node: HTMLElement | null) => void;
 }
 
+const SKELETON_ROW_COUNT = 6;
+
 export default function FuncionariosTable({
   funcionarios,
   pageItems,
+  loading = false,
   currentPage,
   totalPages,
   onPageChange,
@@ -58,6 +62,46 @@ export default function FuncionariosTable({
   onDelete,
   tableRef,
 }: FuncionariosTableProps) {
+  if (loading) {
+    return (
+      <div className="flex w-full flex-col overflow-hidden rounded-sm border border-(--color-border-subtle) bg-(--color-bg-surface)">
+        <div className="flex w-full items-center gap-3 bg-(--color-bg-surface-elevated) px-4 py-3">
+          {["Nome", "Função", "Telefone", "Status", "Ações"].map((label) => (
+            <div
+              key={label}
+              className="min-w-35 flex-1 text-body-sm font-semibold text-(--color-text-secondary) first:flex-[2] last:flex last:justify-end"
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        {Array.from({ length: SKELETON_ROW_COUNT }, (_, index) => (
+          <div
+            key={index}
+            className="flex w-full animate-pulse items-center gap-3 border-b border-(--color-border-subtle) px-4 py-3.5 last:border-b-0 motion-reduce:animate-none"
+          >
+            <div className="min-w-35 flex-[2]">
+              <div className="h-4 w-2/3 rounded bg-(--color-status-neutral-bg)" />
+            </div>
+            <div className="min-w-35 flex-1">
+              <div className="h-6 w-16 rounded-full bg-(--color-status-neutral-bg)" />
+            </div>
+            <div className="min-w-35 flex-1">
+              <div className="h-4 w-1/2 rounded bg-(--color-status-neutral-bg)" />
+            </div>
+            <div className="min-w-35 flex-1">
+              <div className="h-6 w-14 rounded-full bg-(--color-status-neutral-bg)" />
+            </div>
+            <div className="flex min-w-35 flex-1 justify-end gap-4">
+              <div className="size-4 rounded bg-(--color-status-neutral-bg)" />
+              <div className="size-4 rounded bg-(--color-status-neutral-bg)" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (funcionarios.length === 0) {
     return (
       <EmptyState

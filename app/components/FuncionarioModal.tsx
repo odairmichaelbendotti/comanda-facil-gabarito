@@ -17,7 +17,7 @@ export interface FuncionarioFormValues {
 interface FuncionarioModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit?: (values: FuncionarioFormValues) => void;
+  onSubmit?: (values: FuncionarioFormValues) => void | Promise<void>;
   initialValues?: Omit<FuncionarioFormValues, "password">;
 }
 
@@ -34,6 +34,8 @@ export default function FuncionarioModal({
   const [birthDate, setBirthDate] = useState(initialValues?.birthDate ?? "");
   const [role, setRole] = useState(initialValues?.role ?? "garcom");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // React's documented pattern for resetting state when a prop changes —
   // adjusted during render, not inside an effect.
@@ -45,6 +47,7 @@ export default function FuncionarioModal({
       setBirthDate(initialValues?.birthDate ?? "");
       setRole(initialValues?.role ?? "garcom");
       setPassword("");
+      setSubmitError(null);
     }
   }
 
@@ -54,10 +57,20 @@ export default function FuncionarioModal({
     birthDate.length === 8 &&
     (isEditing || password.trim().length > 0);
 
-  function handleSubmit() {
-    if (!isValid) return;
-    onSubmit?.({ name: name.trim(), cpf, birthDate, role, password });
-    onClose();
+  async function handleSubmit() {
+    if (!isValid || isSubmitting) return;
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      await onSubmit?.({ name: name.trim(), cpf, birthDate, role, password });
+      onClose();
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Erro ao salvar funcionário",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -127,8 +140,22 @@ export default function FuncionarioModal({
           />
         </div>
 
-        <Button type="button" onClick={handleSubmit} disabled={!isValid}>
-          {isEditing ? "Salvar Alterações" : "Adicionar Funcionário"}
+        {submitError && (
+          <p className="-mt-2 text-body-sm text-(--color-status-danger-text)">
+            {submitError}
+          </p>
+        )}
+
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!isValid || isSubmitting}
+        >
+          {isSubmitting
+            ? "Salvando..."
+            : isEditing
+              ? "Salvar Alterações"
+              : "Adicionar Funcionário"}
         </Button>
       </div>
     </Modal>
