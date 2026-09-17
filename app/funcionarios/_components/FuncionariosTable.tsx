@@ -104,10 +104,12 @@ export default function FuncionariosTable({
 
   if (funcionarios.length === 0) {
     return (
-      <EmptyState
-        title="Nenhum funcionário cadastrado"
-        subtitle="Adicione funcionários para organizar o atendimento."
-      />
+      <div className="animate-fade-in-up flex flex-1 items-center justify-center">
+        <EmptyState
+          title="Nenhum funcionário cadastrado"
+          subtitle="Adicione funcionários para organizar o atendimento."
+        />
+      </div>
     );
   }
 
