@@ -37,7 +37,7 @@ export default function RefreshTimer({
       <button
         type="button"
         onClick={onRefreshNow}
-        className="flex w-full cursor-pointer items-center justify-center gap-1 rounded-sm bg-(--color-brand-primary) px-2.5 py-1.5 text-label-sm font-medium text-(--color-brand-on-primary) transition-colors duration-150 motion-reduce:transition-none hover:bg-(--color-brand-primary-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus)"
+        className="flex w-full cursor-pointer items-center justify-center gap-1 rounded-sm border border-(--color-border-subtle) bg-(--color-bg-canvas) px-2.5 py-1.5 text-label-sm font-medium text-(--color-text-secondary) transition-colors duration-150 motion-reduce:transition-none hover:border-(--color-border-focus) hover:bg-(--color-bg-input) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus)"
       >
         <LuRefreshCw className="size-3" />
         Buscar pedidos agora
