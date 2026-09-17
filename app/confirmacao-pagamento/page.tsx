@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import AccountNavbar from "../components/AccountNavbar";
 import Button from "../components/Button";
 import ProtectedRoute from "../components/ProtectedRoute";
 import SiteFooterNote from "../components/SiteFooterNote";
-import ConfirmacaoPagamentoNavbar from "./_components/ConfirmacaoPagamentoNavbar";
 import ReceiptCard from "./_components/ReceiptCard";
 import SuccessHeader from "./_components/SuccessHeader";
 
@@ -21,7 +21,7 @@ function ConfirmacaoPagamentoPageContent() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center overflow-hidden bg-(--color-bg-canvas)">
-      <ConfirmacaoPagamentoNavbar />
+      <AccountNavbar badge="Premium" />
 
       <div className="flex w-full flex-1 flex-col items-center justify-center gap-5 overflow-y-auto px-6 py-4 sm:px-20">
         <SuccessHeader />

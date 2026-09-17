@@ -1,10 +1,10 @@
 "use client";
 
+import AccountNavbar from "../components/AccountNavbar";
 import ProtectedRoute from "../components/ProtectedRoute";
 import SiteFooterNote from "../components/SiteFooterNote";
 import { useAuthStore } from "../lib/store/auth-store";
 import PremiumUpgradeHero from "./_components/PremiumUpgradeHero";
-import PremiumUpgradeNavbar from "./_components/PremiumUpgradeNavbar";
 import PricingPlanCard from "./_components/PricingPlanCard";
 import TrustSignals from "./_components/TrustSignals";
 
@@ -37,7 +37,7 @@ function PremiumUpgradePageContent() {
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-(--color-bg-canvas)">
-      <PremiumUpgradeNavbar />
+      <AccountNavbar />
       <PremiumUpgradeHero />
 
       <div className="flex w-full flex-col items-center justify-center gap-5 px-6 pt-2 pb-6 sm:flex-row sm:items-start sm:px-20">

@@ -1,5 +1,6 @@
 import { LuCheck } from "react-icons/lu";
 import Badge from "../../components/Badge";
+import PremiumButton from "../../components/PremiumButton";
 
 interface PricingPlanCardProps {
   variant: "free" | "premium";
@@ -99,14 +100,9 @@ export default function PricingPlanCard({
       </ul>
 
       {isPremium ? (
-        <button
-          type="button"
-          onClick={onAction}
-          disabled={actionDisabled}
-          className="w-full cursor-pointer rounded-md bg-(--color-status-warning-text) px-5 py-2.5 text-button font-bold text-white transition-colors duration-150 motion-reduce:transition-none hover:bg-(--color-brand-accent-amber) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus) disabled:cursor-not-allowed disabled:opacity-70"
-        >
+        <PremiumButton onClick={onAction} disabled={actionDisabled}>
           {actionLabel}
-        </button>
+        </PremiumButton>
       ) : (
         <button
           type="button"
