@@ -27,6 +27,7 @@ interface Order {
   id: string;
   table: string;
   status: OrderStatus;
+  waiterName: string;
   items: OrderDetailItem[];
   receivedAt: string;
 }
@@ -36,6 +37,7 @@ const initialOrders: Order[] = [
     id: "56",
     table: "Mesa 56",
     status: "em-preparo",
+    waiterName: "Carlos Silva",
     items: [{ name: "Coca-Cola Lata", qty: 1, price: 6 }],
     receivedAt: "14:02",
   },
@@ -43,6 +45,7 @@ const initialOrders: Order[] = [
     id: "52",
     table: "Mesa 52",
     status: "em-preparo",
+    waiterName: "Carlos Silva",
     items: [
       { name: "Coca-Cola Lata", qty: 1, price: 6 },
       { name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 },
@@ -53,6 +56,7 @@ const initialOrders: Order[] = [
     id: "12",
     table: "Mesa 12",
     status: "em-preparo",
+    waiterName: "Ana Souza",
     items: [{ name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 }],
     receivedAt: "14:41",
   },
@@ -60,6 +64,7 @@ const initialOrders: Order[] = [
     id: "8",
     table: "Mesa 8",
     status: "em-preparo",
+    waiterName: "Ana Souza",
     items: [
       { name: "Água Mineral", qty: 2, price: 6 },
       { name: "Picanha", qty: 1, price: 40 },
@@ -70,6 +75,7 @@ const initialOrders: Order[] = [
     id: "21",
     table: "Mesa 21",
     status: "pronto",
+    waiterName: "Carlos Silva",
     items: [{ name: "Pizza Marguerita", qty: 1, price: 42 }],
     receivedAt: "13:18",
   },
@@ -77,6 +83,7 @@ const initialOrders: Order[] = [
     id: "45",
     table: "Mesa 45",
     status: "cancelado",
+    waiterName: "Ana Souza",
     items: [{ name: "Coca-Cola Lata", qty: 1, price: 6 }],
     receivedAt: "12:47",
   },
@@ -84,6 +91,7 @@ const initialOrders: Order[] = [
     id: "3",
     table: "Mesa 3",
     status: "pendente",
+    waiterName: "Carlos Silva",
     items: [{ name: "Suco Natural", qty: 2, price: 8 }],
     receivedAt: "15:03",
   },
@@ -91,6 +99,7 @@ const initialOrders: Order[] = [
     id: "17",
     table: "Mesa 17",
     status: "pronto",
+    waiterName: "Ana Souza",
     items: [{ name: "Pizza Calabresa", qty: 1, price: 48 }],
     receivedAt: "13:40",
   },
@@ -98,6 +107,7 @@ const initialOrders: Order[] = [
     id: "29",
     table: "Mesa 29",
     status: "pendente",
+    waiterName: "Carlos Silva",
     items: [
       { name: "Guaraná Lata", qty: 1, price: 5 },
       { name: "Pudim", qty: 1, price: 10 },
@@ -108,6 +118,7 @@ const initialOrders: Order[] = [
     id: "34",
     table: "Mesa 34",
     status: "pronto",
+    waiterName: "Ana Souza",
     items: [{ name: "Picanha", qty: 1, price: 40 }],
     receivedAt: "12:58",
   },
@@ -115,6 +126,7 @@ const initialOrders: Order[] = [
     id: "9",
     table: "Mesa 9",
     status: "cancelado",
+    waiterName: "Carlos Silva",
     items: [{ name: "Petit Gateau", qty: 1, price: 14 }],
     receivedAt: "12:20",
   },
@@ -122,6 +134,7 @@ const initialOrders: Order[] = [
     id: "41",
     table: "Mesa 41",
     status: "pendente",
+    waiterName: "Ana Souza",
     items: [{ name: "Pizza Marguerita", qty: 1, price: 42 }],
     receivedAt: "15:21",
   },
@@ -129,6 +142,7 @@ const initialOrders: Order[] = [
     id: "18",
     table: "Mesa 18",
     status: "pronto",
+    waiterName: "Carlos Silva",
     items: [
       { name: "Coca-Cola Lata", qty: 2, price: 6 },
       { name: "Pizza Calabresa", qty: 1, price: 48 },
@@ -139,6 +153,7 @@ const initialOrders: Order[] = [
     id: "27",
     table: "Mesa 27",
     status: "pendente",
+    waiterName: "Ana Souza",
     items: [{ name: "Água Mineral", qty: 3, price: 6 }],
     receivedAt: "15:30",
   },
@@ -254,6 +269,7 @@ function PedidosPageContent() {
         onClose={() => setDetailsOpen(false)}
         order={{
           table: selectedOrder.table,
+          waiterName: selectedOrder.waiterName,
           items: selectedOrder.items,
           isInProgress: selectedOrder.status === "em-preparo",
           receivedAt: selectedOrder.receivedAt,

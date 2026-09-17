@@ -11,6 +11,7 @@ export interface OrderDetailItem {
 
 export interface OrderDetail {
   table: string;
+  waiterName?: string;
   items: OrderDetailItem[];
   isInProgress: boolean;
   receivedAt: string;
@@ -46,6 +47,17 @@ export default function OrderDetailModal({
             {order.table}
           </p>
         </div>
+
+        {order.waiterName && (
+          <div className="flex items-center gap-1.5 text-body-sm">
+            <span className="font-medium text-[color:var(--color-text-secondary)]">
+              Garçom:
+            </span>
+            <span className="text-[color:var(--color-text-primary)]">
+              {order.waiterName}
+            </span>
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           <p className="text-label-sm font-bold tracking-[0.5px] text-[color:var(--color-text-tertiary)] uppercase">

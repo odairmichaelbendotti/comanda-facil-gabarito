@@ -323,6 +323,7 @@ export default function PreviewPage() {
           onClose={() => setOrderDetailOpen(false)}
           order={{
             table: "Mesa 52",
+            waiterName: "Carlos Silva",
             items: [
               { name: "Coca-Cola Lata", qty: 1, price: 6 },
               { name: "Pizza Frango c/ Catupiry", qty: 1, price: 30 },
