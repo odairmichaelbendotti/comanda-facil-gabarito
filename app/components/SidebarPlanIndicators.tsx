@@ -1,6 +1,7 @@
 import { LuPackage, LuStar } from "react-icons/lu";
 
 interface SidebarPlanIndicatorsProps {
+  loading?: boolean;
   premium?: boolean;
   ordersUsed?: number;
   ordersLimit?: number;
@@ -9,6 +10,7 @@ interface SidebarPlanIndicatorsProps {
 }
 
 export default function SidebarPlanIndicators({
+  loading = false,
   premium = false,
   ordersUsed = 17,
   ordersLimit = 30,
@@ -16,6 +18,23 @@ export default function SidebarPlanIndicators({
   className = "",
 }: SidebarPlanIndicatorsProps) {
   const usagePercent = Math.min(100, (ordersUsed / ordersLimit) * 100);
+
+  if (loading) {
+    return (
+      <div className={`flex w-full flex-1 flex-col gap-3 ${className}`}>
+        <div className="flex w-full animate-pulse flex-col gap-2.5 rounded-md border border-(--color-border-subtle) bg-(--color-status-neutral-bg) p-3 motion-reduce:animate-none">
+          <div className="flex w-full items-center gap-2">
+            <div className="size-4 shrink-0 rounded bg-(--color-status-neutral-border)" />
+            <div className="h-3.5 w-24 rounded bg-(--color-status-neutral-border)" />
+          </div>
+          <div className="flex w-full flex-col gap-1.5">
+            <div className="h-3 w-32 rounded bg-(--color-status-neutral-border)" />
+            <div className="h-1 w-full rounded-full bg-(--color-status-neutral-border)" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (premium) {
     return (

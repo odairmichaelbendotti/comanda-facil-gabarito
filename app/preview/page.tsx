@@ -419,6 +419,7 @@ export default function PreviewPage() {
           <SidebarPlanIndicators ordersUsed={17} ordersLimit={30} />
           <SidebarPlanIndicators ordersUsed={28} ordersLimit={30} />
           <SidebarPlanIndicators premium />
+          <SidebarPlanIndicators loading />
         </div>
       </Section>
 

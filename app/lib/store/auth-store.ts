@@ -21,6 +21,12 @@ export interface PlanoInfo {
 interface AuthState {
   user: AuthUser | null;
   plano: PlanoInfo | null;
+  // True once a `plano` object has actually arrived from the server at least
+  // once (ProtectedRoute's session check) — distinct from `plano !== null`
+  // because login/cadastro call setUser without a plano, leaving it null on
+  // purpose until that first real fetch lands. Sidebar uses this to tell
+  // "still loading" apart from "loaded, and it's null".
+  planoLoaded: boolean;
   isAuthenticated: boolean;
   hasHydrated: boolean;
   setUser: (user: AuthUser, plano?: PlanoInfo | null) => void;
@@ -33,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       plano: null,
+      planoLoaded: false,
       isAuthenticated: false,
       hasHydrated: false,
       // The actual credential check happens server-side (/api/auth/login,
@@ -43,8 +50,15 @@ export const useAuthStore = create<AuthState>()(
       // re-deriving it from the cookie on every render. `plano` is omitted
       // right after login/cadastro (those endpoints don't return it) and
       // filled in moments later by ProtectedRoute's session check.
-      setUser: (user, plano = null) => set({ user, plano, isAuthenticated: true }),
-      logout: () => set({ user: null, plano: null, isAuthenticated: false }),
+      setUser: (user, plano = null) =>
+        set((state) => ({
+          user,
+          plano,
+          isAuthenticated: true,
+          planoLoaded: state.planoLoaded || plano !== null,
+        })),
+      logout: () =>
+        set({ user: null, plano: null, planoLoaded: false, isAuthenticated: false }),
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {

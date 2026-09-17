@@ -52,6 +52,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const plano = useAuthStore((state) => state.plano);
+  const planoLoaded = useAuthStore((state) => state.planoLoaded);
   const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
         userName={user?.name}
         plano={plano}
         showPlanIndicators={showPlanIndicators}
+        planoLoading={showPlanIndicators && !planoLoaded}
         onLogout={handleLogout}
         onUpgradeClick={handleUpgradeClick}
         className="hidden md:flex"
@@ -134,6 +136,7 @@ export default function AppShell({ activeHref, children }: AppShellProps) {
           userName={user?.name}
           plano={plano}
           showPlanIndicators={showPlanIndicators}
+          planoLoading={showPlanIndicators && !planoLoaded}
           onLogout={handleLogout}
           onUpgradeClick={handleUpgradeClick}
         />

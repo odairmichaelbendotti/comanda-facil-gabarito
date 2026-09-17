@@ -19,6 +19,7 @@ interface SidebarProps {
   userName?: string;
   plano?: PlanoInfo | null;
   showPlanIndicators?: boolean;
+  planoLoading?: boolean;
   onLogout?: () => void;
   onUpgradeClick?: () => void;
   className?: string;
@@ -30,6 +31,7 @@ export default function Sidebar({
   userName = "Odair Michael",
   plano,
   showPlanIndicators = true,
+  planoLoading = false,
   onLogout,
   onUpgradeClick,
   className = "",
@@ -59,6 +61,7 @@ export default function Sidebar({
 
       {showPlanIndicators ? (
         <SidebarPlanIndicators
+          loading={planoLoading}
           premium={plano?.premium}
           ordersUsed={plano?.pedidosUsados}
           ordersLimit={plano?.pedidosLimite ?? undefined}
