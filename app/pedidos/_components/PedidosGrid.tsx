@@ -1,3 +1,4 @@
+import EmptyState from "../../components/EmptyState";
 import OrderCard from "../../components/OrderCard";
 import Pagination from "../../components/Pagination";
 import { formatCurrency } from "../../lib/format";
@@ -75,9 +76,12 @@ export default function PedidosGrid({
 
   if (pageItems.length === 0) {
     return (
-      <p className="animate-fade-in-up text-body-md text-(--color-text-secondary)">
-        Nenhum pedido encontrado para este filtro.
-      </p>
+      <div className="animate-fade-in-up flex flex-1 items-center justify-center">
+        <EmptyState
+          title="Nenhum pedido encontrado"
+          subtitle="Nenhum pedido encontrado para este filtro."
+        />
+      </div>
     );
   }
 
