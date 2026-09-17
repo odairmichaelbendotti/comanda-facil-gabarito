@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Badge from "./components/Badge";
 import Button from "./components/Button";
 import Logo from "./components/Logo";
 import OrderCard from "./components/OrderCard";
+import { useAuthStore } from "./lib/store/auth-store";
 
 function useRevealOnScroll<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
@@ -181,6 +183,37 @@ function PricingCard({
 }
 
 export default function LandingPage() {
+  const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/auth/sessao", { cache: "no-store" })
+      .then(async (response) => {
+        if (cancelled || !response.ok) return;
+
+        const data = await response.json();
+        setUser(
+          {
+            id: data.id,
+            name: data.nome,
+            role: data.role,
+            estabelecimentoId: data.estabelecimentoId,
+          },
+          data.plano,
+        );
+        router.replace("/pedidos");
+      })
+      .catch(() => {
+        // Sem sessão válida (ou erro de rede) - permanece na landing normalmente.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router, setUser]);
+
   return (
     <div className="min-h-screen bg-(--color-bg-canvas)">
       {/* Navbar */}
