@@ -182,11 +182,11 @@ export default function NewOrderModal({
           <p className="text-label-sm font-semibold text-[color:var(--color-text-secondary)]">
             Itens do Cardápio
           </p>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             {menu.map((category) => {
               const isExpanded = expandedCategory === category.key;
               return (
-                <div key={category.key} className="flex flex-col gap-1">
+                <div key={category.key} className="flex flex-col gap-0.5">
                   <AccordionHeader
                     title={category.label}
                     itemCount={category.items.length}
@@ -202,24 +202,19 @@ export default function NewOrderModal({
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <div className="flex flex-col gap-0.5 rounded-md border border-(--color-border-subtle) bg-(--color-bg-canvas) p-1.5">
+                      <div className="flex flex-col gap-0.5 px-1 pt-0.5">
                         {category.items.map((item) => {
                           const itemKey = String(item.id);
-                          const selected = (quantities[itemKey] ?? 0) > 0;
                           return (
                             <div
                               key={itemKey}
-                              className={`flex items-center justify-between gap-3 rounded-sm px-3 py-2.5 transition-colors duration-150 motion-reduce:transition-none ${
-                                selected
-                                  ? "bg-(--color-status-neutral-bg)"
-                                  : "hover:bg-(--color-bg-input)"
-                              }`}
+                              className="flex items-center justify-between gap-3 px-3 py-2.5"
                             >
-                              <p className="min-w-0 flex-1 truncate text-body-md text-(--color-text-primary)">
+                              <p className="min-w-0 flex-1 truncate text-body-md text-[color:var(--color-text-primary)]">
                                 {item.nome}
                               </p>
                               <div className="flex shrink-0 items-center gap-5">
-                                <p className="text-body-md font-semibold text-(--color-text-secondary)">
+                                <p className="text-body-md font-semibold text-[color:var(--color-text-secondary)]">
                                   {formatCurrency(item.preco)}
                                 </p>
                                 <QuantityStepper
