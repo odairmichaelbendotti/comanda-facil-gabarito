@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { StatusAssinatura } from "@/generated/prisma/enums";
 import { prisma } from "@/app/lib/prisma";
 import { SESSION_COOKIE_NAME, readSessionToken } from "@/app/lib/auth/session";
+import { PEDIDOS_LIMITE_GRATUITO } from "@/app/lib/plano";
 
 // The Postgres driver adapter (@prisma/adapter-pg) needs Node's net/tls, so
 // this route can't run on the Edge runtime — nothing to do with jose here,
@@ -14,8 +15,6 @@ export const runtime = "nodejs";
 // that cache next.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const PEDIDOS_LIMITE_GRATUITO = 50;
 
 function noSessionResponse() {
   // Every "not actually logged in" case — missing cookie, invalid or expired

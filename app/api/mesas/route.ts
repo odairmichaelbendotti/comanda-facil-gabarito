@@ -3,6 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { RoleUsuario } from "@/generated/prisma/enums";
 import { prisma } from "@/app/lib/prisma";
 import { getSessionFromRequest } from "@/app/lib/auth/session";
+import { isEstabelecimentoPremium, MESAS_LIMITE_GRATUITO } from "@/app/lib/plano";
 import { mesaSchema } from "@/app/lib/validation/mesa";
 
 // Prisma's Postgres driver adapter (@prisma/adapter-pg) needs a raw TCP socket
@@ -83,6 +84,21 @@ export async function POST(request: NextRequest) {
       { error: firstIssue?.message ?? "Dados inválidos" },
       { status: 400 },
     );
+  }
+
+  // Plano gratuito cadastra no máximo MESAS_LIMITE_GRATUITO mesas — premium
+  // não tem esse teto, mesma ideia de pedidosLimite: null em /api/auth/sessao.
+  const premium = await isEstabelecimentoPremium(session.estabelecimentoId);
+  if (!premium) {
+    const mesasAtivas = await prisma.mesa.count({
+      where: { estabelecimentoId: session.estabelecimentoId, deletedAt: null },
+    });
+    if (mesasAtivas >= MESAS_LIMITE_GRATUITO) {
+      return NextResponse.json(
+        { error: `Plano gratuito permite no máximo ${MESAS_LIMITE_GRATUITO} mesas` },
+        { status: 422 },
+      );
+    }
   }
 
   let mesa;
