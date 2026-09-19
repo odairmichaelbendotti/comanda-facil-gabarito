@@ -50,15 +50,19 @@ export const useAuthStore = create<AuthState>()(
       // re-deriving it from the cookie on every render. `plano` is omitted
       // right after login/cadastro (those endpoints don't return it) and
       // filled in moments later by ProtectedRoute's session check.
-      setUser: (user, plano = null) =>
+      setUser: (user, plano = null) => {
+        console.log("[auth-store] setUser called with:", user, "plano:", plano);
         set((state) => ({
           user,
           plano,
           isAuthenticated: true,
           planoLoaded: state.planoLoaded || plano !== null,
-        })),
-      logout: () =>
-        set({ user: null, plano: null, planoLoaded: false, isAuthenticated: false }),
+        }));
+      },
+      logout: () => {
+        console.log("[auth-store] logout called");
+        set({ user: null, plano: null, planoLoaded: false, isAuthenticated: false });
+      },
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
