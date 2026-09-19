@@ -10,7 +10,9 @@ import {
 } from "@/app/lib/auth/session";
 import { cadastroSchema } from "@/app/lib/validation/cadastro";
 
-// bcrypt and jose both need Node APIs, so this route can't run on the Edge runtime.
+// Neither bcryptjs nor jose actually require it — the real blocker is Prisma's
+// Postgres driver adapter (@prisma/adapter-pg), which needs a raw TCP socket
+// (Node's net/tls) that the Edge runtime doesn't provide.
 export const runtime = "nodejs";
 
 // Prisma 7's driver-adapter clients (PrismaPg here) don't populate the classic
