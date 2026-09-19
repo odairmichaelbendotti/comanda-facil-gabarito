@@ -46,7 +46,7 @@ function Testimonial({ quote, name, role }: TestimonialProps) {
       className={`bg-(--color-bg-canvas) flex flex-1 flex-col gap-4 rounded-lg p-8 ${visible ? "animate-fade-in-up" : "opacity-0"}`}
     >
       <p className="font-regular text-body-md text-(--color-text-secondary) leading-relaxed">
-        "{quote}"
+        {quote}
       </p>
       <div className="flex items-center gap-3">
         <div className="size-10 rounded-full bg-(--color-brand-primary)" />
@@ -222,7 +222,6 @@ export default function LandingPage() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Logo size="lg" />
-            <Badge variant="success">SaaS</Badge>
           </div>
 
           {/* Nav Links - Hidden on mobile */}
@@ -282,10 +281,9 @@ export default function LandingPage() {
                 Seu restaurante sob controle, do pedido à entrega
               </h1>
               <p className="text-body-lg leading-relaxed text-(--color-text-secondary)">
-                Simplifique o gerenciamento do seu restaurante. Controle
-                pedidos em produção, gerencie garçons, organize o fluxo de
-                mesas e atualize seu cardápio em tempo real com facilidade e
-                eficiência.
+                Simplifique o gerenciamento do seu restaurante. Controle pedidos
+                em produção, gerencie garçons, organize o fluxo de mesas e
+                atualize seu cardápio em tempo real com facilidade e eficiência.
               </p>
             </div>
 
@@ -365,8 +363,8 @@ export default function LandingPage() {
             </h2>
             <p className="max-w-2xl text-body-lg text-(--color-text-secondary)">
               Nossa plataforma foi desenhada especificamente para a dinâmica
-              ágil de restaurantes, eliminando gargalos de produção e
-              acelerando o tempo de entrega.
+              ágil de restaurantes, eliminando gargalos de produção e acelerando
+              o tempo de entrega.
             </p>
           </div>
 
@@ -400,8 +398,8 @@ export default function LandingPage() {
               O plano ideal para o tamanho do seu negócio
             </h2>
             <p className="max-w-2xl text-body-lg text-(--color-text-secondary)">
-              Comece gratuitamente para experimentar nossas facilidades e
-              mude para o Premium conforme sua operação expandir.
+              Comece gratuitamente para experimentar nossas facilidades e mude
+              para o Premium conforme sua operação expandir.
             </p>
           </div>
 
@@ -412,8 +410,8 @@ export default function LandingPage() {
               period="/ sempre grátis"
               description="Para pizzerias iniciantes que precisam do controle básico e com pouca movimentação."
               features={[
-                { text: "Até 50 pedidos por mês", included: true },
-                { text: "Cadastro de até 5 mesas", included: true },
+                { text: "Até 100 pedidos por mês", included: true },
+                { text: "Cadastro de até 10 mesas", included: true },
                 { text: "Cadastro simplificado de produtos", included: true },
                 { text: "Sem relatórios avançados", included: false },
                 { text: "Suporte padrão por e-mail", included: false },
