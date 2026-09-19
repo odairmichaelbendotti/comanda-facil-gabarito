@@ -1329,15 +1329,15 @@ pre .booleano{color:#ce93d8}
       <button class="alternar" aria-label="Ver detalhes"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     <div class="detalhe">
-      <div class="bloco"><h3>O que faz</h3><p>Marca <span class="mono">deleted_at</span>. A pessoa some da lista e perde o acesso, mas os pedidos que ela lançou continuam existindo.</p></div>
+      <div class="bloco"><h3>O que faz</h3><p>Remove a linha de verdade (<span class="mono">DELETE</span>). A pessoa some da lista e perde o acesso; os pedidos que ela lançou continuam existindo, com o nome congelado em <span class="mono">pedidos.nome_garcom</span>.</p></div>
       <div class="bloco"><div class="porque"><strong>Por que fecha a fase:</strong> com a equipe montada e removível, o cenário do admin está completo — daqui em diante quem age é garçom e cozinha.</div></div>
       <div class="bloco"><h3>Resposta 204</h3><p>Sem corpo.</p></div>
       <div class="bloco"><h3>Regras</h3>
         <ul class="regras">
-          <li class="critica">É exclusão lógica justamente porque <span class="mono">pedidos.garcom_id</span> tem <span class="mono">onDelete: Restrict</span> — apagar de verdade quebraria todo pedido que a pessoa lançou.</li>
+          <li class="critica">É exclusão física de propósito, pra liberar o CPF pra recontratação: <span class="mono">pedidos.garcom_id</span> é opcional com <span class="mono">onDelete: SetNull</span>, e <span class="mono">pedidos.nome_garcom</span> já guarda o nome congelado no momento do pedido — apagar a pessoa não quebra o histórico.</li>
           <li class="critica">O admin não pode excluir a si mesmo nem outro admin: o estabelecimento ficaria sem dono e sem ninguém para gerenciar.</li>
-          <li>Quem foi excluído não passa mais no login, mesmo com a senha certa.</li>
-          <li>O CPF continua ocupado (UNIQUE global): recontratar a pessoa é reativar o cadastro, não criar outro.</li>
+          <li>Quem foi excluído não passa mais no login — a linha não existe mais.</li>
+          <li>O CPF (UNIQUE global) fica livre depois da exclusão: recontratar a pessoa é criar um cadastro novo, não reativar o antigo.</li>
         </ul>
       </div>
       <div class="bloco"><h3>Erros</h3>
