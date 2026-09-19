@@ -75,7 +75,17 @@ export default function AppShell({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
 
-  function handleLogout() {
+  async function handleLogout() {
+    // Sem isso, o cookie httpOnly de sessão continua válido no navegador —
+    // limpar só o estado local (Zustand) não desconecta nada de verdade, e
+    // /login mandaria a pessoa de volta a /pedidos por já achar uma sessão
+    // válida no próximo GET /api/auth/sessao.
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Sem rede: segue com o logout local mesmo assim, para não prender a
+      // pessoa numa tela autenticada por causa de um erro de conexão.
+    }
     logout();
     router.push("/login");
   }
