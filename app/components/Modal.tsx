@@ -16,6 +16,17 @@ interface ModalProps {
 export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  // Callers routinely pass an inline onClose (a new function identity every
+  // render of the parent — e.g. /pedidos re-renders every second for its
+  // countdown). Putting onClose straight in the effect's deps would tear
+  // down and re-run this whole setup that often, re-stealing focus to the
+  // first focusable element and closing whatever the user had open (a native
+  // <select> popup included) — a ref sidesteps that without requiring every
+  // caller to useCallback their onClose.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -32,7 +43,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -94,7 +105,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       document.body.style.overflow = previousOverflow;
       previouslyFocusedRef.current?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return (
     <div
